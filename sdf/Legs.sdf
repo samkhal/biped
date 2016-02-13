@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sdf version="1.5">
+  <model name="Legs">
+    <pose>0 0 0.65 0 3.14159 3.14159265</pose>
+    <link name="Body">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.00768175850954472 0.000179265906440795 0.00193782303055878 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>1</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>3.53324885586669</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.0271179077728006</ixx>
+          <ixy>1.18852566353165E-05</ixy>
+          <ixz>2.95478792996178E-05</ixz>
+          <iyy>0.0323353494450389</iyy>
+          <iyz>0.00289482168449843</iyz>
+          <izz>0.0422145237899791</izz>
+        </inertia>
+      </inertial>
+      <visual name="Body_visual">
+        <pose>-0.0592288541830322 -0.411233517898115 -0.0807174320615723 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Body.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+
+
+    <!-- uncomment for grounded top of robot>
+    <joint name="joint_02" type="revolute">
+        <parent>world</parent>
+        <child>Body</child>
+    </joint>-->
+    <link name="Left_Hip">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-0.00302071721011885 0.0904826315882399 0.0801332115460175 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.437298303222343</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.000344658356089893</ixx>
+          <ixy>1.44389409480782E-05</ixy>
+          <ixz>5.03774354824887E-05</ixz>
+          <iyy>0.000819710121372741</iyy>
+          <iyz>1.99893504999303E-05</iyz>
+          <izz>0.000669559632846757</izz>
+        </inertia>
+      </inertial>
+      <visual name="Left_Hip_visual">
+        <pose>0.0310745114987668 -0.33309394388447 -0.0696147862246666 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Hip.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Body-Left_Hip" type="revolute">
+      <parent>Body</parent>
+      <child>Left_Hip</child>
+      <pose>0.0349201315882379 -0.0309913823372614 -0.000158658129443795 0 0 0</pose>
+      <axis>
+        <xyz>2.26631087592091E-16 0.00511936023589068 -0.99998689598953</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Top_Left_Leg">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-0.0548610147832719 0.136159037985039 0.186134372336002 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.498661420183801</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.0022202328840653</ixx>
+          <ixy>2.25938202171209E-05</ixy>
+          <ixz>1.58874590925852E-05</ixz>
+          <iyy>0.000900377243940707</iyy>
+          <iyz>0.00103894283838232</iyz>
+          <izz>0.00154105773276496</izz>
+        </inertia>
+      </inertial>
+      <visual name="Top_Left_Leg_visual">
+        <pose>0.0767509178955661 -0.22735956129282 -0.0172325098398092 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Top_Left_Leg.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Left_Hip-Top_Left_Leg" type="revolute">
+      <parent>Left_Hip</parent>
+      <child>Top_Left_Leg</child>
+      <pose>1.56819002228303E-15 0.0747275361148179 0.0552442958820208 0 0 0</pose>
+      <axis>
+        <xyz>1 3.25395847830803E-16 2.15461205798195E-16</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Bottom_Left_Leg">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-0.0618431287041254 0.132087653975484 0.383208200273793 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.559939379300119</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00244450241697025</ixx>
+          <ixy>3.69654298731094E-07</ixy>
+          <ixz>6.79717535660184E-07</ixz>
+          <iyy>0.000755387980562578</iyy>
+          <iyz>0.000916506613563391</iyz>
+          <izz>0.00193582631963136</izz>
+        </inertia>
+      </inertial>
+      <visual name="Bottom_Left_Leg_visual">
+        <pose>0.072679533886011 -0.0303240597689022 -0.0092415954943702 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Bottom_Left_Leg.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Top_Left_Leg-Bottom_Left_Leg" type="revolute">
+      <parent>Top_Left_Leg</parent>
+      <child>Bottom_Left_Leg</child>
+      <pose>1.67921232474555E-15 0.102933646405913 -0.060893107073452 0 0 0</pose>
+      <axis>
+        <xyz>1 -3.85202525990067E-16 6.26498440573433E-17</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Left_Ankle">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.0022715979763874 0.132578252990325 0.477747055061699 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.117207342953091</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.0001118971373696</ixx>
+          <ixy>1.03258004756412E-07</ixy>
+          <ixz>2.63723484214595E-06</ixz>
+          <iyy>0.000113499651845419</iyy>
+          <iyz>1.29932430255768E-05</iyz>
+          <izz>3.45468575487321E-05</izz>
+        </inertia>
+      </inertial>
+      <visual name="Left_Ankle_visual">
+        <pose>0.0731701329008523 0.0645417825631641 -0.0728715035608855 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Ankle.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Bottom_Left_Leg-Left_Ankle" type="revolute">
+      <parent>Bottom_Left_Leg</parent>
+      <child>Left_Ankle</child>
+      <pose>1.60982338570648E-15 -0.000389575645607113 -0.0260609167835086 0 0 0</pose>
+      <axis>
+        <xyz>1 4.12104646912222E-16 -2.42583221004443E-16</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    
+    <link name="Left_Foot">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-0.100191233799919 0.133056514591249 0.510411516255908 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.350801135347807</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.000903634359316998</ixx>
+          <ixy>6.81631434892799E-06</ixy>
+          <ixz>6.41865216088924E-06</ixz>
+          <iyy>0.000881949331142604</iyy>
+          <iyz>0.000189334412776746</iyz>
+          <izz>0.000194697308399392</izz>
+        </inertia>
+      </inertial>
+      <collision name="Left_Foot_collision">
+        <pose>0.073648394501776 0.0966812715752798 0.0297572066851651 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Foot_col.STL</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode />
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="Left_Foot_visual">
+        <pose>0.073648394501776 0.0966812715752798 0.0297572066851651 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Foot.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Left_Ankle-Left_Foot" type="revolute">
+      <parent>Left_Ankle</parent>
+      <child>Left_Foot</child>
+      <pose>-0.000293485408752292 0.0270907246106346 0.00530017435922181 0 0 0</pose>
+      <axis>
+        <xyz>-1.04083408558608E-16 0.19200515846965 -0.981393916386812</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Left_Toe">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>-0.198434376512781 0.128835624158432 0.49853829846599 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.137471306967525</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>5.13428369228838E-05</ixx>
+          <ixy>4.87352564894428E-06</ixy>
+          <ixz>3.09756363634257E-06</ixz>
+          <iyy>5.9551310496803E-05</iyy>
+          <iyz>8.34215292948262E-06</iyz>
+          <izz>2.7574447290241E-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="Left_Toe_collision">
+        <pose>0.0694275040689593 0.084305267333879 0.127938278739831 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Toe_col.STL</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode />
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="Left_Toe_visual">
+        <pose>0.0694275040689593 0.084305267333879 0.127938278739831 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Left_Toe.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Left_Foot-Left_Toe" type="revolute">
+      <parent>Left_Foot</parent>
+      <child>Left_Toe</child>
+      <pose>5.08453102975037E-06 -0.00618736148598757 0.0312100585828985 0 0 0</pose>
+      <axis>
+        <xyz>0.997973600934605 0.0624454389186932 0.01221715989379</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Right_Hip">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.00312994663933749 -0.0901751230559593 0.0802442173910227 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.429542604129865</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.000335620222780637</ixx>
+          <ixy>1.71766252899158E-05</ixy>
+          <ixz>6.82036560203187E-05</ixz>
+          <iyy>0.000796625170345829</iyy>
+          <iyz>1.87749814800264E-05</iyz>
+          <izz>0.000651844767117382</izz>
+        </inertia>
+      </inertial>
+      <visual name="Right_Hip_visual">
+        <pose>-0.149583243145432 -0.332951452030152 -0.0757648011968506 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Hip.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Body-Right_Hip" type="revolute">
+      <parent>Body</parent>
+      <child>Right_Hip</child>
+      <pose>-0.0346126230559593 -0.0308803779468804 -0.000158089850541568 0 1.56567694419749 3.1364732709924</pose>
+      <axis>
+        <xyz>-0.999973926318196 0.00511929315173976 0.00509308564596344</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Top_Right_Leg">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.0064724412393402 -0.130809955126275 0.205180981422238 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.473894644129491</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00219613507963254</ixx>
+          <ixy>2.40586911361442E-05</ixy>
+          <ixz>2.21507685447765E-06</ixz>
+          <iyy>0.00013957904599556</iyy>
+          <iyz>0.000138530235433403</iyz>
+          <izz>0.00227576384193981</izz>
+        </inertia>
+      </inertial>
+      <visual name="Top_Right_Leg_visual">
+        <pose>-0.190218075215748 -0.207999213737656 -0.0784676556949869 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Top_Right_Leg.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Right_Hip-Top_Right_Leg" type="revolute">
+      <parent>Right_Hip</parent>
+      <child>Top_Right_Leg</child>
+      <pose>3.05311331771918E-16 0.0940878836699856 -0.00599084997316941 0 0 0</pose>
+      <axis>
+        <xyz>1 2.71894623509211E-16 -5.22931016173689E-18</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Bottom_Right_Leg">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.115139983212419 -0.134269631890593 0.377853478776962 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.562143515434244</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.00243275192303071</ixx>
+          <ixy>1.42384112825202E-05</ixy>
+          <ixz>2.9655382212159E-05</ixz>
+          <iyy>0.00182049740298604</iyy>
+          <iyz>0.000973515781838336</iyz>
+          <izz>0.000848965740644351</izz>
+        </inertia>
+      </inertial>
+      <visual name="Bottom_Right_Leg_visual">
+        <pose>-0.193677751980066 -0.0347726707918373 -0.186249800970668 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Bottom_Right_Leg.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Top_Right_Leg-Bottom_Right_Leg" type="revolute">
+      <parent>Top_Right_Leg</parent>
+      <child>Bottom_Right_Leg</child>
+      <pose>-4.9960036108132E-16 0.0582249077311838 -0.099888630207549 0 0 0</pose>
+      <axis>
+        <xyz>1 -4.48397327428907E-16 9.21404313790441E-17</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Right_Ankle">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.223241481104244 -0.134143350548776 0.431041298967327 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.113529394776609</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.000102683650726326</ixx>
+          <ixy>1.10048891971433E-06</ixy>
+          <ixz>2.23477907251397E-06</ixz>
+          <iyy>8.45946830403131E-05</iyy>
+          <iyz>3.39608024178375E-05</iyz>
+          <izz>5.41062178046503E-05</izz>
+        </inertia>
+      </inertial>
+      <visual name="Right_Ankle_visual">
+        <pose>-0.193551470638249 0.0189678629345229 -0.294077594687617 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Ankle.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Bottom_Right_Leg-Right_Ankle" type="revolute">
+      <parent>Bottom_Right_Leg</parent>
+      <child>Right_Ankle</child>
+      <pose>-1.94289029309402E-16 -0.0123799591796743 -0.0246538351894772 0 0 0</pose>
+      <axis>
+        <xyz>1 4.24065551575166E-16 -6.60791630014945E-16</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Right_Foot">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.140814046657591 -0.126081076002634 0.505467244008859 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.335422480362735</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>0.000829521523535236</ixx>
+          <ixy>1.42215919206188E-05</ixy>
+          <ixz>2.86900349166642E-06</ixz>
+          <iyy>0.000842559789853102</iyy>
+          <iyz>0.000105554116604612</iyz>
+          <izz>0.000147263437908165</izz>
+        </inertia>
+      </inertial>
+      <collision name="Right_Foot_collision">
+        <pose>-0.185489196092107 0.0929708569674398 -0.211270227147363 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Foot_col.STL</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode />
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="Right_Foot_visual">
+        <pose>-0.185489196092107 0.0929708569674398 -0.211270227147363 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Foot.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Right_Ankle-Right_Foot" type="revolute">
+      <parent>Right_Ankle</parent>
+      <child>Right_Foot</child>
+      <pose>0.00726892399736426 0.0269453375785761 -0.00660748251251006 0 0 0</pose>
+      <axis>
+        <xyz>-8.10115863281169E-16 0.238161987539767 0.971225446377466</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+    <link name="Right_Toe">
+      <gravity>1</gravity>
+      <self_collide>0</self_collide>
+      <pose>0.0482978071678332 -0.130431537948153 0.52806743442158 -1.57591570939229 -1.09960843565691E-16 -1.5707963267949</pose>
+      <must_be_base_link>0</must_be_base_link>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+      <inertial>
+        <mass>0.139661985071308</mass>
+        <pose>0 0 0 0 0 0</pose>
+        <inertia>
+          <ixx>5.18677292860377E-05</ixx>
+          <ixy>9.96500122938222E-07</ixy>
+          <ixz>4.36419833922011E-06</ixz>
+          <iyy>6.5741842064624E-05</iyy>
+          <iyz>4.51832032055873E-07</iyz>
+          <izz>2.6595765607135E-05</izz>
+        </inertia>
+      </inertial>
+      <collision name="Right_Toe_collision">
+        <pose>-0.189839658037626 0.115097127269411 -0.118639501475254 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Toe_col.STL</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode />
+          </contact>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="Right_Toe_visual">
+        <pose>-0.189839658037626 0.115097127269411 -0.118639501475254 0 0 0</pose>
+        <material>
+          <ambient>1 0 0 1</ambient>
+          <diffuse>1 0 0 1</diffuse>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://Legs/meshes/Right_Toe.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="Right_Foot-Right_Toe" type="revolute">
+      <parent>Right_Foot</parent>
+      <child>Right_Toe</child>
+      <pose>-0.00148296137265616 0.000204687556132996 0.0312825868778026 0 0 0</pose>
+      <axis>
+        <xyz>0.979723026174111 -0.194591488428595 0.0477173408247628</xyz>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+        <limit>
+          <effort>1</effort>
+        </limit>
+      </axis>
+    </joint>
+  </model>
+</sdf>

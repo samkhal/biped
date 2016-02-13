@@ -1,0 +1,280 @@
+<?xml version="1.0" ?>
+<robot name="Legs">
+  <joint name="Legs__Body-Left_Hip" type="fixed">
+    <parent link="Legs__Body"/>
+    <child link="Legs__Left_Hip"/>
+    <origin rpy="1.56568  0       1.57079" xyz="-0.00302 -0.05556  0.53887"/>
+    <axis xyz="0       0.00511 -0.99998"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Left_Hip-Top_Left_Leg" type="fixed">
+    <parent link="Legs__Left_Hip"/>
+    <child link="Legs__Top_Left_Leg"/>
+    <origin rpy="0  0  0" xyz="-8.05900000e-02  -1.00000000e-05   3.02000000e-03"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Top_Left_Leg-Bottom_Left_Leg" type="fixed">
+    <parent link="Legs__Top_Left_Leg"/>
+    <child link="Legs__Bottom_Left_Leg"/>
+    <origin rpy="0  0  0" xyz="0.00407 -0.16882 -0.12412"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Bottom_Left_Leg-Left_Ankle" type="fixed">
+    <parent link="Legs__Bottom_Left_Leg"/>
+    <child link="Legs__Left_Ankle"/>
+    <origin rpy="0  0  0" xyz="-0.00049 -0.19818  0.09846"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Left_Ankle-Left_Foot" type="fixed">
+    <parent link="Legs__Left_Ankle"/>
+    <child link="Legs__Left_Foot"/>
+    <origin rpy="0  0  0" xyz="-0.00077 -0.00465 -0.07126"/>
+    <axis xyz="0       0.192   -0.98139"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Left_Foot-Left_Toe" type="fixed">
+    <parent link="Legs__Left_Foot"/>
+    <child link="Legs__Left_Toe"/>
+    <origin rpy="0  0  0" xyz="0.00451 -0.0209  -0.07227"/>
+    <axis xyz="0.99797  0.06244  0.01221"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Body-Right_Hip" type="fixed">
+    <parent link="Legs__Body"/>
+    <child link="Legs__Right_Hip"/>
+    <origin rpy="-1.56565  0.00509 -3.13647" xyz="0.00313  0.05556  0.53887"/>
+    <axis xyz="-0.99997  0.00511  0.00509"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Right_Hip-Top_Right_Leg" type="fixed">
+    <parent link="Legs__Right_Hip"/>
+    <child link="Legs__Top_Right_Leg"/>
+    <origin rpy="0.78539  1.56355 -2.35618" xyz="0.00274 -0.0004  -0.07526"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Top_Right_Leg-Bottom_Right_Leg" type="fixed">
+    <parent link="Legs__Top_Right_Leg"/>
+    <child link="Legs__Bottom_Right_Leg"/>
+    <origin rpy="0  0  0" xyz="0.00346 -0.20909  0.01388"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Bottom_Right_Leg-Right_Ankle" type="fixed">
+    <parent link="Legs__Bottom_Right_Leg"/>
+    <child link="Legs__Right_Ankle"/>
+    <origin rpy="0  0  0" xyz="-1.20000000e-04  -1.24340000e-01   1.83060000e-01"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Right_Ankle-Right_Foot" type="fixed">
+    <parent link="Legs__Right_Ankle"/>
+    <child link="Legs__Right_Foot"/>
+    <origin rpy="0  0  0" xyz="-0.00079 -0.03467 -0.06476"/>
+    <axis xyz="0       0.23816  0.97122"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="Legs__Right_Foot-Right_Toe" type="fixed">
+    <parent link="Legs__Right_Foot"/>
+    <child link="Legs__Right_Toe"/>
+    <origin rpy="0  0  0" xyz="-0.0044  -0.04886 -0.05474"/>
+    <axis xyz="0.97972 -0.19459  0.04771"/>
+    <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <link name="Legs__Body">
+    <inertial>
+      <mass value="3.53324885586669"/>
+      <origin rpy="1.56568  0       1.57079" xyz="7.68000000e-03  -1.70000000e-04   6.48060000e-01"/>
+      <inertia ixx="0.0271179077728006" ixy="1.18852566353165E-05" ixz="2.95478792996178E-05" iyy="0.0323353494450389" iyz="0.00289482168449843" izz="0.0422145237899791"/>
+    </inertial>
+    <visual name="Legs__Body_visual">
+      <origin rpy="1.56568  0       1.57079" xyz="-0.07093 -0.0594   0.23642"/>
+      <geometry>
+        <mesh filename="meshes/Body.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Left_Hip">
+    <inertial>
+      <mass value="0.437298303222343"/>
+      <origin rpy="0  0  0" xyz="-0.03492  0.03099  0.00015"/>
+      <inertia ixx="0.000344658356089893" ixy="1.44389409480782E-05" ixz="5.03774354824887E-05" iyy="0.000819710121372741" iyz="1.99893504999303E-05" izz="0.000669559632846757"/>
+    </inertial>
+    <visual name="Legs__Left_Hip_visual">
+      <origin rpy="0  0  0" xyz="-0.00384 -0.3021  -0.06945"/>
+      <geometry>
+        <mesh filename="meshes/Left_Hip.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Top_Left_Leg">
+    <inertial>
+      <mass value="0.498661420183801"/>
+      <origin rpy="0  0  0" xyz="0      -0.07472 -0.05524"/>
+      <inertia ixx="0.0022202328840653" ixy="2.25938202171209E-05" ixz="1.58874590925852E-05" iyy="0.000900377243940707" iyz="0.00103894283838232" izz="0.00154105773276496"/>
+    </inertial>
+    <visual name="Legs__Top_Left_Leg_visual">
+      <origin rpy="0  0  0" xyz="0.07675 -0.30208 -0.07247"/>
+      <geometry>
+        <mesh filename="meshes/Top_Left_Leg.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Bottom_Left_Leg">
+    <inertial>
+      <mass value="0.559939379300119"/>
+      <origin rpy="0  0  0" xyz="0      -0.10293  0.06089"/>
+      <inertia ixx="0.00244450241697025" ixy="3.69654298731094E-07" ixz="6.79717535660184E-07" iyy="0.000755387980562578" iyz="0.000916506613563391" izz="0.00193582631963136"/>
+    </inertial>
+    <visual name="Legs__Bottom_Left_Leg_visual">
+      <origin rpy="0  0  0" xyz="0.07267 -0.13325  0.05165"/>
+      <geometry>
+        <mesh filename="meshes/Bottom_Left_Leg.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Left_Ankle">
+    <inertial>
+      <mass value="0.117207342953091"/>
+      <origin rpy="0  0  0" xyz="0       0.00039  0.02606"/>
+      <inertia ixx="0.0001118971373696" ixy="1.03258004756412E-07" ixz="2.63723484214595E-06" iyy="0.000113499651845419" iyz="1.29932430255768E-05" izz="3.45468575487321E-05"/>
+    </inertial>
+    <visual name="Legs__Left_Ankle_visual">
+      <origin rpy="0  0  0" xyz="0.07317  0.06493 -0.04681"/>
+      <geometry>
+        <mesh filename="meshes/Left_Ankle.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Left_Foot">
+    <inertial>
+      <mass value="0.350801135347807"/>
+      <origin rpy="0  0  0" xyz="0.00029 -0.02709 -0.0053"/>
+      <inertia ixx="0.000903634359316998" ixy="6.81631434892799E-06" ixz="6.41865216088924E-06" iyy="0.000881949331142604" iyz="0.000189334412776746" izz="0.000194697308399392"/>
+    </inertial>
+    <collision name="Legs__Left_Foot_collision">
+      <origin rpy="0  0  0" xyz="0.07394  0.06959  0.02445"/>
+      <geometry>
+        <mesh filename="meshes/Left_Foot_col.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <visual name="Legs__Left_Foot_visual">
+      <origin rpy="0  0  0" xyz="0.07394  0.06959  0.02445"/>
+      <geometry>
+        <mesh filename="meshes/Left_Foot.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Left_Toe">
+    <inertial>
+      <mass value="0.137471306967525"/>
+      <origin rpy="0  0  0" xyz="0       0.00618 -0.03121"/>
+      <inertia ixx="5.13428369228838E-05" ixy="4.87352564894428E-06" ixz="3.09756363634257E-06" iyy="5.9551310496803E-05" iyz="8.34215292948262E-06" izz="2.7574447290241E-05"/>
+    </inertial>
+    <collision name="Legs__Left_Toe_collision">
+      <origin rpy="0  0  0" xyz="0.06942  0.09049  0.09672"/>
+      <geometry>
+        <mesh filename="meshes/Left_Toe_col.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <visual name="Legs__Left_Toe_visual">
+      <origin rpy="0  0  0" xyz="0.06942  0.09049  0.09672"/>
+      <geometry>
+        <mesh filename="meshes/Left_Toe.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Right_Hip">
+    <inertial>
+      <mass value="0.429542604129865"/>
+      <origin rpy="0.78539  1.56355 -2.35618" xyz="-0.00033 -0.03105 -0.03445"/>
+      <inertia ixx="0.000335620222780637" ixy="1.71766252899158E-05" ixz="6.82036560203187E-05" iyy="0.000796625170345829" iyz="1.87749814800264E-05" izz="0.000651844767117382"/>
+    </inertial>
+    <visual name="Legs__Right_Hip_visual">
+      <origin rpy="0.78539  1.56355 -2.35618" xyz="0.07618  0.30265  0.11303"/>
+      <geometry>
+        <mesh filename="meshes/Right_Hip.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Top_Right_Leg">
+    <inertial>
+      <mass value="0.473894644129491"/>
+      <origin rpy="0  0  0" xyz="0      -0.09408  0.00599"/>
+      <inertia ixx="0.00219613507963254" ixy="2.40586911361442E-05" ixz="2.21507685447765E-06" iyy="0.00013957904599556" iyz="0.000138530235433403" izz="0.00227576384193981"/>
+    </inertial>
+    <visual name="Legs__Top_Right_Leg_visual">
+      <origin rpy="0  0  0" xyz="-0.19021 -0.30208 -0.07247"/>
+      <geometry>
+        <mesh filename="meshes/Top_Right_Leg.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Bottom_Right_Leg">
+    <inertial>
+      <mass value="0.562143515434244"/>
+      <origin rpy="0  0  0" xyz="0      -0.05822  0.09988"/>
+      <inertia ixx="0.00243275192303071" ixy="1.42384112825202E-05" ixz="2.9655382212159E-05" iyy="0.00182049740298604" iyz="0.000973515781838336" izz="0.000848965740644351"/>
+    </inertial>
+    <visual name="Legs__Bottom_Right_Leg_visual">
+      <origin rpy="0  0  0" xyz="-0.19367 -0.09299 -0.08636"/>
+      <geometry>
+        <mesh filename="meshes/Bottom_Right_Leg.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Right_Ankle">
+    <inertial>
+      <mass value="0.113529394776609"/>
+      <origin rpy="0  0  0" xyz="0       0.01238  0.02465"/>
+      <inertia ixx="0.000102683650726326" ixy="1.10048891971433E-06" ixz="2.23477907251397E-06" iyy="8.45946830403131E-05" iyz="3.39608024178375E-05" izz="5.41062178046503E-05"/>
+    </inertial>
+    <visual name="Legs__Right_Ankle_visual">
+      <origin rpy="0  0  0" xyz="-0.19355  0.03134 -0.26942"/>
+      <geometry>
+        <mesh filename="meshes/Right_Ankle.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Right_Foot">
+    <inertial>
+      <mass value="0.335422480362735"/>
+      <origin rpy="0  0  0" xyz="-0.00726 -0.02694  0.0066"/>
+      <inertia ixx="0.000829521523535236" ixy="1.42215919206188E-05" ixz="2.86900349166642E-06" iyy="0.000842559789853102" iyz="0.000105554116604612" izz="0.000147263437908165"/>
+    </inertial>
+    <collision name="Legs__Right_Foot_collision">
+      <origin rpy="0  0  0" xyz="-0.19275  0.06602 -0.20466"/>
+      <geometry>
+        <mesh filename="meshes/Right_Foot_col.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <visual name="Legs__Right_Foot_visual">
+      <origin rpy="0  0  0" xyz="-0.19275  0.06602 -0.20466"/>
+      <geometry>
+        <mesh filename="meshes/Right_Foot.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="Legs__Right_Toe">
+    <inertial>
+      <mass value="0.139661985071308"/>
+      <origin rpy="0  0  0" xyz="0.00148 -0.0002  -0.03128"/>
+      <inertia ixx="5.18677292860377E-05" ixy="9.96500122938222E-07" ixz="4.36419833922011E-06" iyy="6.5741842064624E-05" iyz="4.51832032055873E-07" izz="2.6595765607135E-05"/>
+    </inertial>
+    <collision name="Legs__Right_Toe_collision">
+      <origin rpy="0  0  0" xyz="-0.18835  0.11489 -0.14992"/>
+      <geometry>
+        <mesh filename="meshes/Right_Toe_col.STL" scale="1 1 1"/>
+      </geometry>
+    </collision>
+    <visual name="Legs__Right_Toe_visual">
+      <origin rpy="0  0  0" xyz="-0.18835  0.11489 -0.14992"/>
+      <geometry>
+        <mesh filename="meshes/Right_Toe.STL" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
