@@ -80,7 +80,6 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
             obj.manip = obj.manip.setStateFrame(caminante_state_frame);
             obj = obj.setStateFrame(state_frame);
             
-            % Same bit of complexity for input frame to get hand inputs
           if (obj.external_force > 0)
                 input_frame = getInputFrame(obj);
                 input_frame = replaceFrameNum(input_frame,1,caminanteFrames.CaminanteInput(obj));
@@ -214,10 +213,6 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
         
     properties (SetAccess = protected, GetAccess = public)
         x0
-        hand_right = 0;
-        hand_right_kind = 'none';
-        hand_left = 0;
-        hand_left_kind = 'none';
         % preconstructing these for efficiency
         left_full_support
         left_toe_support
