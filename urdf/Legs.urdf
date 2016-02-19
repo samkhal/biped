@@ -1,83 +1,83 @@
 <?xml version="1.0" ?>
 <robot name="Legs">
-  <joint name="Body-Left_Hip" type="fixed">
+  <joint name="Body-Left_Hip" type="revolute">
     <parent link="Body"/>
     <child link="Left_Hip"/>
     <origin rpy="1.56568  0       1.57079" xyz="-0.00302 -0.05556  0.53887"/>
     <axis xyz="0       0.00511 -0.99998"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Left_Hip-Top_Left_Leg" type="fixed">
+  <joint name="Left_Hip-Top_Left_Leg" type="revolute">
     <parent link="Left_Hip"/>
     <child link="Top_Left_Leg"/>
     <origin rpy="0  0  0" xyz="-8.05900000e-02  -1.00000000e-05   3.02000000e-03"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Top_Left_Leg-Bottom_Left_Leg" type="fixed">
+  <joint name="Top_Left_Leg-Bottom_Left_Leg" type="revolute">
     <parent link="Top_Left_Leg"/>
     <child link="Bottom_Left_Leg"/>
     <origin rpy="0  0  0" xyz="0.00407 -0.16882 -0.12412"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Bottom_Left_Leg-Left_Ankle" type="fixed">
+  <joint name="Bottom_Left_Leg-Left_Ankle" type="revolute">
     <parent link="Bottom_Left_Leg"/>
     <child link="Left_Ankle"/>
     <origin rpy="0  0  0" xyz="-0.00049 -0.19818  0.09846"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Left_Ankle-Left_Foot" type="fixed">
+  <joint name="Left_Ankle-Left_Foot" type="revolute">
     <parent link="Left_Ankle"/>
     <child link="Left_Foot"/>
     <origin rpy="0  0  0" xyz="-0.00077 -0.00465 -0.07126"/>
     <axis xyz="0       0.192   -0.98139"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Left_Foot-Left_Toe" type="fixed">
+  <joint name="Left_Foot-Left_Toe" type="revolute">
     <parent link="Left_Foot"/>
     <child link="Left_Toe"/>
     <origin rpy="0  0  0" xyz="0.00451 -0.0209  -0.07227"/>
     <axis xyz="0.99797  0.06244  0.01221"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Body-Right_Hip" type="fixed">
+  <joint name="Body-Right_Hip" type="revolute">
     <parent link="Body"/>
     <child link="Right_Hip"/>
     <origin rpy="-1.56565  0.00509 -3.13647" xyz="0.00313  0.05556  0.53887"/>
     <axis xyz="-0.99997  0.00511  0.00509"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Right_Hip-Top_Right_Leg" type="fixed">
+  <joint name="Right_Hip-Top_Right_Leg" type="revolute">
     <parent link="Right_Hip"/>
     <child link="Top_Right_Leg"/>
     <origin rpy="0.78539  1.56355 -2.35618" xyz="0.00274 -0.0004  -0.07526"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Top_Right_Leg-Bottom_Right_Leg" type="fixed">
+  <joint name="Top_Right_Leg-Bottom_Right_Leg" type="revolute">
     <parent link="Top_Right_Leg"/>
     <child link="Bottom_Right_Leg"/>
     <origin rpy="0  0  0" xyz="0.00346 -0.20909  0.01388"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Bottom_Right_Leg-Right_Ankle" type="fixed">
+  <joint name="Bottom_Right_Leg-Right_Ankle" type="revolute">
     <parent link="Bottom_Right_Leg"/>
     <child link="Right_Ankle"/>
     <origin rpy="0  0  0" xyz="-1.20000000e-04  -1.24340000e-01   1.83060000e-01"/>
     <axis xyz="1  0  0"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Right_Ankle-Right_Foot" type="fixed">
+  <joint name="Right_Ankle-Right_Foot" type="revolute">
     <parent link="Right_Ankle"/>
     <child link="Right_Foot"/>
     <origin rpy="0  0  0" xyz="-0.00079 -0.03467 -0.06476"/>
     <axis xyz="0       0.23816  0.97122"/>
     <limit effort="1.0" lower="0.0" upper="0.0" velocity="0.0"/>
   </joint>
-  <joint name="Right_Foot-Right_Toe" type="fixed">
+  <joint name="Right_Foot-Right_Toe" type="revolute">
     <parent link="Right_Foot"/>
     <child link="Right_Toe"/>
     <origin rpy="0  0  0" xyz="-0.0044  -0.04886 -0.05474"/>
