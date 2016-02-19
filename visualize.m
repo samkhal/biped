@@ -2,4 +2,4 @@
 
 m = RigidBodyManipulator('urdf/Legs.urdf');
 v = m.constructVisualizer();
-%v.inspector() % This line currently crashes matlab
+v.inspector(zeros(24,1)) % Init inspector with all joints at 0
