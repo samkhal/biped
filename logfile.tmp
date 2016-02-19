@@ -1,0 +1,60 @@
+Path 4.7.03: Matlab Link
+36 row/cols, 1174 non-zeros, 90.59% dense.
+
+Could not open options file: path.opt
+Using defaults.
+Path 4.7.03 (Mon Feb 27 19:48:03 2012)
+Written by Todd Munson, Steven Dirkse, and Michael Ferris
+
+MCPR: Imp:    0 IBd:    0 Dup:   12 DBd:   12
+Preprocessed size   : 24
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (x[    1])
+Maximum of F. . . . . . . . . .  6.7744e-02 eqn: (f[   28])
+Maximum of Grad F . . . . . . .  2.1939e+02 eqn: (f[   28])
+                                            var: (x[   11])
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  4.2045e+02 eqn: (f[   28])
+Minimum Row Norm. . . . . . . .  2.9679e-01 eqn: (f[    3])
+Maximum Column Norm . . . . . .  6.6513e+02 var: (x[   11])
+Minimum Column Norm . . . . . .  4.0000e+00 var: (x[   35])
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             1.5545e-01             0.0e+00 (f[   28])
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    13     1 1.5545e-01           I 0.0e+00 1.4e-01 (f[   28])
+    1     7    14     2 2.2373e-15  1.0e+00 SO 0.0e+00 2.0e-15 (f[   31])
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  9.9920e-16 eqn: (f[   31])
+Inf-Norm of Normal Map. . . . .  9.9920e-16 eqn: (f[   27])
+Inf-Norm of Minimum Map . . . .  9.9920e-16 eqn: (f[   27])
+Inf-Norm of Fischer Function. .  1.9984e-15 eqn: (f[   31])
+Inf-Norm of Grad Fischer Fcn. .  6.5138e-13 eqn: (f[    5])
+Two-Norm of Grad Fischer Fcn. .  6.7414e-13
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  1.0460e-01 var: (x[   25])
+Maximum of F. . . . . . . . . .  1.2445e-01 eqn: (f[   32])
+Maximum of Grad F . . . . . . .  2.1939e+02 eqn: (f[   28])
+                                            var: (x[   11])
+
+ ** EXIT - solution found.
+
+Major Iterations. . . . 1
+Minor Iterations. . . . 7
+Restarts. . . . . . . . 0
+Crash Iterations. . . . 0
+Gradient Steps. . . . . 0
+Function Evaluations. . 14
+Gradient Evaluations. . 2
+Basis Time. . . . . . . 0.000123
+Total Time. . . . . . . 0.001563
+Residual. . . . . . . . 2.237263e-15
+Postsolved residual: 2.2592e-15
