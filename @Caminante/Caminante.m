@@ -80,13 +80,12 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
             obj.manip = obj.manip.setStateFrame(caminante_state_frame);
             obj = obj.setStateFrame(state_frame);
             
-            % Same bit of complexity for input frame to get hand inputs
-          if (obj.external_force > 0)
+            if (obj.external_force > 0)
                 input_frame = getInputFrame(obj);
                 input_frame = replaceFrameNum(input_frame,1,caminanteFrames.CaminanteInput(obj));
-          else
+            else
                 input_frame = caminanteFrames.CaminanteInput(obj);
-          end
+            end
             
             obj = obj.setInputFrame(input_frame);
             obj.manip = obj.manip.setInputFrame(input_frame);
@@ -149,19 +148,19 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
         end
         
         function weights = getFootstepOptimizationWeights(obj)
-            % Return a reasonable set of default weights for the footstep planner
-            % optimization. The weights describe the following quantities:
-            % 'relative': the contribution to the cost function of the
-            %             displacement from one step to the next
-            % 'relative_final': the cost contribution of the displacement of the
-            %                   displacement of the very last step (this can be
-            %                   larger than the normal 'relative' cost in
-            %                   order to encourage the feet to be close together
-            %                   at the end of a plan)
-            % 'goal': the cost contribution on the distances from the last two
-            %         footsteps to their respective goal poses.
-            % Each weight is a 6 element vector, describing the weights on
-            % [x, y, z, roll, pitch, yaw]
+        % Return a reasonable set of default weights for the footstep planner
+        % optimization. The weights describe the following quantities:
+        % 'relative': the contribution to the cost function of the
+        %             displacement from one step to the next
+        % 'relative_final': the cost contribution of the displacement of the
+        %                   displacement of the very last step (this can be
+        %                   larger than the normal 'relative' cost in
+        %                   order to encourage the feet to be close together
+        %                   at the end of a plan)
+        % 'goal': the cost contribution on the distances from the last two
+        %         footsteps to their respective goal poses.
+        % Each weight is a 6 element vector, describing the weights on
+        % [x, y, z, roll, pitch, yaw]
 
             weights = struct('relative', [1;1;1;0;0;0.5],...
                            'relative_final', [10;10;10;0;0;2],...
@@ -204,7 +203,7 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                 prop_cache.body_ids.(b{1}) = obj.findLinkId(b{1});
             end
 
-            for j = {'neck', 'r_leg_ak', 'l_leg_ak', 'r_leg', 'l_leg', 'r_leg_kny', 'l_leg_kny', 'arm', 'back_bkz', 'back_bky', 'neck'}
+            for j = {'Body_to_Left_Hip', 'Left_Hip_to_Top_Left_Leg', 'Top_Left_Leg_to_Bottom_Left_Leg', 'Bottom_Left_Leg_to_Left_Ankle', 'Body_to_Right_Hip', 'Right_Hip_to_Top_Right_Leg','Top_Right_Leg_to_Bottom_Right_Leg','Bottom_Right_Leg_to_Right_Ankle'}
                 prop_cache.position_indices.(j{1}) = obj.findPositionIndices(j{1});
             end
 
@@ -214,10 +213,6 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
         
     properties (SetAccess = protected, GetAccess = public)
         x0
-        hand_right = 0;
-        hand_right_kind = 'none';
-        hand_left = 0;
-        hand_left_kind = 'none';
         % preconstructing these for efficiency
         left_full_support
         left_toe_support
@@ -231,7 +226,7 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
     end
 
     properties
-        fixed_point_file = fullfile(getDrakePath(), 'examples', 'Caminante', 'data', 'caminante_fp.mat');
+        fixed_point_file = fullfile(pwd, 'data', 'caminante_fp.mat');
         default_footstep_params = struct('nom_forward_step', 0.25,... % m
                                          'max_forward_step', 0.35,...% m
                                          'max_backward_step', 0.2,...% m
@@ -256,14 +251,14 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                                         'prevent_swing_undershoot', false,... % prevent the first phase of the swing from going backwards while moving to the first knot point
                                         'prevent_swing_overshoot', false,... % prevent the final phase of the swing from moving forward of the last knot point
                                         'nominal_LIP_COM_height', 0.80); % nominal height used to construct D_ls for our linear inverted pendulum model
-        pelvis_name = 'Body';
-        r_foot_name = 'Right_Foot';
-        l_foot_name = 'Left_Foot';
-        r_knee_name = 'Top_Right_Leg-Bottom_Right_Leg';
-        l_knee_name = 'Top_Left_Leg-Bottom_Left_Leg';
-        l_akx_name = 'Bottom_Left_Leg-Left_Ankle';
-        r_akx_name = 'Bottom_Right_Leg-Right_Ankle';
-        r_aky_name = 'Right_Ankle-Right_Foot';
-        l_aky_name = 'Left_Ankle-Left_Foot';
+        pelvis_name = 'pelvis';
+        r_foot_name = 'r_foot';
+        l_foot_name = 'l_foot';
+        r_knee_name = 'Top_Right_Leg_to_Bottom_Right_Leg';
+        l_knee_name = 'Top_Left_Leg_to_Bottom_Left_Leg';
+        l_akx_name = 'Bottom_Left_Leg_to_Left_Ankle';
+        r_akx_name = 'Bottom_Right_Leg_to_Right_Ankle';
+        r_aky_name = 'Right_Ankle_to_Right_Foot';
+        l_aky_name = 'Left_Ankle_to_Left_Foot';
     end
 end
