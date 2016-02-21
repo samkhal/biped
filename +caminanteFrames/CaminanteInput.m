@@ -11,6 +11,8 @@ classdef CaminanteInput < SingletonCoordinateFrame
       input_names = manipInputFrame.getCoordinateNames();
       input_names = regexprep(input_names,'_motor',''); % remove motor suffix     
       
+      disp('!!!')
+      
       obj = obj@SingletonCoordinateFrame('caminanteFrames.CaminanteInput',length(input_names),'x',input_names);
     end
   end

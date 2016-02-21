@@ -1,60 +1,61 @@
 Path 4.7.03: Matlab Link
-36 row/cols, 1174 non-zeros, 90.59% dense.
+28 row/cols, 612 non-zeros, 78.06% dense.
 
 Could not open options file: path.opt
 Using defaults.
 Path 4.7.03 (Mon Feb 27 19:48:03 2012)
 Written by Todd Munson, Steven Dirkse, and Michael Ferris
 
-MCPR: Imp:    0 IBd:    0 Dup:   12 DBd:   12
-Preprocessed size   : 24
 
 INITIAL POINT STATISTICS
 Maximum of X. . . . . . . . . .  0.0000e+00 var: (x[    1])
-Maximum of F. . . . . . . . . .  6.7744e-02 eqn: (f[   28])
-Maximum of Grad F . . . . . . .  2.1939e+02 eqn: (f[   28])
-                                            var: (x[   11])
+Maximum of F. . . . . . . . . .  7.2568e-01 eqn: (f[   10])
+Maximum of Grad F . . . . . . .  2.3385e+02 eqn: (f[   16])
+                                            var: (x[    3])
 
 INITIAL JACOBIAN NORM STATISTICS
-Maximum Row Norm. . . . . . . .  4.2045e+02 eqn: (f[   28])
-Minimum Row Norm. . . . . . . .  2.9679e-01 eqn: (f[    3])
-Maximum Column Norm . . . . . .  6.6513e+02 var: (x[   11])
-Minimum Column Norm . . . . . .  4.0000e+00 var: (x[   35])
+Maximum Row Norm. . . . . . . .  3.7349e+02 eqn: (f[   16])
+Minimum Row Norm. . . . . . . .  2.0229e-02 eqn: (f[    5])
+Maximum Column Norm . . . . . .  7.2784e+02 var: (x[    3])
+Minimum Column Norm . . . . . .  4.0000e+00 var: (x[   25])
 
 Crash Log
 major  func  diff  size  residual    step       prox   (label)
-    0     0             1.5545e-01             0.0e+00 (f[   28])
+    0     0             1.4851e+00             0.0e+00 (f[   10])
+    1     4    21    12 5.7695e-01  4.1e-01    1.5e-02 (f[   18])
+    2    11    11    19 4.1191e-01  6.9e-02    5.8e-03 (f[   10])
 pn_search terminated: no progress.
 
 Major Iteration Log
 major minor  func  grad  residual    step  type prox    inorm  (label)
-    0     0    13     1 1.5545e-01           I 0.0e+00 1.4e-01 (f[   28])
-    1     7    14     2 2.2373e-15  1.0e+00 SO 0.0e+00 2.0e-15 (f[   31])
+    0     0    24     3 4.1191e-01           I 4.1e-03 3.2e-01 (f[   10])
+    1    13    25     4 1.1667e-03  1.0e+00 SM 1.6e-03 1.2e-03 (f[   26])
+    2     3    26     5 4.5412e-06  1.0e+00 SO 1.2e-04 2.9e-06 (f[    5])
+    3     1    27     6 5.7654e-09  1.0e+00 SO 4.5e-07 4.7e-09 (f[    5])
 
 FINAL STATISTICS
-Inf-Norm of Complementarity . .  9.9920e-16 eqn: (f[   31])
-Inf-Norm of Normal Map. . . . .  9.9920e-16 eqn: (f[   27])
-Inf-Norm of Minimum Map . . . .  9.9920e-16 eqn: (f[   27])
-Inf-Norm of Fischer Function. .  1.9984e-15 eqn: (f[   31])
-Inf-Norm of Grad Fischer Fcn. .  6.5138e-13 eqn: (f[    5])
-Two-Norm of Grad Fischer Fcn. .  6.7414e-13
+Inf-Norm of Complementarity . .  4.7349e-09 eqn: (f[    5])
+Inf-Norm of Normal Map. . . . .  4.7349e-09 eqn: (f[    5])
+Inf-Norm of Minimum Map . . . .  4.7349e-09 eqn: (f[    5])
+Inf-Norm of Fischer Function. .  4.7349e-09 eqn: (f[    5])
+Inf-Norm of Grad Fischer Fcn. .  2.9361e-08 eqn: (f[    2])
+Two-Norm of Grad Fischer Fcn. .  3.4520e-08
 
 FINAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  1.0460e-01 var: (x[   25])
-Maximum of F. . . . . . . . . .  1.2445e-01 eqn: (f[   32])
-Maximum of Grad F . . . . . . .  2.1939e+02 eqn: (f[   28])
-                                            var: (x[   11])
+Maximum of X. . . . . . . . . .  7.3042e-01 var: (x[   26])
+Maximum of F. . . . . . . . . .  1.4608e+00 eqn: (f[   18])
+Maximum of Grad F . . . . . . .  2.3385e+02 eqn: (f[   16])
+                                            var: (x[    3])
 
  ** EXIT - solution found.
 
-Major Iterations. . . . 1
-Minor Iterations. . . . 7
+Major Iterations. . . . 3
+Minor Iterations. . . . 17
 Restarts. . . . . . . . 0
-Crash Iterations. . . . 0
+Crash Iterations. . . . 2
 Gradient Steps. . . . . 0
-Function Evaluations. . 14
-Gradient Evaluations. . 2
-Basis Time. . . . . . . 0.000123
-Total Time. . . . . . . 0.001563
-Residual. . . . . . . . 2.237263e-15
-Postsolved residual: 2.2592e-15
+Function Evaluations. . 27
+Gradient Evaluations. . 6
+Basis Time. . . . . . . 0.000303
+Total Time. . . . . . . 0.001191
+Residual. . . . . . . . 5.765397e-09
