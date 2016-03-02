@@ -1,5 +1,70 @@
 <?xml version="1.0" ?>
 <robot name="Legs">
+
+  <transmission name="l_b_h_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_b_h_motor"/>
+    <joint name="Biped__Body-Left_Hip"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_h_tl_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_h_tl_motor"/>
+    <joint name="Biped__Left_Hip-Top_Left_Leg"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_tl_bl_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_tl_bl_motor"/>
+    <joint name="Biped__Top_Left_Leg-Bottom_Left_Leg"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_bl_a_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_bl_a_hpz_motor"/>
+    <joint name="Biped__Bottom_Left_Leg-Left_Ankle"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_a_f_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_a_f_motor"/>
+    <joint name="Biped__Left_Ankle-Left_Foot"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_f_t_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_f_t_motor"/>
+    <joint name="Biped__Left_Foot-Left_Toe"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_b_h_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_b_h_motor"/>
+    <joint name="Biped__Body-Right_Hip"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_h_tl_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_h_tl_motor"/>
+    <joint name="Biped__Right_Hip-Top_Right_Leg"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_tl_bl_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_tl_bl_motor"/>
+    <joint name="Biped__Top_Right_Leg-Bottom_Right_Leg"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_bl_a_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_bl_a_hpz_motor"/>
+    <joint name="Biped__Bottom_Right_Leg-Right_Ankle"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_a_f_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_a_f_motor"/>
+    <joint name="Biped__Right_Ankle-Right_Foot"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_f_t_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_f_t_motor"/>
+    <joint name="Biped__Right_Foot-Right_Toe"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+
+
+
+
   <joint name="Biped__Body-Left_Hip" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Left_Hip"/>

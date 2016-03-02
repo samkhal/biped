@@ -1,4 +1,4 @@
-function runCaminanteDynamics
+function runCaminanteTorques
     % Simulate the (passive) dynamics of the Atlas model 
 
     % Load the model with a floating base
@@ -8,6 +8,17 @@ function runCaminanteDynamics
     r = Caminante('urdf2/Legs.urdf',options);
     %r = r.removeCollisionGroupsExcept({'heel','toe','back','front','knee','butt'});
     r = compile(r);
+    
+    % create torque controller
+    tc = TorqueController(); % modify this class to apply diff qorques to the legs
+    tc.getOutputFrame.addTransform( ... just sets the output frame of tc equal to the input frame of r
+        AffineTransform( ... 
+            tc.getOutputFrame, ...
+            r.getInputFrame, ...
+            eye(r.getNumInputs), ... % identity matrix
+            zeros(r.getNumInputs,1) ... % zero vector
+        ) ...
+    );
 
     % Initialize the viewer
     v = r.constructVisualizer;
@@ -24,6 +35,7 @@ function runCaminanteDynamics
     output_select(1).output=1;
     
     sys = mimoCascade(r,v,[],[],output_select);
+    sys = cascade(tc,sys); % prepend the torque controller
     
     warning(S);
     traj = simulate(sys,[0 2],x0);
