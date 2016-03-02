@@ -15,7 +15,14 @@ classdef TorqueController < DrakeSystem
         
         function y = output(obj,t,x,u)
             % play around with this function to make the legs do weird shit
-            y = ones(obj.getNumOutputs)*-10;
+            y = zeros(obj.getNumOutputs);
+            if (t<.2)    
+                y([9,3]) = 20;
+            elseif (t<.25)
+                y([9,3]) = -50;
+            else
+                y([9,3]) = 0;
+            end
         end
         
     end
