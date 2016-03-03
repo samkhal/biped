@@ -4,7 +4,9 @@ function runCaminanteDynamics
     % Load the model with a floating base
     options.floating = true;
     options.dt = 0.001;
+
     options.terrain = RigidBodyFlatTerrain;
+
     r = Caminante('urdf2/Legs.urdf',options);
     %r = r.removeCollisionGroupsExcept({'heel','toe','back','front','knee','butt'});
     r = compile(r);
