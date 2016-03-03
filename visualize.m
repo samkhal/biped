@@ -1,7 +1,7 @@
 % Visualize biped in Drake
 
 options.floating = true;
-m = RigidBodyManipulator('urdf/Legs.urdf',options);
+m = RigidBodyManipulator('urdf2/Legs.urdf',options);
 v = m.constructVisualizer();
 v.inspector(zeros(24+12,1)) % Init inspector with all joints at 0
 
