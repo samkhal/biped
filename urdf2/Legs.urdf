@@ -204,6 +204,9 @@
       <geometry>
         <mesh filename="meshes/Top_Left_Leg.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
   </link>
   <link name="Biped__Bottom_Left_Leg">
@@ -223,6 +226,7 @@
       <geometry>
         <mesh filename="meshes/Bottom_Left_Leg.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
   <link name="Biped__Left_Ankle">
@@ -242,6 +246,7 @@
       <geometry>
         <mesh filename="meshes/Left_Ankle.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
   <link name="l_foot">
@@ -395,6 +400,7 @@
       <geometry>
         <mesh filename="meshes/Top_Right_Leg.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
   <link name="Biped__Bottom_Right_Leg">
@@ -414,6 +420,7 @@
       <geometry>
         <mesh filename="meshes/Bottom_Right_Leg.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
   <link name="Biped__Right_Ankle">
@@ -433,6 +440,7 @@
       <geometry>
         <mesh filename="meshes/Right_Ankle.STL" scale="1 1 1"/>
       </geometry>
+      <material name="red"/>
     </visual>
   </link>
   <link name="r_foot">

@@ -1,6 +1,6 @@
 
 options.floating = true;
-legs = RigidBodyManipulator('urdf/Legs.urdf',options);
+legs = RigidBodyManipulator('urdf2/Legs.urdf',options);
 nq = legs.getNumPositions(); %number of DOF
 
 pelvis = legs.findLinkId('pelvis');
