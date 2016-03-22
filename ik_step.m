@@ -5,7 +5,7 @@
 function ik_step(step_amount)
 
 options.floating = true;
-legs = RigidBodyManipulator('urdf2/Legs.urdf',options);
+legs = RigidBodyManipulator('urdf/Legs.urdf',options);
 nq = legs.getNumPositions(); %number of DOF
 
 pelvis = legs.findLinkId('pelvis');
