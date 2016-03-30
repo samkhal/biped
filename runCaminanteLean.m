@@ -1,32 +1,26 @@
 function runCaminanteLean(LPos, RPos, COMPos, Tol)
 %% Ari Goodman
 %% 3/25/2016
-%TEMPORARILLY KINDA SORTA NOT WORKING
-% Hit Run with debugger and analyze each section. IT KINDA WALKS
-% Errors: feet slide when footprints should be stationary (COM movement
-% should be different)
-% Should use hybrid system or something because the total trajectory doesnt
-% work with times as originally thought
 
 if nargin<1
-  LPos = [0, .1, 0.03;...
-          0, .1, 0.03;...
-          .125,.1, 0.15;...
-          .25, .1, 0.03;...
-          .25, .1, 0.03;...
-          .25, .1, 0.03;...
-          .25, .1, 0.03;...
-          .25, .1, 0.03;]';
+  LPos = [0, .1, 0.05;...
+          0, .1, 0.05;...
+          .125,.1, 0.2;...
+          .25, .1, 0.05;...
+          .25, .1, 0.05;...
+          .25, .1, 0.05;...
+          .25, .1, 0.05;...
+          .25, .1, 0.05;]';
 end
 if nargin<2
-  RPos = [ 0, -.1, 0.06;...
-           0, -.1, 0.06;...
-           0, -.1, 0.06;...
-           0, -.1, 0.06;...
-           0, -.1, 0.06;...
-          .125,-.1, 0.15;...
-          .25, -.1, 0.06;...
-          .25, -.1, 0.06;]';
+  RPos = [ 0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+          .125,-.1, 0.2;...
+          .25, -.1, 0.05;...
+          .25, -.1, 0.05;]';
  end
  if nargin<3
     COMPos = [0,0,nan;
@@ -39,11 +33,11 @@ if nargin<2
               .25,0,nan;]';
 end
 if nargin<4
-    Tol = [.02,.02,.005]';
+    Tol = [.002,.002,.002]';
 end
 
 options.floating = true;
-legs = RigidBodyManipulator('urdf2/Legs.urdf',options);
+legs = RigidBodyManipulator('urdf/Legs.urdf',options);
 nq = legs.getNumPositions(); %number of DOF
 
 pelvis = legs.findLinkId('pelvis');
@@ -63,31 +57,25 @@ Allcons{end+1} = WorldEulerConstraint(legs,r_foot,[pi/2;0;nan]-Tol,[pi/2;0;nan]+
 Allcons{end+1} = WorldEulerConstraint(legs,l_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 Allcons{end+1} = WorldEulerConstraint(legs,r_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 
-for potato=1:Stages
+q_nom = zeros(nq,1);
 
-    q_nom = zeros(nq,1);
-    if potato ~= 1
-        for i=potato-1
-            Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[Time,Time]);
-            Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[Time,Time]);
-            Allcons{8} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[Time,Time]);
-        T = Time;
-        N = 2;
-        v = legs.constructVisualizer();
-        ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
-        [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
-        q_nom = q_end_nom;
-        end
-    end
-    for i=potato
-        Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[Time,Time]);
-        Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[Time,Time]);
-        Allcons{8} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[Time,Time]);
-    end
-
-    T = Time;
-    N = 2;
-    v = legs.constructVisualizer();
+for i = 1:Stages
+    Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[0,0]);
+    Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[0,0]);
+    Allcons{8} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[0,0]);
+i=i+1;
+    Allcons{9} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[Time,Time]);
+    Allcons{10} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[Time,Time]);
+    Allcons{11} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[Time,Time]);
+T = Time;
+N = 2;
+v = legs.constructVisualizer();
+ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
+[q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
+q_nom = q_end_nom;
+T = Time;
+N = 2;
+v = legs.constructVisualizer();
 
     ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
     [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
@@ -102,12 +90,13 @@ for potato=1:Stages
     [xtraj,F,info,infeasible_cnstr_ik] = ikproblem.solve(qtraj_guess);
 
     q_end = xtraj.eval(xtraj.tspan(end));
+    
     % do visualize
 
     v.playback(xtraj,struct('slider',true));
-
-    if info > 10
-      error('IK fail snopt_info: %d\n', info);
-    end
-end
+    q_nom=q_end(1:18,1);
+   % if info > 10
+   %   error('IK fail snopt_info: %d\n', info);
+   % end
+  %% ADD BREAK POINT 
 end
