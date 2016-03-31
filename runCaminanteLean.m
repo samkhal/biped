@@ -1,16 +1,17 @@
 function runCaminanteLean(LPos, RPos, COMPos, Tol)
 %% Ari Goodman
-%% 3/25/2016
+%% 3/29/2016
+%% Add breakpoint at add breakpoint; it will animate one step of the traj at a time 
 
 if nargin<1
   LPos = [0, .1, 0.05;...
           0, .1, 0.05;...
-          .125,.1, 0.2;...
-          .25, .1, 0.05;...
-          .25, .1, 0.05;...
-          .25, .1, 0.05;...
-          .25, .1, 0.05;...
-          .25, .1, 0.05;]';
+          .125,.1, 0.15;...
+          .22, .1, 0.05;...
+          .22, .1, 0.05;...
+          .22, .1, 0.05;...
+          .22, .1, 0.05;...
+          .22, .1, 0.05;]';
 end
 if nargin<2
   RPos = [ 0, -.1, 0.05;...
@@ -18,22 +19,22 @@ if nargin<2
            0, -.1, 0.05;...
            0, -.1, 0.05;...
            0, -.1, 0.05;...
-          .125,-.1, 0.2;...
-          .25, -.1, 0.05;...
-          .25, -.1, 0.05;]';
+          .125,-.1, 0.15;...
+          .22, -.1, 0.05;...
+          .22, -.1, 0.05;]';
  end
  if nargin<3
     COMPos = [0,0,nan;
-              0,-.1,nan;
-              .05,-.1,nan;
-              nan,-.1,nan;
-              .2,.1,nan;
-              .2,.1,nan;
-              .2,.1,nan;
+              0,-.09,nan;
+              .05,-.09,nan;
+              .05,-.09,nan; %cant be nan for arg 1 (.05 now)
+              .2,.09,nan;
+              .2,.09,nan;
+              .2,.09,nan;
               .25,0,nan;]';
 end
 if nargin<4
-    Tol = [.002,.002,.002]';
+    Tol = [.0002,.0002,.0002]';
 end
 
 options.floating = true;
@@ -51,7 +52,7 @@ Stages = 8;
 
 Allcons = cell(0,1);
 
-Allcons{end+1} = WorldEulerConstraint(legs,pelvis,-Tol,Tol,[0,Time]);
+Allcons{end+1} = WorldEulerConstraint(legs,pelvis,[nan;0;0]-Tol,[nan;0;0]+Tol,[0,Time]);
 Allcons{end+1} = WorldEulerConstraint(legs,l_foot,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 Allcons{end+1} = WorldEulerConstraint(legs,r_foot,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 Allcons{end+1} = WorldEulerConstraint(legs,l_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
