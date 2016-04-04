@@ -3,146 +3,146 @@
 
   <transmission name="l_b_h_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_b_h_motor"/>
-    <joint name="Biped__Body-Left_Hip"/>
+    <joint name="l_hip_abduct"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="l_h_tl_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_h_tl_motor"/>
-    <joint name="Biped__Left_Hip-Top_Left_Leg"/>
+    <joint name="l_hip_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="l_tl_bl_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_tl_bl_motor"/>
-    <joint name="Biped__Top_Left_Leg-Bottom_Left_Leg"/>
+    <joint name="l_knee"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="l_bl_a_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_bl_a_hpz_motor"/>
-    <joint name="Biped__Bottom_Left_Leg-Left_Ankle"/>
+    <joint name="l_ankle_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="l_a_f_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_a_f_motor"/>
-    <joint name="Biped__Left_Ankle-Left_Foot"/>
+    <joint name="l_ankle_roll"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="l_f_t_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_f_t_motor"/>
-    <joint name="Biped__Left_Foot-Left_Toe"/>
+    <joint name="l_toe_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_b_h_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_b_h_motor"/>
-    <joint name="Biped__Body-Right_Hip"/>
+    <joint name="r_hip_abduct"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_h_tl_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_h_tl_motor"/>
-    <joint name="Biped__Right_Hip-Top_Right_Leg"/>
+    <joint name="r_hip_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_tl_bl_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_tl_bl_motor"/>
-    <joint name="Biped__Top_Right_Leg-Bottom_Right_Leg"/>
+    <joint name="r_knee"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_bl_a_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_bl_a_hpz_motor"/>
-    <joint name="Biped__Bottom_Right_Leg-Right_Ankle"/>
+    <joint name="r_ankle_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_a_f_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_a_f_motor"/>
-    <joint name="Biped__Right_Ankle-Right_Foot"/>
+    <joint name="r_ankle_roll"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
   <transmission name="r_f_t_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_f_t_motor"/>
-    <joint name="Biped__Right_Foot-Right_Toe"/>
+    <joint name="r_toe_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
 
 
 
 
-  <joint name="Biped__Body-Left_Hip" type="revolute">
+  <joint name="l_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Left_Hip"/>
     <origin rpy="1.56567  0      -1.57079" xyz="0.00302  0.05556  0.51514"/>
     <axis xyz="0      -0.00511  0.99998"/>
     <limit effort="100.0" lower="-0.486936705914" upper="0.628150227902" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Left_Hip-Top_Left_Leg" type="revolute">
+  <joint name="l_hip_flex" type="revolute">
     <parent link="Biped__Left_Hip"/>
     <child link="Biped__Top_Left_Leg"/>
     <origin rpy="0  0  0" xyz="-8.05900000e-02  -1.00000000e-05   3.02000000e-03"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-2.03583339041" upper="2.16044300072" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Top_Left_Leg-Bottom_Left_Leg" type="revolute">
+  <joint name="l_knee" type="revolute">
     <parent link="Biped__Top_Left_Leg"/>
     <child link="Biped__Bottom_Left_Leg"/>
     <origin rpy="0  0  0" xyz="0.00373 -0.20954 -0.00107"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-2.61562604133" upper="2.60767984583" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Bottom_Left_Leg-Left_Ankle" type="revolute">
+  <joint name="l_ankle_flex" type="revolute">
     <parent link="Biped__Bottom_Left_Leg"/>
     <child link="Biped__Left_Ankle"/>
     <origin rpy="0  0  0" xyz="-1.50000000e-04  -2.21290000e-01  -1.13000000e-03"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-1.36043531266" upper="0.135930877095" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Left_Ankle-Left_Foot" type="revolute">
+  <joint name="l_ankle_roll" type="revolute">
     <parent link="Biped__Left_Ankle"/>
     <child link="l_foot"/>
     <origin rpy="0  0  0" xyz="-0.00077 -0.0179  -0.06914"/>
     <axis xyz="0      -0.00511  0.99998"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Left_Foot-Left_Toe" type="revolute">
+  <joint name="l_toe_flex" type="revolute">
     <parent link="l_foot"/>
     <child link="l_toe"/>
     <origin rpy="0  0  0" xyz="0.00232 -0.03426 -0.06708"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Body-Right_Hip" type="revolute">
+  <joint name="r_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Right_Hip"/>
     <origin rpy="1.56567  0      -1.57079" xyz="-0.00313 -0.05556  0.51514"/>
     <axis xyz="0       0.00511 -0.99998"/>
     <limit effort="100.0" lower="-0.450917249297" upper="0.628150227902" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Right_Hip-Top_Right_Leg" type="revolute">
+  <joint name="r_hip_flex" type="revolute">
     <parent link="Biped__Right_Hip"/>
     <child link="Biped__Top_Right_Leg"/>
     <origin rpy="0  0  0" xyz="7.52400000e-02   1.00000000e-05  -3.13000000e-03"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-2.03583339041" upper="2.16044300072" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Top_Right_Leg-Bottom_Right_Leg" type="revolute">
+  <joint name="r_knee" type="revolute">
     <parent link="Biped__Top_Right_Leg"/>
     <child link="Biped__Bottom_Right_Leg"/>
     <origin rpy="0  0  0" xyz="0.00328 -0.20954 -0.00107"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-2.60767984583" upper="2.60767984583" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Bottom_Right_Leg-Right_Ankle" type="revolute">
+  <joint name="r_ankle_flex" type="revolute">
     <parent link="Biped__Bottom_Right_Leg"/>
     <child link="Biped__Right_Ankle"/>
     <origin rpy="0  0  0" xyz="4.00000000e-05  -2.21290000e-01  -1.13000000e-03"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-1.34264425814" upper="0.135930877095" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Right_Ankle-Right_Foot" type="revolute">
+  <joint name="r_ankle_roll" type="revolute">
     <parent link="Biped__Right_Ankle"/>
     <child link="r_foot"/>
     <origin rpy="0  0  0" xyz="-0.00079 -0.01789 -0.07124"/>
     <axis xyz="0       0.00511 -0.99998"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
-  <joint name="Biped__Right_Foot-Right_Toe" type="revolute">
+  <joint name="r_toe_flex" type="revolute">
     <parent link="r_foot"/>
     <child link="r_toe"/>
     <origin rpy="0  0  0" xyz="0.00258 -0.03427 -0.06497"/>

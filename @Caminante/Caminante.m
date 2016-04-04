@@ -196,7 +196,9 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                 prop_cache.body_ids.(b{1}) = obj.findLinkId(b{1});
             end
 
-            for j = {'Body_to_Left_Hip', 'Left_Hip_to_Top_Left_Leg', 'Top_Left_Leg_to_Bottom_Left_Leg', 'Bottom_Left_Leg_to_Left_Ankle', 'Body_to_Right_Hip', 'Right_Hip_to_Top_Right_Leg','Top_Right_Leg_to_Bottom_Right_Leg','Bottom_Right_Leg_to_Right_Ankle'}
+            %!! What should this really be?
+            %for j = {'Body_to_Left_Hip', 'Left_Hip_to_Top_Left_Leg', 'Top_Left_Leg_to_Bottom_Left_Leg', 'Bottom_Left_Leg_to_Left_Ankle', 'Body_to_Right_Hip', 'Right_Hip_to_Top_Right_Leg','Top_Right_Leg_to_Bottom_Right_Leg','Bottom_Right_Leg_to_Right_Ankle'}
+            for j = {'l_hip','l_knee','l_ankle','r_toe','r_hip','r_knee','r_ankle','r_toe'}
                 prop_cache.position_indices.(j{1}) = obj.findPositionIndices(j{1});
             end
 
@@ -247,11 +249,11 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
         pelvis_name = 'pelvis';
         r_foot_name = 'r_foot';
         l_foot_name = 'l_foot';
-        r_knee_name = 'Top_Right_Leg_to_Bottom_Right_Leg';
-        l_knee_name = 'Top_Left_Leg_to_Bottom_Left_Leg';
-        l_akx_name = 'Bottom_Left_Leg_to_Left_Ankle';
-        r_akx_name = 'Bottom_Right_Leg_to_Right_Ankle';
-        r_aky_name = 'Right_Ankle_to_Right_Foot';
-        l_aky_name = 'Left_Ankle_to_Left_Foot';
+        r_knee_name = 'r_knee';
+        l_knee_name = 'l_knee';
+        l_akx_name = 'l_ankle_roll';
+        r_akx_name = 'r_ankle_roll';
+        r_aky_name = 'r_ankle_flex';
+        l_aky_name = 'l_ankle_flex';
     end
 end
