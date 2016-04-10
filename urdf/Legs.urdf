@@ -531,7 +531,6 @@
         <mesh filename="meshes/Right_Toe.STL" scale="1 1 1"/>
       </geometry>
     </visual>
-  </link>
 
     <collision group="toe">
       <origin rpy="0 0 0" xyz="0.0117 -0.0127 -0.0541"/>
@@ -557,6 +556,8 @@
         <sphere radius="0.01"/>
       </geometry>
     </visual>
+
+  </link>
 
   <frame link="l_foot" name="Left_Foot_Sole" rpy="0 0 0" xyz="0.0426  0.0017 -0.07645"/>
   <frame link="r_foot" name="Right_Foot_Sole" rpy="0 0 0" xyz="0.0426 -0.0017 -0.07645"/>

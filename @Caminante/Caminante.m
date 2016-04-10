@@ -39,13 +39,13 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
             obj = obj.setInitialState(obj.resolveConstraints(zeros(obj.getNumStates(),1)));
             
             lastwarn = warning('off', 'Drake:RigidBodySupportState:NoSupportSurface');
-            obj.left_full_support = RigidBodySupportState(obj,obj.foot_body_id.left);
-            obj.left_toe_support = RigidBodySupportState(obj,obj.foot_body_id.left,struct('contact_groups',{{'toe'}}));
-            obj.right_full_support = RigidBodySupportState(obj,obj.foot_body_id.right);
-            obj.right_toe_support = RigidBodySupportState(obj,obj.foot_body_id.right,struct('contact_groups',{{'toe'}}));
-            obj.left_full_right_full_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right]);
-            obj.left_toe_right_full_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right],struct('contact_groups',{{{'toe'},{'heel','toe'}}}));
-            obj.left_full_right_toe_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right],struct('contact_groups',{{{'heel','toe'},{'toe'}}}));
+%             obj.left_full_support = RigidBodySupportState(obj,obj.foot_body_id.left);
+%             obj.left_toe_support = RigidBodySupportState(obj,obj.foot_body_id.left,struct('contact_groups',{{'toe'}}));
+%             obj.right_full_support = RigidBodySupportState(obj,obj.foot_body_id.right);
+%             obj.right_toe_support = RigidBodySupportState(obj,obj.foot_body_id.right,struct('contact_groups',{{'toe'}}));
+%             obj.left_full_right_full_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right]);
+%             obj.left_toe_right_full_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right],struct('contact_groups',{{{'toe'},{'heel','toe'}}}));
+%             obj.left_full_right_toe_support = RigidBodySupportState(obj,[obj.foot_body_id.left,obj.foot_body_id.right],struct('contact_groups',{{{'heel','toe'},{'toe'}}}));
             warning(lastwarn);
             
         end
@@ -240,7 +240,7 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                                         'mu', 1.0,... % friction coefficient
                                         'constrain_full_foot_pose', true,... % whether to constrain the swing foot roll and pitch
                                         'pelvis_height_above_foot_sole', 0.83,... % default pelvis height when walking
-                                        'support_contact_groups', {{'heel', 'toe'}},... % which contact groups are available for support when walking
+                                        'support_contact_groups', {{'heel', 'midfoot', 'toe'}},... % which contact groups are available for support when walking
                                         'prevent_swing_undershoot', false,... % prevent the first phase of the swing from going backwards while moving to the first knot point
                                         'prevent_swing_overshoot', false,... % prevent the final phase of the swing from moving forward of the last knot point
                                         'nominal_LIP_COM_height', 0.80); % nominal height used to construct D_ls for our linear inverted pendulum model
