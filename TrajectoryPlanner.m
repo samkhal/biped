@@ -41,7 +41,7 @@ classdef TrajectoryPlanner < DrakeSystem
             
             %tempTraj = generateWalkingTrajectory();
             ytemp = obj.trajectory.eval(t);
-            y = ytemp(1:12+6)';
+            y = ytemp((1:12)+6)';
             %y = [0*t, -0.1, 0.3, -0.4, 0, 0, ...
             %     0, -0.1, 0.3, -0.4, 0, 0 ]
         end
