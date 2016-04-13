@@ -1,7 +1,7 @@
 classdef TrajectoryPlanner < DrakeSystem
     properties
         x0;
-        potato;
+        trajectory;
     end
     methods
         function obj = TrajectoryPlanner(sys,x0)
@@ -40,7 +40,7 @@ classdef TrajectoryPlanner < DrakeSystem
             %     0, -0.1, 0.3, -0.4, 0, 0 ];
             
             %tempTraj = generateWalkingTrajectory();
-            ytemp = obj.potato.eval(t);
+            ytemp = obj.trajectory.eval(t);
             y = ytemp(1:12+6)';
             %y = [0*t, -0.1, 0.3, -0.4, 0, 0, ...
             %     0, -0.1, 0.3, -0.4, 0, 0 ]
