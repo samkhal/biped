@@ -1,6 +1,7 @@
 classdef TrajectoryPlanner < DrakeSystem
     properties
         x0;
+        potato;
     end
     methods
         function obj = TrajectoryPlanner(sys,x0)
@@ -12,13 +13,14 @@ classdef TrajectoryPlanner < DrakeSystem
                             true); ... time-invariant
             obj = obj.setOutputFrame(sys.getInputFrame);
             obj.x0 = x0((1:12) + 6);
+            obj.potato = generateWalkingTrajectory(); 
         end
         
         function x0 = getInitialState(obj)
             x0 = obj.x0;
         end
         
-        function y = output(~,~,~,~) % y = output(obj,t,x,u)
+        function  y = output(obj,t,x,u) %y = output(~,~,~,~) 
             %{
               1  Biped__Body-Left_Hip
               2  Biped__Left_Hip-Top_Left_Leg
@@ -34,8 +36,14 @@ classdef TrajectoryPlanner < DrakeSystem
               12 Biped__Right_Foot-Right_Toe
             %}
 %             y = zeros(12,1);
-            y = [0, -0.1, 0.3, -0.4, 0, 0, ...
-                 0, -0.1, 0.3, -0.4, 0, 0 ];
+            %y = [0, -0.1, 0.3, -0.4, 0, 0, ...
+            %     0, -0.1, 0.3, -0.4, 0, 0 ];
+            
+            %tempTraj = generateWalkingTrajectory();
+            ytemp = obj.potato.eval(t);
+            y = ytemp(1:12+6)';
+            %y = [0*t, -0.1, 0.3, -0.4, 0, 0, ...
+            %     0, -0.1, 0.3, -0.4, 0, 0 ]
         end
         
     end

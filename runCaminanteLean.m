@@ -59,30 +59,29 @@ Allcons{end+1} = WorldEulerConstraint(legs,l_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+T
 Allcons{end+1} = WorldEulerConstraint(legs,r_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 
 q_nom = zeros(nq,1);
-
-for i = 1:Stages
-    Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[0,0]);
-    Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[0,0]);
-    Allcons{8} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[0,0]);
+for i = 1:Stages-1
+    Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
+    Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
+    Allcons{8} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
 i=i+1;
-    Allcons{9} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[Time,Time]);
-    Allcons{10} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[Time,Time]);
-    Allcons{11} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[Time,Time]);
+    Allcons{9} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
+    Allcons{10} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
+    Allcons{11} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
 T = Time;
 N = 2;
 v = legs.constructVisualizer();
 ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
 [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
 q_nom = q_end_nom;
-T = Time;
-N = 2;
-v = legs.constructVisualizer();
+%T = Time;
+%N = 2;
+%v = legs.constructVisualizer();
 
     ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
     [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
-    qtraj_guess = PPTrajectory(foh([0 T],[q_nom, q_end_nom])); %more complex then this
-
-    t_vec = linspace(0,T,N);
+    qtraj_guess = PPTrajectory(foh([(i-2)*Time/Stages (i-1)*Time/Stages],[q_nom, q_end_nom])); %more complex then this
+    %qtraj_guess.append TRY THIS, also try changing how time is specified
+    t_vec = linspace((i-2)*Time/Stages,(i-1)*Time/Stages,N);
 
     % do IK
 
@@ -96,8 +95,15 @@ v = legs.constructVisualizer();
 
     v.playback(xtraj,struct('slider',true));
     q_nom=q_end(1:18,1);
+    ABC{i-1} = xtraj;
    % if info > 10
    %   error('IK fail snopt_info: %d\n', info);
    % end
-  %% ADD BREAK POINT 
 end
+
+i=2;
+while i<Stages
+    ABC{1} = ABC{1}.append(ABC{i});
+    i=i+1;
+end
+v.playback(ABC{1},struct('slider',true));
