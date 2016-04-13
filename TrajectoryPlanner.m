@@ -13,7 +13,7 @@ classdef TrajectoryPlanner < DrakeSystem
                             true); ... time-invariant
             obj = obj.setOutputFrame(sys.getInputFrame);
             obj.x0 = x0((1:12) + 6);
-            obj.potato = generateWalkingTrajectory(); 
+            obj.trajectory = generateWalkingTrajectory(); 
         end
         
         function x0 = getInitialState(obj)
