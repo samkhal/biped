@@ -95,7 +95,7 @@ q_nom = q_end_nom;
 
  %   v.playback(xtraj,struct('slider',true));
     q_nom=q_end(1:18,1);
-    ABC{i-1} = xtraj;
+    outputTrajTemp{i-1} = xtraj;
    % if info > 10
    %   error('IK fail snopt_info: %d\n', info);
    % end
@@ -103,8 +103,8 @@ end
 
 i=2;
 while i<Stages
-    ABC{1} = ABC{1}.append(ABC{i});
+    outputTrajTemp{1} = outputTrajTemp{1}.append(outputTrajTemp{i});
     i=i+1;
 end
 %v.playback(ABC{1},struct('slider',true));
-outputTraj = ABC{1};
+outputTraj = outputTrajTemp{1};
