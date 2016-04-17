@@ -68,7 +68,7 @@
   <joint name="l_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Left_Hip"/>
-    <origin rpy="1.56567  0      -1.57079" xyz="0.00302  0.05556  0.51514"/>
+    <origin rpy="1.56567  0      -1.57079" xyz="0.0107    0.05539   -0.10919"/>
     <axis xyz="0      -0.00511  0.99998"/>
     <limit effort="100.0" lower="-0.486936705914" upper="0.628150227902" velocity="0.0"/>
   </joint>
@@ -110,7 +110,7 @@
   <joint name="r_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Right_Hip"/>
-    <origin rpy="1.56567  0      -1.57079" xyz="-0.00313 -0.05556  0.51514"/>
+    <origin rpy="1.56567  0      -1.57079" xyz="0.00455  -0.05573  -0.10919"/>
     <axis xyz="0       0.00511 -0.99998"/>
     <limit effort="100.0" lower="-0.450917249297" upper="0.628150227902" velocity="0.0"/>
   </joint>
@@ -149,25 +149,28 @@
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
   </joint>
+
   <link name="pelvis">
     <inertial>
       <mass value="3.53324885586669"/>
-      <origin rpy="1.56567  0      -1.57079" xyz="-7.68000000e-03   1.70000000e-04   6.24330000e-01"/>
+      <!-- origin used to be at xyz=-0.00768   0.00017   0.62433"-->
+      <origin rpy="1.56567  0      -1.57079" xyz="0 0 0"/>
       <inertia ixx="0.0271179077728007" ixy="1.18852566353138E-05" ixz="2.95478792996208E-05" iyy="0.0323353494450389" iyz="0.00289482168449842" izz="0.0422145237899791"/>
     </inertial>
     <collision name="Biped__Body_collision">
-      <origin rpy="1.56567  0      -1.57079" xyz="0.07092  0.0594   0.21269"/>
+      <origin rpy="1.56567  0      -1.57079" xyz="0.0786    0.05923   -0.41164"/>
       <geometry>
         <mesh filename="meshes/Body_col.STL" scale="1 1 1"/>
       </geometry>
     </collision>
     <visual name="Biped__Body_visual">
-      <origin rpy="1.56567  0      -1.57079" xyz="0.07092  0.0594   0.21269"/>
+      <origin rpy="1.56567  0      -1.57079" xyz="0.0786    0.05923   -0.41164"/>
       <geometry>
-        <mesh filename="meshes/Body.STL" scale="1 1 1"/>
+        <mesh filename="meshes/Body.obj" scale="1 1 1"/>
       </geometry>
     </visual>
   </link>
+  
   <link name="Biped__Left_Hip">
     <inertial>
       <mass value="0.437298303222345"/>
