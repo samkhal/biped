@@ -18,7 +18,7 @@ function runCaminantePD
     % pd feedback term
     % tau = -Kp*theta_actual - Kd*thetadot_actual
     D = zeros(r.getNumInputs,r.getNumStates);
-    index = (1:r.getNumInputs) + 6;
+    index = (1:r.getNumInputs)+6;
     D(:,index) = -Kp;
     D(:,index + r.getNumPositions) = -Kd;
     fb = LinearSystem([],[],[],[],[],D);
@@ -64,6 +64,6 @@ function runCaminantePD
     
     %% Simulate 
     warning(S);
-    traj = simulate(sys,[0 2],x0);
+    traj = simulate(sys,[0 8.75],x0);
     playback(v,traj,struct('slider',true));
 end

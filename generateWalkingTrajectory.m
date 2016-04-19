@@ -1,7 +1,7 @@
-function runCaminanteLean(LPos, RPos, COMPos, Tol)
+function outputTraj = generateWalkingTrajectory(LPos, RPos, COMPos, Tol)
 %% Ari Goodman
-%% 3/29/2016
-%% Add breakpoint at add breakpoint; it will animate one step of the traj at a time 
+%% 4/11/2016
+%% Generates Walking Trajectory for runCaminantePD 
 
 if nargin<1
   LPos = [0, .1, 0.05;...
@@ -69,7 +69,7 @@ i=i+1;
     Allcons{11} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
 T = Time;
 N = 2;
-v = legs.constructVisualizer();
+%v = legs.constructVisualizer();
 ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
 [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
 q_nom = q_end_nom;
@@ -93,9 +93,9 @@ q_nom = q_end_nom;
     
     % do visualize
 
-    v.playback(xtraj,struct('slider',true));
+ %   v.playback(xtraj,struct('slider',true));
     q_nom=q_end(1:18,1);
-    outputTraj{i-1} = xtraj;
+    outputTrajTemp{i-1} = xtraj;
    % if info > 10
    %   error('IK fail snopt_info: %d\n', info);
    % end
@@ -103,7 +103,8 @@ end
 
 i=2;
 while i<Stages
-    outputTraj{1} = outputTraj{1}.append(outputTraj{i});
+    outputTrajTemp{1} = outputTrajTemp{1}.append(outputTrajTemp{i});
     i=i+1;
 end
-v.playback(outputTraj{1},struct('slider',true));
+%v.playback(ABC{1},struct('slider',true));
+outputTraj = outputTrajTemp{1};
