@@ -1,22 +1,26 @@
-classdef TrajectoryPlanner < DrakeSystem
+classdef getzmp < DrakeSystem
+    properties
+        legs;
+    end
     methods
-        function obj=ZMP()
+        function obj=getzmp(legs)
             obj@DrakeSystem(0, ... 0 cts time state vars
                             0, ... 0 dsc time state vars
                             0, ... 0 inputs
-                            sys.getNumInputs, ... number of outputs
+                            12, ... number of outputs
                             false, ... no direct feedthrough
                             true); ... time-invariant
+            obj.legs=legs;
         end
         
         function x0 = getInitialState(obj)
             x0 = zeros(1,obj.getNumOutputs);
         end
            
-        function [xzmp,yzmp] = getzmp()
+        function [xzmp,yzmp] = zmp(legs)
             %getxmp gets the current x and y total system zmp
             options.floating=true;
-            legs=RigidBodyManipulator('urdf2/Legs.urdf',options);
+            
             nq=legs.getNumPositions();
 
             pelvis = legs.findLinkId('pelvis');
@@ -86,11 +90,11 @@ classdef TrajectoryPlanner < DrakeSystem
             y=[com1(2) com2(2) com3(2) com4(2) com5(2) com6(2) com7(2) com8(2) com9(2) com10(2) com11(2) com12(2) com13(2)];
             z=[com1(3) com2(3) com3(3) com4(3) com5(3) com6(3) com7(3) com8(3) com9(3) com10(3) com11(3) com12(3) com13(3)];
 
-            xddot=;
-            zddot=;
+            xddot=0;
+            zddot=0;
 
-            thetaxddot=;
-            thetayddot=;
+            thetaxddot=0;
+            thetayddot=0;
 
 
             xzmp=0;
@@ -100,6 +104,7 @@ classdef TrajectoryPlanner < DrakeSystem
                 xzmp=xzmp+((m(i)*(zddot(i)+g)*x(i))-(m(i)*xddot(i)*z(i))-(Iy(i)*thetayddot(i)))/(m(i)*(zddot(i)+g));
                 yzmp=yzmp+((m(i)*(zddot(i)+g)*y(i))-(m(i)*xddot(i)*z(i))-(Ix(i)*thetaxddot(i)))/(m(i)*(zddot(i)+g));
             end
-            cascade(
+            %cascade(
         end
-
+    end
+end
