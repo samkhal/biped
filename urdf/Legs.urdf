@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="Legs">
 
+<!-- TRANSMISSIONS -->
   <transmission name="l_hip_abduct_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_hip_abduct_motor"/>
     <joint name="l_hip_abduct"/>
@@ -64,7 +65,7 @@
 
 
 
-
+<!-- JOINTS -->
   <joint name="l_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Left_Hip"/>
@@ -96,14 +97,17 @@
   <joint name="l_ankle_roll" type="revolute">
     <parent link="Biped__Left_Ankle"/>
     <child link="l_foot"/>
-    <origin rpy="0  0  0" xyz="-0.00077 -0.0179  -0.06914"/>
-    <axis xyz="0      -0.00511  0.99998"/>
+    <!-- <origin rpy="0  0  0" xyz="-0.00077 -0.0179  -0.06914"/> -->
+    <origin rpy="-1.5708  1.5708 0" xyz="-0.00077 -0.0179  -0.06914"/>
+    <!-- <axis xyz="0      -0.00511  0.99998"/> -->
+    <axis xyz="-0.99998      0  -0.00511"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
   <joint name="l_toe_flex" type="revolute">
     <parent link="l_foot"/>
     <child link="l_toe"/>
-    <origin rpy="0  0  0" xyz="0.00232 -0.03426 -0.06708"/>
+    <!-- <origin rpy="0  0  0" xyz="0.00232 -0.03426 -0.06708"/> -->
+    <origin rpy="1.5708  0 -1.5708" xyz="0.06708 -0.00232 -0.03426"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
   </joint>
@@ -138,18 +142,22 @@
   <joint name="r_ankle_roll" type="revolute">
     <parent link="Biped__Right_Ankle"/>
     <child link="r_foot"/>
-    <origin rpy="0  0  0" xyz="-0.00079 -0.01789 -0.07124"/>
-    <axis xyz="0       0.00511 -0.99998"/>
+    <!--original: origin rpy="0  0  0" xyz="-0.00079 -0.01789 -0.07124"/-->
+    <origin rpy="-1.5708  1.5708 0" xyz="-0.00079 -0.01789 -0.07124"/>
+    <!--axis xyz="0       0.00511 -0.99998"/-->
+    <axis xyz="0.99998    0   0.00511"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
   <joint name="r_toe_flex" type="revolute">
     <parent link="r_foot"/>
     <child link="r_toe"/>
-    <origin rpy="0  0  0" xyz="0.00258 -0.03427 -0.06497"/>
+    <!-- <origin rpy="0  0  0" xyz="0.00258 -0.03427 -0.06497"/> -->
+    <origin rpy="1.5708  0 -1.5708" xyz="0.06497 -0.00258 -0.03427"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
   </joint>
 
+<!-- LINKS -->
   <link name="pelvis">
     <inertial>
       <mass value="3.53324885586669"/>
@@ -170,7 +178,6 @@
       </geometry>
     </visual>
   </link>
-  
   <link name="Biped__Left_Hip">
     <inertial>
       <mass value="0.437298303222345"/>
@@ -255,67 +262,99 @@
   <link name="l_foot">
     <inertial>
       <mass value="0.350801552548944"/>
-      <origin rpy="0  0  0" xyz="-0.00146 -0.02757 -0.00014"/>
+      <!-- <origin rpy="0  0  0" xyz="-0.00146 -0.02757 -0.00014"/> -->
+      <origin rpy="1.5708  0 -1.5708" xyz="0.00014 0.00146 -0.02757"/>
       <inertia ixx="0.000904665834453429" ixy="7.01175958971625E-06" ixz="4.60520410965569E-06" iyy="0.000926980236054857" iyz="5.01437405892954E-05" izz="0.00014911487451342"/>
     </inertial>
     <collision name="Biped__Left_Foot_collision">
-      <origin rpy="0  0  0" xyz="0.07394  0.14666 -0.00112"/>
+      <!-- <origin rpy="0  0  0" xyz="0.07394  0.14666 -0.00112"/> -->
+      <origin rpy="1.5708  0 -1.5708" xyz="0.00112  -0.07394 0.14666"/>
       <geometry>
         <mesh filename="meshes/Left_Foot_col.STL" scale="1 1 1"/>
       </geometry>
     </collision>
     <visual name="Biped__Left_Foot_visual">
-      <origin rpy="0  0  0" xyz="0.07394  0.14666 -0.00112"/>
+      <origin rpy="1.5708  0 -1.5708" xyz="0.00112  -0.07394 0.14666"/>
       <geometry>
         <mesh filename="meshes/Left_Foot.STL" scale="1 1 1"/>
       </geometry>
     </visual>
 
+<!-- LEFT FOOT CONTACTS: Heel, Midfoot, and Toe are all on foot link-->
+
     <collision group="heel">
-      <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1002"/>
+      <!-- <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1002"/> -->
+      <origin rpy="0 0 0" xyz="-0.1002 -0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="heel">
-      <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1002"/>
+      <origin rpy="0 0 0" xyz="-0.1002 -0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
     <collision group="heel">
-      <origin rpy="0 0 0" xyz="-0.0139 -0.048 0.1002"/>
+      <origin rpy="0 0 0" xyz="-0.1002 0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="heel">
-      <origin rpy="0 0 0" xyz="-0.0139 -0.048 0.1002"/>
+      <origin rpy="0 0 0" xyz="-0.1002 0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
 
     <collision group="midfoot">
-      <origin rpy="0 0 0" xyz="0.0203 -0.0472 -0.0413"/>
+      <!-- <origin rpy="0 0 0" xyz="0.0203 -0.0472 0.0294"/> -->
+      <origin rpy="0 0 0" xyz="-0.0294 -0.0203 -0.0472"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="midfoot">
-      <origin rpy="0 0 0" xyz="0.0203 -0.0472 -0.0413"/>
+      <origin rpy="0 0 0" xyz="-0.0294 -0.0203 -0.0472"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
     <collision group="midfoot">
-      <origin rpy="0 0 0" xyz="-0.0203 -0.0472 -0.0413"/>
+      <origin rpy="0 0 0" xyz="-0.0294 0.0203 -0.0472"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="midfoot">
-      <origin rpy="0 0 0" xyz="-0.0203 -0.0472 -0.0413"/>
+      <origin rpy="0 0 0" xyz="-0.0294 0.0203 -0.0472"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </visual>
+
+    <collision group="toe">
+      <!-- <origin rpy="0 0 0" xyz="0.0203 -0.0472 -0.0413"/> -->
+      <origin rpy="0 0 0" xyz="0.0413 -0.0203 -0.0472"/>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+    </collision>
+    <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.0413 -0.0203 -0.0472"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </visual>
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.0413 0.0203 -0.0472"/>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+    </collision>
+    <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.0413 0.0203 -0.0472"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
@@ -341,7 +380,7 @@
       </geometry>
     </visual>
 
-    <collision group="toe">
+    <!--collision group="toe">
       <origin rpy="0 0 0" xyz="0.0137 -0.0127 -0.0548"/>
       <geometry>
         <sphere radius="0.0"/>
@@ -364,7 +403,7 @@
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
-    </visual>
+    </visual-->
 
   </link>
   <link name="Biped__Right_Hip">
@@ -449,67 +488,98 @@
   <link name="r_foot">
     <inertial>
       <mass value="0.335422598099665"/>
-      <origin rpy="0  0  0" xyz="-0.00156 -0.02863 -0.00014"/>
+      <!--origin rpy="0  0  0" xyz="-0.00156 -0.02863 -0.00014"/-->
+      <origin rpy="1.5708  0 -1.5708" xyz="0.00014 0.00156 -0.02863"/>
       <inertia ixx="0.000825311286057891" ixy="7.70619999918036E-06" ixz="7.38179683506509E-06" iyy="0.000855538414270564" iyz="7.08159606800129E-05" izz="0.000138582194390659"/>
     </inertial>
     <collision name="Biped__Right_Foot_collision">
-      <origin rpy="0  0  0" xyz="-0.19275  0.14664  0.00097"/>
+      <!-- <origin rpy="0  0  0" xyz="-0.19275  0.14664  0.00097"/> -->
+      <origin rpy="1.5708  0 -1.5708" xyz="-0.00097  0.19275  0.14664"/>
       <geometry>
         <mesh filename="meshes/Right_Foot_col.STL" scale="1 1 1"/>
       </geometry>
     </collision>
     <visual name="Biped__Right_Foot_visual">
-      <origin rpy="0  0  0" xyz="-0.19275  0.14664  0.00097"/>
+      <origin rpy="1.5708  0 -1.5708" xyz="-0.00097  0.19275  0.14664"/>
       <geometry>
         <mesh filename="meshes/Right_Foot.STL" scale="1 1 1"/>
       </geometry>
     </visual>
 
     <collision group="heel">
-      <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1015"/>
+      <!-- <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1015"/> -->
+      <origin rpy="0 0 0" xyz="-0.1015 -0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="heel">
-      <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1015"/>
+      <origin rpy="0 0 0" xyz="-0.1015 -0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
     <collision group="heel">
-      <origin rpy="0 0 0" xyz="-0.0139 -0.048 0.1015"/>
+      <origin rpy="0 0 0" xyz="-0.1015 0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="heel">
-      <origin rpy="0 0 0" xyz="-0.0139 -0.048 0.1015"/>
+      <origin rpy="0 0 0" xyz="-0.1015 0.0139 -0.048"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
 
     <collision group="midfoot">
-      <origin rpy="0 0 0" xyz="0.0202 -0.0473 -0.0395"/>
+      <!-- <origin rpy="0 0 0" xyz="0.0202 -0.0473 0.0310"/> -->
+      <origin rpy="0 0 0" xyz="-0.0310 -0.0202 -0.0473"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="midfoot">
-      <origin rpy="0 0 0" xyz="0.0202 -0.0473 -0.0395"/>
+      <origin rpy="0 0 0" xyz="-0.0310 -0.0202 -0.0473"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
     </visual>
     <collision group="midfoot">
-      <origin rpy="0 0 0" xyz="-0.0202 -0.0473 -0.0395"/>
+      <origin rpy="0 0 0" xyz="-0.0310 0.0202 -0.0473"/>
       <geometry>
         <sphere radius="0.0"/>
       </geometry>
     </collision>
     <visual group="midfoot">
-      <origin rpy="0 0 0" xyz="-0.0202 -0.0473 -0.0395"/>
+      <origin rpy="0 0 0" xyz="-0.0310 0.0202 -0.0473"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </visual>
+
+
+    <collision group="toe">
+      <!-- <origin rpy="0 0 0" xyz="0.0202 -0.0473 -0.0395"/> -->
+      <origin rpy="0 0 0" xyz="0.0395 -0.0202 -0.0473"/>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+    </collision>
+    <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.0395 -0.0202 -0.0473"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </visual>
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.0395 0.0202 -0.0473"/>
+      <geometry>
+        <sphere radius="0.0"/>
+      </geometry>
+    </collision>
+    <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.0395 0.0202 -0.0473"/>
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
@@ -536,7 +606,7 @@
     </visual>
   </link>
 
-    <collision group="toe">
+    <!--collision group="toe">
       <origin rpy="0 0 0" xyz="0.0117 -0.0127 -0.0541"/>
       <geometry>
         <sphere radius="0.0"/>
@@ -559,7 +629,7 @@
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
-    </visual>
+    </visual-->
 
   <frame link="l_foot" name="Left_Foot_Sole" rpy="0 0 0" xyz="0.0426  0.0017 -0.07645"/>
   <frame link="r_foot" name="Right_Foot_Sole" rpy="0 0 0" xyz="0.0426 -0.0017 -0.07645"/>
