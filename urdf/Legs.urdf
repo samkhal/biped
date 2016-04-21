@@ -27,11 +27,11 @@
     <joint name="l_ankle_roll"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
-  <transmission name="l_toe_flex_trans" type="pr2_mechanism_model/SimpleTransmission">
+<!--   <transmission name="l_toe_flex_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="l_toe_flex_motor"/>
     <joint name="l_toe_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
+  </transmission> -->
   <transmission name="r_hip_abduct_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_hip_abduct_motor"/>
     <joint name="r_hip_abduct"/>
@@ -57,11 +57,11 @@
     <joint name="r_ankle_roll"/>
     <mechanicalReduction>1</mechanicalReduction>
   </transmission>
-  <transmission name="r_toe_flex_trans" type="pr2_mechanism_model/SimpleTransmission">
+<!--   <transmission name="r_toe_flex_trans" type="pr2_mechanism_model/SimpleTransmission">
     <actuator name="r_toe_flex_motor"/>
     <joint name="r_toe_flex"/>
     <mechanicalReduction>1</mechanicalReduction>
-  </transmission>
+  </transmission> -->
 
 
 
@@ -103,14 +103,14 @@
     <axis xyz="-0.99998      0  -0.00511"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
-  <joint name="l_toe_flex" type="revolute">
+  <!-- <joint name="l_toe_flex" type="revolute">
     <parent link="l_foot"/>
     <child link="l_toe"/>
-    <!-- <origin rpy="0  0  0" xyz="0.00232 -0.03426 -0.06708"/> -->
+    <! <origin rpy="0  0  0" xyz="0.00232 -0.03426 -0.06708"/> old>
     <origin rpy="1.5708  0 -1.5708" xyz="0.06708 -0.00232 -0.03426"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
-  </joint>
+  </joint> -->
   <joint name="r_hip_abduct" type="revolute">
     <parent link="pelvis"/>
     <child link="Biped__Right_Hip"/>
@@ -148,14 +148,14 @@
     <axis xyz="0.99998    0   0.00511"/>
     <limit effort="100.0" lower="-1.32128191897" upper="1.32128191897" velocity="0.0"/>
   </joint>
-  <joint name="r_toe_flex" type="revolute">
+<!--   <joint name="r_toe_flex" type="revolute">
     <parent link="r_foot"/>
     <child link="r_toe"/>
-    <!-- <origin rpy="0  0  0" xyz="0.00258 -0.03427 -0.06497"/> -->
+    <! <origin rpy="0  0  0" xyz="0.00258 -0.03427 -0.06497"/> old>
     <origin rpy="1.5708  0 -1.5708" xyz="0.06497 -0.00258 -0.03427"/>
     <axis xyz="-1  0  0"/>
     <limit effort="100.0" lower="-0.421908321567" upper="1.92797301525" velocity="0.0"/>
-  </joint>
+  </joint> -->
 
 <!-- LINKS -->
   <link name="pelvis">
@@ -361,7 +361,7 @@
     </visual>
 
   </link>
-  <link name="l_toe">
+<!--   <link name="l_toe">
     <inertial>
       <mass value="0.137471301666086"/>
       <origin rpy="0  0  0" xyz="0       0.00024 -0.03181"/>
@@ -378,9 +378,9 @@
       <geometry>
         <mesh filename="meshes/Left_Toe.STL" scale="1 1 1"/>
       </geometry>
-    </visual>
+    </visual> >
 
-    <!--collision group="toe">
+    <!collision group="toe">
       <origin rpy="0 0 0" xyz="0.0137 -0.0127 -0.0548"/>
       <geometry>
         <sphere radius="0.0"/>
@@ -403,9 +403,9 @@
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
-    </visual-->
+    </visual>
 
-  </link>
+  </link-->
   <link name="Biped__Right_Hip">
     <inertial>
       <mass value="0.429542604129865"/>
@@ -505,7 +505,7 @@
         <mesh filename="meshes/Right_Foot.STL" scale="1 1 1"/>
       </geometry>
     </visual>
-
+    <!-- RIGHT FOOT CONTACTS -->
     <collision group="heel">
       <!-- <origin rpy="0 0 0" xyz="0.0139 -0.048 0.1015"/> -->
       <origin rpy="0 0 0" xyz="-0.1015 -0.0139 -0.048"/>
@@ -586,7 +586,7 @@
     </visual>
 
   </link>
-  <link name="r_toe">
+<!--   <link name="r_toe">
     <inertial>
       <mass value="0.139662029501898"/>
       <origin rpy="0  0  0" xyz="0.00000000e+00   9.00000000e-05  -3.13100000e-02"/>
@@ -604,9 +604,8 @@
         <mesh filename="meshes/Right_Toe.STL" scale="1 1 1"/>
       </geometry>
     </visual>
-  </link>
 
-    <!--collision group="toe">
+    <!collision group="toe">
       <origin rpy="0 0 0" xyz="0.0117 -0.0127 -0.0541"/>
       <geometry>
         <sphere radius="0.0"/>
@@ -629,11 +628,12 @@
       <geometry>
         <sphere radius="0.01"/>
       </geometry>
-    </visual-->
+    </visual>
+  </link-->
 
-  <frame link="l_foot" name="Left_Foot_Sole" rpy="0 0 0" xyz="0.0426  0.0017 -0.07645"/>
-  <frame link="r_foot" name="Right_Foot_Sole" rpy="0 0 0" xyz="0.0426 -0.0017 -0.07645"/>
-  <frame link="l_toe" name="Left_Toe_Sole" rpy="0 0 0" xyz="0.1728 0.0017 -0.07645"/>
-  <frame link="r_toe" name="Right_Toe_Sole" rpy="0 0 0" xyz="0.1728 -0.0017 -0.07645"/>
+  <frame link="l_foot" name="l_foot_sole" rpy="0 0 0" xyz="-0.0294 0 -0.0472"/>
+  <frame link="r_foot" name="r_foot_sole" rpy="0 0 0" xyz="-0.0310 0 -0.0473"/>
+  <frame link="l_foot" name="l_foot_front" rpy="0 0 0" xyz="0.0413 0 -0.0472"/>
+  <frame link="r_foot" name="r_foot_front" rpy="0 0 0" xyz="0.0395 0 -0.0473"/>
 
 </robot>

@@ -22,7 +22,7 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
             w = warning('off','Drake:RigidBodyManipulator:UnsupportedVelocityLimits');
 
             obj = obj@TimeSteppingRigidBodyManipulator(urdf,options.dt,options);
-            obj = obj@Biped('Right_Foot_Sole', 'Left_Foot_Sole', 'Right_Toe_Sole', 'Left_Toe_Sole');
+            obj = obj@Biped('r_foot_sole', 'l_foot_sole', 'r_foot_front', 'l_foot_front');
             warning(w);
             
             % Add a force on a specified link if we want!
@@ -198,7 +198,7 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
 
             %!! What should this really be?
             %for j = {'Body_to_Left_Hip', 'Left_Hip_to_Top_Left_Leg', 'Top_Left_Leg_to_Bottom_Left_Leg', 'Bottom_Left_Leg_to_Left_Ankle', 'Body_to_Right_Hip', 'Right_Hip_to_Top_Right_Leg','Top_Right_Leg_to_Bottom_Right_Leg','Bottom_Right_Leg_to_Right_Ankle'}
-            for j = {'l_hip','l_knee','l_ankle','r_toe','r_hip','r_knee','r_ankle','r_toe'}
+            for j = {'l_hip','l_knee','l_ankle','r_hip','r_knee','r_ankle'}
                 prop_cache.position_indices.(j{1}) = obj.findPositionIndices(j{1});
             end
 
