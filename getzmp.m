@@ -3,14 +3,16 @@ classdef getzmp < DrakeSystem
         legs;
     end
     methods
-        function obj=getzmp(legs)
+        function obj=getzmp(Caminante,sys,x0)
             obj@DrakeSystem(0, ... 0 cts time state vars
                             0, ... 0 dsc time state vars
                             0, ... 0 inputs
-                            12, ... number of outputs
+                            sys.getNumInputs, ... number of outputs
                             false, ... no direct feedthrough
                             true); ... time-invariant
-            obj.legs=legs;
+            obj = obj.setOutputFrame(sys.getInputFrame);
+            obj.x0 = x0((1:12) + 6);
+            obj.legs=Caminante;
         end
         
         function x0 = getInitialState(obj)
