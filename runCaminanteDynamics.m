@@ -18,8 +18,11 @@ function runCaminanteDynamics
     % Compute a feasible set of initial conditions for the simulation (e.g. no
     % penetration)
     x0 = Point(r.getStateFrame);
+    x0 = getPoseBentLegs(r);
+            
     x0 = resolveConstraints(r,x0);
-    x0(3) = x0(3)+0.5;
+        
+    %x0(3) = x0(3)+0.5;
 
     % Forward simulate dynamics with visualization, then playback at realtime
     S=warning('off','Drake:DrakeSystem:UnsupportedSampleTime');
