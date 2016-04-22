@@ -1,7 +1,11 @@
 % Visualize walking plans
 
-load CaminanteTwoStepPlan
-%load AtlasTwoStepPlan
+function plotWalkingPlan(walking_plan_data, footstep_plan)
+
+if nargin<1
+    load CaminanteTwoStepPlan
+    %load AtlasTwoStepPlan
+end
 
 dt = 0.1;
 t = 0:dt:walking_plan_data.settings.zmptraj(1).tspan(2);
@@ -32,7 +36,7 @@ plot3(pelvis_traj(1,:),pelvis_traj(2,:),pelvis_traj(3,:))
 figure;
 hold on;
 plot(zmptrajXY(1,:),zmptrajXY(2,:))
-plot(comtraj(1,:),comtraj(2,:))
+plot(comtrajXY(1,:),comtrajXY(2,:))
 plot(foot_pos(1,:),foot_pos(2,:),'*')
 legend('ZMP','COM','Footsteps','Location','south')
 title('ZMP-COM XY')
