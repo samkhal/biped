@@ -1,21 +1,24 @@
-% classdef getzmp < DrakeSystem
-%     properties
-%         legs;
-%     end
-%     methods
-%         function obj=getzmp(legs)
-%             obj@DrakeSystem(0, ... 0 cts time state vars
-%                             0, ... 0 dsc time state vars
-%                             0, ... 0 inputs
-%                             12, ... number of outputs
-%                             false, ... no direct feedthrough
-%                             true); ... time-invariant
-%             obj.legs=legs;
-%         end
-%         
-%         function x0 = getInitialState(obj)
-%             x0 = zeros(1,obj.getNumOutputs);
-%         end
+
+classdef getzmp < DrakeSystem
+    properties
+        legs;
+    end
+    methods
+        function obj=getzmp(Caminante,sys,x0)
+            obj@DrakeSystem(0, ... 0 cts time state vars
+                            0, ... 0 dsc time state vars
+                            0, ... 0 inputs
+                            sys.getNumInputs, ... number of outputs
+                            false, ... no direct feedthrough
+                            true); ... time-invariant
+            obj = obj.setOutputFrame(sys.getInputFrame);
+            obj.x0 = x0((1:12) + 6);
+            obj.legs=Caminante;
+        end
+        
+        function x0 = getInitialState(obj)
+            x0 = zeros(1,obj.getNumOutputs);
+        end
            
         function [xzmp,yzmp] = getzmp(legs)
             %getxmp gets the current x and y total system zmp
