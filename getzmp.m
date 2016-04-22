@@ -1,26 +1,26 @@
-classdef getzmp < DrakeSystem
-    properties
-        legs;
-    end
-    methods
-        function obj=getzmp(legs)
-            obj@DrakeSystem(0, ... 0 cts time state vars
-                            0, ... 0 dsc time state vars
-                            0, ... 0 inputs
-                            12, ... number of outputs
-                            false, ... no direct feedthrough
-                            true); ... time-invariant
-            obj.legs=legs;
-        end
-        
-        function x0 = getInitialState(obj)
-            x0 = zeros(1,obj.getNumOutputs);
-        end
+% classdef getzmp < DrakeSystem
+%     properties
+%         legs;
+%     end
+%     methods
+%         function obj=getzmp(legs)
+%             obj@DrakeSystem(0, ... 0 cts time state vars
+%                             0, ... 0 dsc time state vars
+%                             0, ... 0 inputs
+%                             12, ... number of outputs
+%                             false, ... no direct feedthrough
+%                             true); ... time-invariant
+%             obj.legs=legs;
+%         end
+%         
+%         function x0 = getInitialState(obj)
+%             x0 = zeros(1,obj.getNumOutputs);
+%         end
            
-        function [xzmp,yzmp] = zmp(legs)
+        function [xzmp,yzmp] = getzmp(legs)
             %getxmp gets the current x and y total system zmp
             options.floating=true;
-            
+            legs=RigidBodyManipulator(
             nq=legs.getNumPositions();
 
             pelvis = legs.findLinkId('pelvis');
@@ -97,14 +97,21 @@ classdef getzmp < DrakeSystem
             thetayddot=0;
 
 
-            xzmp=0;
-            yzmp=0;
+            xzmp_A=0;
+            yzmp_A=0;
+            xzmp_B=0;
+            yzmp_B=0;
+            zmp_C=0;
             for i=1:13
 
-                xzmp=xzmp+((m(i)*(zddot(i)+g)*x(i))-(m(i)*xddot(i)*z(i))-(Iy(i)*thetayddot(i)))/(m(i)*(zddot(i)+g));
-                yzmp=yzmp+((m(i)*(zddot(i)+g)*y(i))-(m(i)*xddot(i)*z(i))-(Ix(i)*thetaxddot(i)))/(m(i)*(zddot(i)+g));
+                xzmp_A=xzmp_A+((m(i)*(zddot(i)+g)*x(i))/(m(i)*(zddot(i)+g));
+                yzmp_A=yzmp_A+((m(i)*(zddot(i)+g)*y(i))/(m(i)*(zddot(i)+g));
+                xzmp_B=xzmp_B+(Iy(i)*thetayddot(i));
+                yzmp_B=yzmp_B+(Ix(i)*thetaxddot(i));
+                zmp_C=zmp_C+(m(i)*(zddot(i)+g));
+               
             end
             %cascade(
         end
-    end
-end
+%     end
+% end
