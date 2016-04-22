@@ -12,6 +12,14 @@ if nargin<1
           .22, .1, 0.05;...
           .22, .1, 0.05;...
           .22, .1, 0.05;]';
+      LPos = [0, .1, 0.05;...
+          0, .1, 0.05;...
+          0, .1, 0.05;...
+          0, .1, 0.05;...
+          0, .1, 0.05;...%EDITED
+          0, .1, 0.05;...
+          0, .1, 0.05;...
+          0, .1, 0.05]';
 end
 if nargin<2
   RPos = [ 0, -.1, 0.05;...
@@ -22,6 +30,15 @@ if nargin<2
           .125,-.1, 0.15;...
           .22, -.1, 0.05;...
           .22, -.1, 0.05;]';
+      
+       RPos = [ 0, -.1, 0.05;...%EDITED
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;...
+           0, -.1, 0.05;]';
  end
  if nargin<3
     COMPos = [0,0,nan;
@@ -32,6 +49,9 @@ if nargin<2
               .2,.09,nan;
               .2,.09,nan;
               .25,0,nan;]';
+          z=.3
+    COMPos = [0.02,0,z;0.02,-0.0,z;0.02,0,z;0.02,0,nan;0.02,-.0,nan;0.02,0,nan;0.02,0,nan;0.02,0,nan;]'; %EDITED
+          
 end
 if nargin<4
     Tol = [.0002,.0002,.0002]';
@@ -47,7 +67,7 @@ r_foot = legs.findLinkId('r_foot');
 l_toe = legs.findLinkId('l_foot');
 r_toe = legs.findLinkId('r_foot');
 
-Time = 10;
+Time = 2*10;
 Stages = 8;
 
 Allcons = cell(0,1);
@@ -59,6 +79,7 @@ Allcons{end+1} = WorldEulerConstraint(legs,l_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+T
 Allcons{end+1} = WorldEulerConstraint(legs,r_toe,[pi/2;0;nan]-Tol,[pi/2;0;nan]+Tol,[0,Time]);
 
 q_nom = zeros(nq,1);
+q_nom(7:16) = [0 -.5 1.5 -1 0 0 0 .5 1.5 -1]';
 for i = 1:Stages-1
     Allcons{6} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
     Allcons{7} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
@@ -67,20 +88,15 @@ i=i+1;
     Allcons{9} = WorldPositionConstraint(legs,l_foot,[0;0;0],LPos(:,i)-Tol,LPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
     Allcons{10} = WorldPositionConstraint(legs,r_foot,[0;0;0],RPos(:,i)-Tol,RPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
     Allcons{11} = WorldCoMConstraint(legs,COMPos(:,i)-Tol,COMPos(:,i)+Tol,[(i-1)*Time/Stages,(i-1)*Time/Stages]);
-T = Time;
+
 N = 2;
-%v = legs.constructVisualizer();
 ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
 [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
 q_nom = q_end_nom;
-%T = Time;
-%N = 2;
-%v = legs.constructVisualizer();
 
     ikproblem = InverseKinematics(legs,q_nom,Allcons{:});
     [q_end_nom,F,info,infeasible_cnstr_ik] = ikproblem.solve(q_nom);
     qtraj_guess = PPTrajectory(foh([(i-2)*Time/Stages (i-1)*Time/Stages],[q_nom, q_end_nom])); %more complex then this
-    %qtraj_guess.append TRY THIS, also try changing how time is specified
     t_vec = linspace((i-2)*Time/Stages,(i-1)*Time/Stages,N);
 
     % do IK
@@ -91,9 +107,6 @@ q_nom = q_end_nom;
 
     q_end = xtraj.eval(xtraj.tspan(end));
     
-    % do visualize
-
- %   v.playback(xtraj,struct('slider',true));
     q_nom=q_end(1:18,1);
     outputTrajTemp{i-1} = xtraj;
    % if info > 10
@@ -106,5 +119,6 @@ while i<Stages
     outputTrajTemp{1} = outputTrajTemp{1}.append(outputTrajTemp{i});
     i=i+1;
 end
-%v.playback(ABC{1},struct('slider',true));
 outputTraj = outputTrajTemp{1};
+v = legs.constructVisualizer();
+%v.playback(outputTraj,struct('slider',true));
