@@ -16,9 +16,9 @@ classdef TrajectoryPlanner < DrakeSystem
             obj.trajectory = generateWalkingTrajectory(); 
         end
         
-        function x0 = getInitialState(obj)
-            x0 = obj.x0;
-        end
+%         function x0 = getInitialState(obj)
+%             x0 = obj.x0;
+%         end
         
         function  y = output(obj,t,x,u) %y = output(~,~,~,~) 
             %{
