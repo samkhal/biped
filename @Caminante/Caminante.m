@@ -221,8 +221,8 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
     end
 
     properties
-        fixed_point_file = fullfile(pwd, 'data', 'caminante_fp.mat');
-        %fixed_point_file = fullfile(pwd, 'data', 'caminante_fp_bent.mat');
+        %fixed_point_file = fullfile(pwd, 'data', 'caminante_fp.mat');
+        fixed_point_file = fullfile(pwd, 'data', 'caminante_fp_bent.mat');
         %!! go through these in more detail
         default_footstep_params = struct('nom_forward_step', 0.05,... % m
                                          'max_forward_step', 0.07,...% m

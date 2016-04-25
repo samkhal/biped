@@ -1,11 +1,16 @@
 % Visualize biped in Drake
 
 options.floating = true;
-m = RigidBodyManipulator('urdf/Legs.urdf',options);
-%m = RigidBodyManipulator('~/drake-distro/drake/examples/Atlas/urdf/atlas_minimal_contact.urdf',options);
+%m = RigidBodyManipulator('urdf/Legs.urdf',options);
+%m = Atlas('~/drake-distro/drake/examples/Atlas/urdf/atlas_minimal_contact.urdf',options);
+m = Atlas('urdf/atlas_experimental.urdf',options);
+%m = Atlas('urdf/atlas_minimal_contact.urdf',options);
 v = m.constructVisualizer();
 %v.inspector(zeros(m.getNumStates,1));
 x0=zeros(m.getNumStates,1);
+%x0 = load('data/atlas_fp.mat','xstar');
+x0 = load('data/atlas_exp_fp.mat','xstar');
+x0 = x0.xstar;
 %x0(1:18)=q0;
 v.inspector(x0) % Init inspector with all joints at 0
 
