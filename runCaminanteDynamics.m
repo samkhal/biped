@@ -1,5 +1,5 @@
 function runCaminanteDynamics
-    % Simulate the (passive) dynamics of the Atlas model 
+    % Simulate the (passive) dynamics of the Caminante model 
 
     % Load the model with a floating base
     options.floating = true;

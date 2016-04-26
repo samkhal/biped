@@ -1,5 +1,5 @@
 classdef Base 
-  % Metaclass for storing gains for the Atlas controller and other parameters which
+  % Metaclass for storing gains for the Caminante controller and other parameters which
   % are fixed at compile time for a particular type of plan (walking, manipulating,
   % standing, recovery, etc.) but which can be switched out for a different set when
   % the plan type changes. 
@@ -72,13 +72,12 @@ classdef Base
                                      'weight', num2cell(repmat(1e-5, 1, r.getNumPositions())),...
                                      'disable_when_body_in_support', num2cell(zeros(1, r.getNumPositions)),...
                                      'k_logistic', num2cell(repmat(20, 1, r.getNumPositions())));
-                                 
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Right_Leg-Bottom_Right_Leg')).enabled = true;
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Right_Leg-Bottom_Right_Leg')).lb = 0.5;
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Right_Leg-Bottom_Right_Leg')).disable_when_body_in_support = r.foot_body_id.right;
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Left_Leg-Bottom_Left_Leg')).enabled = true;
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Left_Leg-Bottom_Left_Leg')).lb = 0.5;
-%       obj.joint_soft_limits(r.findPositionIndices('Top_Left_Leg-Bottom_Left_Leg')).disable_when_body_in_support = r.foot_body_id.left;
+      obj.joint_soft_limits(r.findPositionIndices('r_leg_kny')).enabled = true;
+      obj.joint_soft_limits(r.findPositionIndices('r_leg_kny')).lb = 0.5;
+      obj.joint_soft_limits(r.findPositionIndices('r_leg_kny')).disable_when_body_in_support = r.foot_body_id.right;
+      obj.joint_soft_limits(r.findPositionIndices('l_leg_kny')).enabled = true;
+      obj.joint_soft_limits(r.findPositionIndices('l_leg_kny')).lb = 0.5;
+      obj.joint_soft_limits(r.findPositionIndices('l_leg_kny')).disable_when_body_in_support = r.foot_body_id.left;
 
       nu = r.getNumInputs();
       obj.hardware = struct('gains', struct(...

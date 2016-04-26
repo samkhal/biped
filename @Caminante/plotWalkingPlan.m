@@ -1,10 +1,10 @@
 % Visualize walking plans
 
-function plotWalkingPlan(walking_plan_data, footstep_plan, r)
+function plotWalkingPlan(obj, walking_plan_data, footstep_plan)
 
 if nargin<1
     load CaminanteTwoStepPlan
-    %load AtlasTwoStepPlan
+    %load CaminanteTwoStepPlan
 end
 
 dt = 0.1;
@@ -61,12 +61,12 @@ title('ZMP-COM extra vs time')
 % end
 % zmptraj = walking_plan_data.settings.zmptraj;
 % 
-% nq = r.getNumPositions();
+% nq = obj.getNumPositions();
 % %tts = traj.getBreaks();
 % %T = tts(end);
 % %dt = tts(2) - tts(1);
 % 
-% nx = r.getNumStates();
+% nx = obj.getNumStates();
 % %x_smooth=zeros(nx,length(tts));
 % %x_breaks = traj.eval(tts);
 % % for i=1:nx
@@ -79,11 +79,11 @@ walking_plan_body_motions = walking_plan_data.settings.body_motions();
 
 body_motions = struct('right', [], 'left', []);
 for j = 1:length(walking_plan_body_motions)
-  if walking_plan_body_motions(j).body_id == r.foot_body_id.right || ...
-     (walking_plan_body_motions(j).body_id < 0 && r.getFrame(walking_plan_body_motions(j).body_id).body_ind == r.foot_body_id.right)
+  if walking_plan_body_motions(j).body_id == obj.foot_body_id.right || ...
+     (walking_plan_body_motions(j).body_id < 0 && obj.getFrame(walking_plan_body_motions(j).body_id).body_ind == obj.foot_body_id.right)
      body_motions.right = walking_plan_body_motions(j);
-  elseif  walking_plan_body_motions(j).body_id == r.foot_body_id.left || ...
-     (walking_plan_body_motions(j).body_id < 0 && r.getFrame(walking_plan_body_motions(j).body_id).body_ind == r.foot_body_id.left)
+  elseif  walking_plan_body_motions(j).body_id == obj.foot_body_id.left || ...
+     (walking_plan_body_motions(j).body_id < 0 && obj.getFrame(walking_plan_body_motions(j).body_id).body_ind == obj.foot_body_id.left)
      body_motions.left = walking_plan_body_motions(j);
   end
 end
@@ -94,7 +94,7 @@ for f = {'left', 'right'}
   if body_motions.(foot).body_id > 0
     foot_bodies.(foot) = body_motions.(foot).body_id;
   else
-    foot_bodies.(foot) = r.getFrame(body_motions.(foot).body_id).body_ind;
+    foot_bodies.(foot) = obj.getFrame(body_motions.(foot).body_id).body_ind;
   end
 end
 % 
@@ -190,8 +190,8 @@ hold on;
 % %plot(comdes(1,:),comdes(2,:),'g','LineWidth',3);
 % %plot(com(1,:),com(2,:),'m.-','LineWidth',1);
 % 
-tc = struct('left', getTerrainContactPoints(r,foot_bodies.left, {{'heel', 'toe'}}),...
-            'right', getTerrainContactPoints(r,foot_bodies.right, {{'heel', 'toe'}}));
+tc = struct('left', obj.getTerrainContactPoints(foot_bodies.left, {{'heel', 'toe'}}),...
+            'right', obj.getTerrainContactPoints(foot_bodies.right, {{'heel', 'toe'}}));
 
 for f = {'left', 'right'}
   foot = f{1};
