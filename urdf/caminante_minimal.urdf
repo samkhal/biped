@@ -137,7 +137,9 @@
       <geometry>
         <mesh filename="meshes/Bottom_Left_Leg.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
   </link>
 
@@ -152,7 +154,9 @@
       <geometry>
         <mesh filename="meshes/Left_Ankle.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
   </link>
 
@@ -180,7 +184,9 @@
       <geometry>
         <mesh filename="meshes/Top_Left_Leg.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
     <!-- to cover the logo shield -->
     <!-- inside strut -->
@@ -338,7 +344,9 @@
       <geometry>
         <mesh filename="meshes/Bottom_Right_Leg.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
   </link>
 
@@ -353,7 +361,9 @@
       <geometry>
         <mesh filename="meshes/Right_Ankle.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
   </link>
 
@@ -381,7 +391,9 @@
       <geometry>
         <mesh filename="meshes/Top_Right_Leg.STL" scale="1 1 1"/>
       </geometry>
-      <material name="red"/>
+      <material name="red">
+        <color rgba ="0.675 0.169 0.216 1.0"/>
+      </material>
     </visual>
     <!-- to cover the logo shield -->
     <!-- inside strut -->
