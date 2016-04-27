@@ -15,11 +15,11 @@ function runCaminantePD
     Kp = diag(repmat([4, 50, 50, 50, 4, 20],1,2));
     Kd = diag(repmat([.04, .15, .16, .16, .0444, .01],1,2));
     
-    %{ 
-    works for grav = -2
+     
+    %works for grav = -2
     Kp = diag(repmat([1, 5, 6, 8, 1, 2],1,2));
     Kd = diag(repmat([.01, .1, .1, .1, .01, .01],1,2));
-    %}
+    
     
     % pd feedback term
     % tau = -Kp*theta_actual - Kd*thetadot_actual
@@ -80,7 +80,6 @@ function runCaminantePD
    -0.1279,...
     0.0059]';
     
-    
     % Forward simulate dynamics with visualization, then playback at realtime
     S=warning('off','Drake:DrakeSystem:UnsupportedSampleTime');
     output_select(1).system=1;
@@ -94,6 +93,6 @@ function runCaminantePD
     
     %% Simulate 
     warning(S);
-    traj = simulate(sys,[0 2*5],x0);
+    traj = simulate(sys,[0 2*8],x0);
     playback(v,traj,struct('slider',true));
 end
