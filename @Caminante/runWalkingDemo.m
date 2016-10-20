@@ -47,7 +47,8 @@ lfoot_navgoal(1:3) = lfoot_navgoal(1:3) + R*[0;half_step_width;0];
 
 % Plan footsteps to the goal
 goal_pos = struct('right', rfoot_navgoal, 'left', lfoot_navgoal);
-footstep_plan = obj.planFootsteps(x0(1:nq), goal_pos, [], struct('step_params', walking_options));
+footstep_plan = obj.planFootsteps(x0(1:nq), goal_pos, [], struct('method_handle',@footstepPlanner.humanoids2014,'step_params', walking_options));
+%footstep_plan = obj.planFootsteps(x0(1:nq), goal_pos, [], struct('step_params', walking_options));
 for j = 1:length(footstep_plan.footsteps)
   footstep_plan.footsteps(j).walking_params = walking_options;
 end
