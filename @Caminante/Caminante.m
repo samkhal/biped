@@ -330,9 +330,9 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
     default_footstep_params = struct('nom_forward_step', 0.25,... % m
                                       'max_forward_step', 0.35,...% m
                                       'max_backward_step', 0.2,...% m
-                                      'max_step_width', 0.38,...% m
-                                      'min_step_width', 0.18,...% m
-                                      'nom_step_width', 0.26,...% m
+                                      'max_step_width', 0.15,...% m
+                                      'min_step_width', 0.05,...% m
+                                      'nom_step_width', 0.10,...% m
                                       'max_outward_angle', pi/8,... % rad
                                       'max_inward_angle', 0.01,... % rad
                                       'nom_upward_step', 0.25,... % m
