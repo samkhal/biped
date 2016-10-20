@@ -53,6 +53,17 @@ for j = 1:length(footstep_plan.footsteps)
   footstep_plan.footsteps(j).walking_params = walking_options;
 end
 
+% Show the footstep plan
+v.draw(0, xstar);
+if isa(v, 'BotVisualizer')
+ lcmgl = drake.util.BotLCMGLClient(lcm.lcm.LCM.getSingleton(), 'footstep_plan');
+  footstep_plan.draw_lcmgl(lcmgl);
+  lcmgl.switchBuffers();
+else
+  figure(25)
+  footstep_plan.draw_2d();
+end
+
 % Generate a dynamic walking plan with zmp, com, and foot trajectories
 walking_plan_data = obj.planWalkingZMP(x0(1:obj.getNumPositions()), footstep_plan);
 
