@@ -341,16 +341,16 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                                       'min_num_steps', 1,...
                                       'leading_foot', 1); % 0: left, 1: right
     default_walking_params = struct('step_speed', 0.5,... % speed of the swing foot (m/s)
-                                    'step_height', 0.05,... % approximate clearance over terrain (m)
-                                    'drake_min_hold_time', 0.7,... % minimum time in double support (s)
+                                    'step_height', 0.03,... % approximate clearance over terrain (m)
+                                    'drake_min_hold_time', 0.1,... % minimum time in double support (s)
                                     'drake_instep_shift', 0.0,... % Distance to shift ZMP trajectory inward toward the instep from the center of the foot (m)
                                     'mu', 1.0,... % friction coefficient
                                     'constrain_full_foot_pose', true,... % whether to constrain the swing foot roll and pitch
-                                    'pelvis_height_above_foot_sole', 0.53,... % default pelvis height when walking
+                                    'pelvis_height_above_foot_sole', 0.50,... % default pelvis height when walking
                                     'support_contact_groups', {{'heel', 'toe'}},... % which contact groups are available for support when walking
                                     'prevent_swing_undershoot', false,... % prevent the first phase of the swing from going backwards while moving to the first knot point
                                     'prevent_swing_overshoot', false,... % prevent the final phase of the swing from moving forward of the last knot point
-                                    'nominal_LIP_COM_height', 0.50); % nominal height used to construct D_ls for our linear inverted pendulum model
+                                    'nominal_LIP_COM_height', 0.47); % nominal height used to construct D_ls for our linear inverted pendulum model
     pelvis_name = 'pelvis';
     r_foot_name = 'r_foot';
     l_foot_name = 'l_foot';
