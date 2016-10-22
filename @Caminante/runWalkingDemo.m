@@ -1,4 +1,4 @@
-function runWalkingDemo(obj,walking_options)
+function [ytraj, com, walking_plan_data, footstep_plan] = runWalkingDemo(obj,walking_options)
 % Walk to a target goal, and transition to standing when the goal is
 % reached.
 

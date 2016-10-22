@@ -28,4 +28,4 @@ r = Caminante('urdf/caminante_minimal.urdf',robot_options);
 r = r.removeCollisionGroupsExcept({'heel','toe'});
 r = compile(r);     
 
-r.runWalkingDemo(walking_options);
+[ytraj, com, walking_plan_data, footstep_plan] = r.runWalkingDemo(walking_options);
