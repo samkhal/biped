@@ -6,6 +6,8 @@ robot_options = struct( 'use_bullet', true,...
                         'ignore_friction', true,...
                         'enable_fastqp', false,...
                         'dt', 0.001);
+                    
+
 
 % Calculate navgoal for a turning or straight path
 turning_radius = 5;                    
@@ -27,5 +29,10 @@ warning('off','Drake:RigidBodyManipulator:UnsupportedVelocityLimits')
 r = Caminante('urdf/caminante_minimal.urdf',robot_options);
 r = r.removeCollisionGroupsExcept({'heel','toe'});
 r = compile(r);     
+
+global torques frame
+frame = 1;
+seconds = 13;
+torques = nan(r.getInputFrame.dim,seconds/robot_options.dt);
 
 [ytraj, com, walking_plan_data, footstep_plan] = r.runWalkingDemo(walking_options);
