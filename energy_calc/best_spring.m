@@ -52,8 +52,8 @@ Torques = Torques(joints_t,:) .* 1000; %Nm -> mNm
 Speeds = Speeds.*128; %gear box
 Torques = Torques.*1/128; 
 minimum_energy_so_far = 99999999999999999; %TODO: change to a max int
-
-for temp_k = .55 %.58:.01:.60 %best spring is between these two maximum torques
+%TODO: impliment a method to do a rough search, followed by a finer search with a smaller search area, and repeat (manual for now)
+for temp_k = 0:.01:1 %best spring is between these two maximum torques NOTE: IF THE ANSWER REPORTS 0, CHANGE TO -1:.01:0
     hasFoundMinForK = 0;
     disp(sprintf('percent done: %d', temp_k))
     for offset = 0:.02*maximum_offset: maximum_offset %offset is between these two values
