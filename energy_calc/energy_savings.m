@@ -4,6 +4,7 @@
 %and ankle.
 
 %example:
+
 %S: matrix of joint positions (rad) and speeds (rad/s)
 %T: matrix of torques, Nm
 %max_spring_torque = .77; %in-lb
@@ -11,7 +12,7 @@
 
 function energy = energy_savings(S, T, max_spring_torque, spring_offset)
 
-joints_s = [23, 28];%only need knees 25,30 OR hipx 23 28 OR akx 27 32; hipy 24 29; 26 31 aky
+joints_s = [23, 28];%only need knees 25,30 OR hipx 23 28 OR akx 27 32; hipy 24 29; 26 31 aky TODO make cleaner
 joints_t = [4, 9]; %only need knees 1,6 OR hipx 4 9; akx 2 7; hipy 3 8; 5 10 aky
 joints_a = [7, 12]; %only need knees 9,14 OR hipx 7 12; akx 11 16  ; hipy 8 13 ; 10 15 aky
 
