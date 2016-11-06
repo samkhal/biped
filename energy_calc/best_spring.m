@@ -1,25 +1,24 @@
 %Ari Goodman
-%10/28/2016
-%finds the best spring and angular offset for a joint on the robot using 90
-%degree springs (for now)
+%11/5/2016
+%finds the best torsional spring constant and angular offset for a joint on the robot
 
-function [spring_k, rad_offset] = best_spring(S, Torques, joint_to_be_tested)
+%% inputs
+%  states:              rad, rad/s for each joint
+%  torques:             Nm for each joint
+%  spring range:        rad, max extension fo torsion spring
+%  joint to be tested:  string, kny, aky, akx, hpx, hpy
 
-range(1) = max(S(1,:)) - min(S(1,:)); %find range of angles in a trajectory
-range(2) = max(S(2,:)) - min(S(2,:));
+%% output
+% spring_k              best spring force in lbf NOT SPRING CONSTANT
+% rad_offset            offset in radians
 
-if max(range(1), range(2)) >= pi/2
-    disp('Error. The range of the knee is larger than 90 degrees. Please reconsider your spring choices');
-else
-    maximum_offset = pi/2-max(range(1), range(2)); %maximum offset for the spring
-end
 
-inlb2mNm = 112.984829333;
-deg2rad = 0.0174533;
-t = 1e-03; %s
-m = [680; 14; .527;]; %rpm/V  %mNm/A %ohm
-M = repmat(m', 2,1);
+function [spring_k, rad_offset] = best_spring(states, torques, spring_range, joint_to_be_tested)
 
+inlb2mNm = 112.984829333;%inlb -> mNm
+dt = 1e-03; %s
+gearbox = 111;
+motor_val = [453; 21.1; 1.24;]; %rpm/V  %mNm/A %ohm m_big
 if strcmp(joint_to_be_tested, 'kny')
     joints_s = [25, 30];
     joints_t = [1, 6]; 
@@ -33,6 +32,8 @@ elseif strcmp(joint_to_be_tested, 'hpy')
     joints_t = [3, 8];
     joints_a = [8, 13];
 elseif strcmp(joint_to_be_tested, 'akx')
+    gearbox = 128;
+    motor_val = [526; 18.1; 12.4;];
     joints_s = [27, 32];
     joints_t = [2, 7]; 
     joints_a = [11, 16];
@@ -45,45 +46,31 @@ else
       return;
 end
 
-Speeds = S(joints_s,:); 
-Speeds = Speeds .* 60/(2*pi); %rad/s -> rpm
-Torques = Torques(joints_t,:) .* 1000; %Nm -> mNm
+maximum_offset = spring_range-max(max((states(joints_a,:)))); %maximum offset for the spring
+minimum_offset = -min(min((states(joints_a,:)))); %maximum offset for the spring
 
-Speeds = Speeds.*128; %gear box
-Torques = Torques.*1/128; 
-minimum_energy_so_far = 99999999999999999; %TODO: change to a max int
-%TODO: impliment a method to do a rough search, followed by a finer search with a smaller search area, and repeat (manual for now)
-for temp_k = 0:.01:1 %best spring is between these two maximum torques NOTE: IF THE ANSWER REPORTS 0, CHANGE TO -1:.01:0
-    hasFoundMinForK = 0;
-    disp(sprintf('percent done: %d', temp_k))
-    for offset = 0:.02*maximum_offset: maximum_offset %offset is between these two values
-        k = temp_k/90*(inlb2mNm)/(deg2rad); 
-        A = S(joints_a,:);
-        A(1,:) = A(1,:) - min(A(1,:)) + offset; %attempt to zero springs
-        A(2,:) = A(2,:) - min(A(2,:)) + offset; 
-        energy = zeros(size(M,1), 2);
-        power = zeros(size(M,1), length(Speeds));
-        spring = zeros(size(M,1), length(Speeds));
-        %for each motor, for each time, add up energy with and without
-        %spring
-        for i = 1:size(M,1)
-            for j = 1:length(Speeds)
-                spring(i,j) = A(i,j)*k; %ensure sign is correct. Should be added to torque to get actual motor torque required
-                energy(i, 1) = energy(i, 1) + t*electrical_power(M(i,1), M(i,2), M(i,3), Speeds(i,j), abs(Torques(i,j)+spring(i,j)));
-                energy(i, 2) = energy(i, 2) + t*electrical_power(M(i,1), M(i,2), M(i,3), Speeds(i,j), abs(Torques(i,j)));
-                %power(i, j) = electrical_power(M(i,1), M(i,2), M(i,3), Speeds(i,j), Torques(i,j)-spring(i,j));
-            end
-            %power_stats = [mean(power(i,:)) max(power(i, :))]
-        end
-        if minimum_energy_so_far > (energy(1,1)+energy(2,1)) %update best
-            hasFoundMinForK = 1;
-            minimum_energy_so_far = energy(1,1)+energy(2,1);
-            spring_k = temp_k;
-            rad_offset = offset;
+Motor_Matrix = repmat(motor_val', 2,1);
+
+Speeds = states(joints_s,:) .* 60/(2*pi); %rad/s -> rpm
+Torques = torques(joints_t,:) .* 1000; %Nm -> mNm
+
+function cost = find_spring(x)
+    temp_k = x(1);
+    offset = x(2);
+    k = temp_k/spring_range*(inlb2mNm);
+    Angles = states(joints_a,:) + offset; %attempt to zero springs
+    spring = Angles(:,:).*k;
+    energy = zeros(size(Motor_Matrix,1),1);
+    %for each motor, for each time, add up energy with and without spring 
+    for i = 1:size(Motor_Matrix,1)
+        for j = 1:length(Speeds)
+            energy(i) = energy(i) + dt*electrical_power(Motor_Matrix(i,2), Motor_Matrix(i,3), gearbox*Speeds(i,j), 1/gearbox*abs(Torques(i,j)+spring(i,j)));
         end
     end
-    if hasFoundMinForK ~=1 % end early
-        return;
-    end
+    cost = energy(1)+energy(2);
 end
+
+x = fmincon(@find_spring, [0,(minimum_offset+maximum_offset)/2],[],[],[],[],[-600, minimum_offset], [600, maximum_offset]);
+spring_k = x(1);
+rad_offset = x(2);
 end
