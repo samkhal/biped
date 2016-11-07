@@ -5,7 +5,8 @@
 %% inputs
 %  states:              rad, rad/s for each joint
 %  torques:             Nm for each joint
-%  spring range:        rad, max extension fo torsion spring
+%  spring range:        rad, max extension fo torsion spring (i.e. the
+%                           angle of the uncompressed spring)
 %  joint to be tested:  string, kny, aky, akx, hpx, hpy
 
 %% output
