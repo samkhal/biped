@@ -12,17 +12,19 @@ volatile unsigned long int timer = 0;
 
 // PID Variables
 int ScaleFactor = 1;
-int Motor = 6;
-int Enable = 3;
-int Position = A8;
+int Motor = 3;
+int Enable = 2;
+int Position = A7;
 int Integral=0;
-float kP = 1;
+float kP = 0.05;
 float kI = 1;
 float kD = 1;
 int Last = 0;
 int IntThresh = 1;
 int minPWM = 26;
 int maxPWM = 229;
+uint16_t minPot;
+uint16_t maxPot;
 int setPoint;
 
 uint32_t read_uint32(){
@@ -66,11 +68,25 @@ void PIDcontrol(int SetPt){
    if (Drive>maxPWM) {
      Drive=maxPWM;
    }
-  //  analogWrite (Motor,Drive); // send PWM command to motor board
-   Serial.print(Drive);
-   Serial.print("  -  ");
-   Serial.println(analogRead(Position));
+   analogWrite (Motor,Drive); // send PWM command to motor board
+  //  Serial.println(Drive);
+  //  Serial.print("  -  ");
+  //  Serial.println(analogRead(Position));
    Last = Actual;
+}
+
+bool Calibration(){
+  int potVal = analogRead(Position);
+  if(minPot>(uint16_t)potVal){
+    minPot = (uint16_t)potVal;
+  }
+  else if (maxPot<(uint16_t)potVal){
+    maxPot = (uint16_t)potVal;
+  }
+  if (potVal<10||potVal>1010){
+    return false;
+  }
+  return true;
 }
 
 void runTrajectory(){
@@ -87,18 +103,6 @@ void runTrajectory(){
 //   timer++;
 // }
 
-void setup() {
-  // Timer1.initialize(1000);         // initialize timer1, and set a 1/1000 second period
-  // Timer1.attachInterrupt(timerCallback);  // attaches callback() as a timer overflow interrupt
-  pinMode(13, OUTPUT);
-  Serial.begin(115200);
-  pinMode(Enable,OUTPUT);
-  digitalWrite(Enable,HIGH);
-  Serial.begin(115200);
-  // while(Serial.available()==0)
-  // {}
-  // delay(10);
-}
 
 
 extern "C" int main(void)
@@ -109,13 +113,22 @@ extern "C" int main(void)
   // Serial.begin(115200);
   // pinMode(Enable,OUTPUT);
   // digitalWrite(Enable,HIGH);
-  Serial.println(analogRead(Position));
+
+
+  // Serial.println(analogRead(Position));
+  // setup();
+  Serial.begin(115200);
   setPoint = analogRead(Position);
-  while (1) {
-  	PIDcontrol(setPoint);
-    delay(10);
-    // Serial.println(analogRead(Position));
-  }
+  pinMode(Motor, OUTPUT);
+  pinMode(Enable,OUTPUT);
+  analogWrite(Motor,25);
+  digitalWrite(Enable,LOW);
+  // Serial.begin(115200);
+  // while (1) {
+  // 	PIDcontrol(setPoint);
+  //   delay(10);
+  //   Serial.println(analogRead(Position));
+  // }
 
   /* Header:
   1 byte: message type
@@ -125,52 +138,107 @@ extern "C" int main(void)
   4-byte checksum
   */
 
-  // // Main loop
-  // while (true){
-  //   flag = 0;
-  //   action = 0;
-  //   cSum = 0;
-  //   dataLength = 0;
-  //   sumCounter =0;
-  //
-  //   while(flag==0){
-  //     if(Serial.available() >= 9){
-  //       action = Serial.read();
-  //       if (action == (uint8_t)255){
-  //         write_uint16(3);
-  //         runTrajectory();
-  //         flag = 1;
-  //         break;
-  //       }
-  //       dataLength = read_uint32();
-  //       cSum = read_uint32();
-  //       flag = 1;
-  //       write_uint16(dataLength);
-  //     }
-  //   }
-  //   if (action == (uint8_t)1){
-  //     data = (uint32_t *)malloc(dataLength*sizeof(uint32_t));
-  //
-  //     for (uint32_t i =0; i<dataLength; i++){
-  //       if(Serial.available() >= 2){
-  //         a = read_uint16();
-  //         data[i] = a;
-  //       }
-  //       else{
-  //         i=i-1;
-  //       }
-  //     }
-  //     for (uint32_t i = 0; i < dataLength; i++){
-  //       sumCounter = sumCounter + data[i];
-  //     }
-  //     if (sumCounter==cSum){
-  //       a=0;
-  //       write_uint16(a);
-  //     }
-  //     else{
-  //       a = 2;
-  //       write_uint16(a);
-  //     }
-  //   }
-  // }
+  // Main loop
+  while (true){
+    flag = 0;
+    action = 0;
+    cSum = 0;
+    dataLength = 0;
+    sumCounter =0;
+
+// Get initilization bytes
+    while(flag==0){
+      if(Serial.available() >= 9){
+        action = Serial.read();
+        dataLength = read_uint32();
+        cSum = read_uint32();
+        flag = 1;
+      }
+    }
+
+// State Machine
+    switch(action) {
+        case (uint8_t)255  : // runTrajectory
+          write_uint16(3);
+          runTrajectory();
+          break;
+
+       case (uint8_t)10  : // startCalibration
+          minPot = (uint16_t)setPoint;
+          maxPot = (uint16_t)setPoint;
+          bool stopCalFlag;
+          bool calibrationOutOfRange;
+          stopCalFlag = true;
+          calibrationOutOfRange = false;
+          write_uint16((uint16_t)0);
+          while(stopCalFlag){
+            if(Calibration()==false){
+              calibrationOutOfRange = true;
+            }
+            if(Serial.available() >= 1){
+              if((int)Serial.read()==(int)11){ // stopCalibration
+                stopCalFlag = false;
+              }
+            }
+          }
+          if (calibrationOutOfRange == true){
+            write_uint16((uint16_t)666);
+            write_uint16((uint16_t)0);
+          }
+          else{
+            write_uint16(minPot);
+            write_uint16(maxPot);
+            write_uint16((uint16_t)0);
+          }
+          break;
+
+       case (uint8_t)12  : // runStaticControl
+          write_uint16((uint16_t)0);
+          delay(100);
+          bool stopStaticControl;
+          stopStaticControl = false;
+          setPoint = analogRead(Position);
+          setPoint = 250;/////////////////////////////////////////////////
+          digitalWrite(Enable,HIGH);
+          while(!stopStaticControl){
+            PIDcontrol(setPoint);
+            if(Serial.available() >= 1){
+              if((int)Serial.read()==(int)13){ // stopStaticControl
+                stopStaticControl = true;
+              }
+            }
+          }
+          digitalWrite(Enable,LOW);
+          write_uint16((uint16_t)0);
+          break;
+       case (uint8_t)1   : // sendTrajectory
+           write_uint16(dataLength);
+           data = (uint32_t *)malloc(dataLength*sizeof(uint32_t));
+
+           for (uint32_t i =0; i<dataLength; i++){
+             if(Serial.available() >= 2){
+               a = read_uint16();
+               data[i] = a;
+             }
+             else{
+               i=i-1;
+             }
+           }
+           for (uint32_t i = 0; i < dataLength; i++){
+             sumCounter = sumCounter + data[i];
+           }
+           if (sumCounter==cSum){
+             a=0;
+             write_uint16(a);
+           }
+           else{
+             a = 2;
+             write_uint16(a);
+           }
+          break;
+
+       default :
+          delay(10);
+    }
+  }
 }
