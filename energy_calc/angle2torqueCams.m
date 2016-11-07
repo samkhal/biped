@@ -26,5 +26,5 @@ g = 9.81; %m/s^2 grav constant
 %torque =
 %1000*L_U*(L_L*sin(angle))/((L_U^2+L_L^2-2*L_U*L_L*cos(angle))^.5)*(M_body+M_U/2)*g;
 %%logans old equation
-torque = -5.8548e+04+(9.3233e+04)*angle+(-3.3525e+04)*abs(angle^2); %hard coded best 2nd order equation found so far
+torque = -5.8548e+04+(9.3233e+04).*angle+(-3.3525e+04)*abs(angle.^2); %hard coded best 2nd order equation found so far
 end
