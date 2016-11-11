@@ -1,5 +1,5 @@
 %% Ari Goodman
-%% 11/5/2016
+%% 11/7/2016
 %% calculates the theoretical energy savings to a given trajectory by adding a spring to the joint to be tested.
 
 %% Inputs:
