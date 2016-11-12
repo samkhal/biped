@@ -42,6 +42,9 @@ function cost = cost_function(x)
         end
     end
     cost = energy(1)+energy(2);
+    if(min(min(additional_torque(:,:)))<=0.01) %2*k*d*r, 200 N/m * 0.002 m * 0.0127
+        cost = cost+ abs(1000*((min(min(additional_torque(:,:))))-.01));
+    end
 end
 
 x = fmincon(@cost_function, zeros(1,length(constant_range)),[],[],[],[],constant_range(1,:), constant_range(2,:));
