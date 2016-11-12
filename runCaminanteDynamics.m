@@ -7,7 +7,7 @@ function runCaminanteDynamics
 
     options.terrain = RigidBodyFlatTerrain;
 
-    r = Caminante('urdf/Legs.urdf',options);
+    r = Caminante('urdf/caminante_minimal.urdf',options);
     %r = r.removeCollisionGroupsExcept({'heel','toe','back','front','knee','butt'});
     r = compile(r);
 
