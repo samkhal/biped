@@ -31,24 +31,19 @@ joints_angle = [find(strcmp(state_frames, strcat('l_leg_',joint)),1) find(strcmp
 motor_values = all_motor_values(joint_data{1},:);
 gearbox = all_gear_box_values(joint_data{2});
 
+additional_torque = zeros(2, length(states));
+power_w_energy_saving = zeros(2, length(states));
+power_wo_energy_saving = zeros(2, length(states));
+power_stats = zeros(2,2);
 for i = 1:2 %always 2 motors
-    for j = 1:length(states)
-        additional_torque(i,j) = foo(states(joints_angle(i),j), constants);
-        power_w_energy_saving(i, j) = electrical_power([motor_values(2), motor_values(3)], gearbox*states(joints_speed(i),j), 1/gearbox*abs(torques(joints_torque(i),j)+additional_torque(i,j)), 0); %power, W
-        power_wo_energy_saving(i, j) = electrical_power([motor_values(2), motor_values(3)], gearbox*states(joints_speed(i),j), 1/gearbox*abs(torques(joints_torque(i),j)), 0); %power, W
-        if j == 1
-            energy(i, 1, j) = dt*power_w_energy_saving(i, j); %electrical energy with es device J
-            energy(i, 2, j) = dt*power_wo_energy_saving(i, j); %electrical energy without es device J          
-        else
-            energy(i, 1, j) = energy(i, 1, j-1) + dt*power_w_energy_saving(i, j); %electrical energy with es device J
-            energy(i, 2, j) = energy(i, 2, j-1) + dt*power_wo_energy_saving(i, j); %electrical energy without es device J
-        end
-    end
-    power_stats(i,:) = [mean(power_w_energy_saving(i,:)) max(power_w_energy_saving(i, :))]; %optional power stats
+        additional_torque(i,:) = foo(states(joints_angle(i),:), constants);
+        power_w_energy_saving(i, :) = electrical_power([motor_values(2), motor_values(3)], gearbox*states(joints_speed(i),:), 1/gearbox*abs(torques(joints_torque(i),:)+additional_torque(i,:)), 0); %power, W
+        power_wo_energy_saving(i, :) = electrical_power([motor_values(2), motor_values(3)], gearbox*states(joints_speed(i),:), 1/gearbox*abs(torques(joints_torque(i),:)), 0); %power, W   
+        power_stats(i,:) = [mean(power_w_energy_saving(i,:)) max(power_w_energy_saving(i, :))]; %optional power stats
 end
 
-amount_saved = sum(energy(:,2,end) - energy(:,1,end)); %J
-percent_saved = amount_saved/sum(energy(:,2,end)); % %
+amount_saved = -sum(sum(power_w_energy_saving(:,:)))*dt + sum(sum(power_wo_energy_saving(:,:)))*dt; %J
+percent_saved = amount_saved/(sum(sum(power_wo_energy_saving(:,:))*dt));
 max_power = max(power_stats(:, 2));% W
 avg_power = mean(power_stats(:,1));% W
 
