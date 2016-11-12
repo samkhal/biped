@@ -26,7 +26,7 @@ warning('off','Drake:RigidBodyManipulator:UnsupportedContactPoints')
 warning('off','Drake:RigidBodyManipulator:UnsupportedVelocityLimits')
 
 % construct robot model
-r = Caminante('urdf/caminante_minimal.urdf',robot_options);
+r = Caminante('urdf/caminante_minimal_gen.urdf',robot_options);
 r = r.removeCollisionGroupsExcept({'heel','toe'});
 r = compile(r);     
 

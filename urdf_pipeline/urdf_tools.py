@@ -36,6 +36,12 @@ def remove_chain(robot, links_to_remove):
 	        if gazebo.attrib['reference'] == remove_link:
 	            robot.remove(gazebo)
 
+# Set the effort limit on a given joint                
+def set_joint_effort_limit(robot, name, effort):
+    for joint in robot.findall('joint'):
+        if joint.attrib['name'] == name:
+            joint.find('limit').attrib['effort'] = effort                
+
 if __name__=="__main__":
 	atlasFull = ET.parse(os.path.expanduser('~')+'/drake-distro/drake/examples/Atlas/urdf/atlas_minimal_contact.urdf')
 	robot = atlasFull.getroot()
