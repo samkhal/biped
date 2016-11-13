@@ -19,11 +19,11 @@
 %24.1293 V.  The nominal voltage is 24 V.
 
 function power = electrical_power(motor_constants, n, M, isMech)
-k_M = motor_constants(1);
-R = motor_constants(2);
 if nargin == 4
     isMech = 0;
 end
+k_M = motor_constants(1);   
+R = motor_constants(2);
 if ~isMech
     n = n .* 30/(pi); %rad/s -> rpm 
     M = M .* 1000; %Nm -> mNm

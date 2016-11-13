@@ -26,7 +26,15 @@ end
 j=j+1;
 end
 mapObj = containers.Map(keys,values);
-A = mapObj(100);
-plot(A(1,:),(A(3,:)),'*')
-xlabel('angle rad');
+
+data = zeros(size(mapObj,1),1);
+for i = 1:size(mapObj,1)
+    tempBin = mapObj(i);
+    data(i) = mean(tempBin(3,:));
+end
+
+plot(1:100,data,'*')
+xlabel('bin number');
 ylabel('torque Nm');
+
+
