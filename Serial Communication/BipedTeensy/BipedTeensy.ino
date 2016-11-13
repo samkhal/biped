@@ -39,22 +39,22 @@ uint32_t *data3;
 int PIDPeriod = 10; // milliseconds
 int ScaleFactor = 1;
 int Motor;
-int Motor1 = 3;
+int Motor1 = 5;
 int Motor2 = 4;
-int Motor3 = 5;
-int Enable1 = 2;
+int Motor3 = 3;
+int Enable1 = 0;
 int Enable2 = 1;
-int Enable3 = 0;
+int Enable3 = 2;
 int Position;
-int Position1 = A7;
-int Position2 = A8;
-int Position3 = A9;
+int Position1 = A9;
+int Position2 = A7;
+int Position3 = A8;
 int Integral = 0;
 float kP;
 float kD;
-float kP1 = 0.05;
-float kP2 = 0.05;
-float kP3 = 0.05;
+float kP1 = 0.04;
+float kP2 = 0.1;
+float kP3 = 0.1;
 float kD1 = 0.1;
 float kD2 = 0.1;
 float kD3 = 0.1;
@@ -67,12 +67,6 @@ int minPWM = 26;
 int maxPWM = 229;
 uint16_t minPot;
 uint16_t maxPot;
-uint16_t minPot1;
-uint16_t maxPot1;
-uint16_t minPot2;
-uint16_t maxPot2;
-uint16_t minPot3;
-uint16_t maxPot3;
 int setPoint1;
 int setPoint2;
 int setPoint3;
@@ -116,7 +110,12 @@ void PIDcontrol(int SetPt, int link) {
   //  float I = Integral*kI; // integral term
   float D = ((Last - Actual) * kD) / PIDPeriod; // derivative term
   int Drive = P ;//+ D; // Total drive = P+I+D
-  Drive = Drive * ScaleFactor + (minPWM + maxPWM) / 2; // scale Drive to be in the range 0-255
+  if (link == 3){
+    Drive = -Drive * ScaleFactor + (minPWM + maxPWM) / 2;
+  }
+  else{
+    Drive = Drive * ScaleFactor + (minPWM + maxPWM) / 2; // scale Drive to be in the range 0-255
+  }
   if (Drive < minPWM) { // Check which direction to go.
     Drive = minPWM;
   }
@@ -124,6 +123,10 @@ void PIDcontrol(int SetPt, int link) {
     Drive = maxPWM;
   }
   analogWrite (Motor, Drive); // send PWM command to motor board
+//  Serial.print(readROM(3,true));
+//  Serial.print(" - ");
+//  Serial.println(Drive);
+//  write_uint16((uint16_t)Drive);
   if (link == 1) {
     Last1 = Actual;
   } else if (link == 2) {
@@ -132,6 +135,52 @@ void PIDcontrol(int SetPt, int link) {
     Last3 = Actual;
   }
 }
+
+int readROM(int Pot, bool Min) {
+  int address1;
+  int address2;
+  if (Pot == 1) {
+    if (Min == true) {
+      address1 = pot1addrA;
+      address2 = pot1addrB;
+    }
+    else if (Min == false) {
+      address1 = pot1addrC;
+      address2 = pot1addrD;
+    }
+  }
+  if (Pot == 2) {
+    if (Min == true) {
+      address1 = pot2addrA;
+      address2 = pot2addrB;
+    }
+    else if (Min == false) {
+      address1 = pot2addrC;
+      address2 = pot2addrD;
+    }
+  }
+  if (Pot == 3) {
+    if (Min == true) {
+      address1 = pot3addrA;
+      address2 = pot3addrB;
+    }
+    else if (Min == false) {
+      address1 = pot3addrC;
+      address2 = pot3addrD;
+    }
+  }
+  int val = EEPROM.read(address1);
+  val = val + (EEPROM.read(address2) << 8);
+  return val;
+}
+
+//Read ROM values
+uint16_t minPot1 = readROM(1,true);
+uint16_t maxPot1 = readROM(1,false);
+uint16_t minPot2 = readROM(2,true);
+uint16_t maxPot2 = readROM(2,false);
+uint16_t minPot3 = readROM(3,true);
+uint16_t maxPot3 = readROM(3,false);
 
 bool Calibration(int link) {
   if (link == 1) {
@@ -175,6 +224,9 @@ bool Calibration(int link) {
 
 void runTrajectory(int link) {
   uint32_t i = 0;
+  digitalWrite(Enable1, HIGH);
+  digitalWrite(Enable2, HIGH);
+  digitalWrite(Enable3, HIGH);
   while(i<dataLength){
     if (!allowPD) {
       i = i - 1;
@@ -198,13 +250,27 @@ void runTrajectory(int link) {
     }
     i = i+1;
   }
+  digitalWrite(Enable1, LOW);
+  digitalWrite(Enable2, LOW);
+  digitalWrite(Enable3, LOW);
 }
 
-void checkOOR(int Position, bool OutOfRange) {
-  uint16_t pose = analogRead(Position);
-  if (pose < readROM(link, true) || pose > readROM(link, false)) {
-    OutOfRange = true;
+bool checkOOR(int Position, bool OutOfRange) {
+  int pose = analogRead(Position);
+  int i = 0;
+  if (Position == Position1){
+    i = 1;
   }
+  else if (Position == Position2){
+    i = 2;
+  }
+  else if (Position == Position3){
+    i = 3;
+  }
+  if (pose < ((int)readROM(i, true)+3) || pose > ((int)readROM(i, false)-3)) {
+    return true;
+  }
+  return false;
 }
 
 void timerCallback() {
@@ -213,44 +279,6 @@ void timerCallback() {
     allowPD = true;
     timer = 0;
   }
-}
-
-int readROM(int Pot, bool Min) {
-  int address1;
-  int address2;
-  if (Pot == 1) {
-    if (Min == true) {
-      address1 = pot1addrA;
-      address2 = pot1addrB;
-    }
-    else if (Min == false) {
-      address1 = pot1addrC;
-      address2 = pot1addrD;
-    }
-  }
-  if (Pot == 2) {
-    if (Min == true) {
-      address1 = pot2addrA;
-      address2 = pot2addrB;
-    }
-    else if (Min == false) {
-      address1 = pot2addrC;
-      address2 = pot2addrD;
-    }
-  }
-  if (Pot == 3) {
-    if (Min == true) {
-      address1 = pot3addrA;
-      address2 = pot3addrB;
-    }
-    else if (Min == false) {
-      address1 = pot3addrC;
-      address2 = pot3addrD;
-    }
-  }
-  int val = EEPROM.read(address1);
-  val = val + (EEPROM.read(address2) << 8);
-  return val;
 }
 
 void setup() {
@@ -264,9 +292,9 @@ void setup() {
   pinMode(Enable1, OUTPUT);
   pinMode(Enable2, OUTPUT);
   pinMode(Enable3, OUTPUT);
-  analogWrite(Motor1, 25);
-  analogWrite(Motor2, 25);
-  analogWrite(Motor3, 25);
+  analogWrite(Motor1, 127);
+  analogWrite(Motor2, 127);
+  analogWrite(Motor3, 127);
   digitalWrite(Enable1, LOW);
   digitalWrite(Enable2, LOW);
   digitalWrite(Enable3, LOW);
@@ -287,6 +315,7 @@ void loop() {
   action = 0;
   link = 0;
   cSum = 0;
+  sumCounter = 0;
 
   // Get initilization bytes
   while (flag == 0) {
@@ -294,7 +323,7 @@ void loop() {
       action = Serial.read();
       //        write_uint16((uint16_t)action);
       link = Serial.read();
-      if (action == 1){
+      if (action == (uint8_t)1){
         dataLength = read_uint32();
         cSum = read_uint32();
       }
@@ -309,6 +338,7 @@ void loop() {
   // State Machine
   switch (action) {
     case (uint8_t)255  : // runTrajectory
+      write_uint16(1);
       runTrajectory(link);
       write_uint16(3);
       break;
@@ -333,9 +363,12 @@ void loop() {
         if (Calibration(link) == false) {
           calibrationOutOfRange = true;
         }
-        if (Serial.available() >= 1) {
+        if (Serial.available() >= 10) {
           if ((int)Serial.read() == (int)11) { // stopCalibration
             stopCalFlag = false;
+            a = read_uint32();
+            a = read_uint32();
+            a = Serial.read();
           }
         }
       }
@@ -373,9 +406,7 @@ void loop() {
             stopStaticControl = true;
           }
         }
-        checkOOR(Position1, OutOfRange);
-        checkOOR(Position2, OutOfRange);
-        checkOOR(Position3, OutOfRange);
+        OutOfRange = checkOOR(Position1, OutOfRange)||checkOOR(Position2, OutOfRange)||checkOOR(Position3, OutOfRange);
       }
       digitalWrite(Enable1, LOW);
       digitalWrite(Enable2, LOW);
@@ -432,6 +463,14 @@ void loop() {
       }
       break;
 
+    case (uint8_t)11   : // get min/max pot values
+      uint16_t minData;
+      uint16_t maxData;
+      minData = readROM(link,true);
+      maxData = readROM(link,false);
+      write_uint16(minData);
+      write_uint16(maxData);
+      write_uint16((uint16_t)0);
     default :
       delay(10);
   }

@@ -12,6 +12,11 @@
 % foo, the function that is applied at the joint to save energy
 % constant range, range of constants for foo
 
+%outputs:
+% all constants: all the constants in the provided equation
+% all savings:  all the savigns such as total, percent, max power, and mean
+% power
+
 function [all_constants all_savings] = find_optimal_energy_system(states, state_frames, torques, torque_frames, foo, constant_range, joints)
 
     %find the optimal constants in the equation

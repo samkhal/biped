@@ -151,6 +151,7 @@ link = int8(str2num(link));
 matlab_serial_example(0,teensy,link);
 set(handles.State,'string','State: Ready to Proceed');
 
+
 % --- Executes on button press in runStaticControl.
 function runStaticControl_Callback(hObject, eventdata, handles)
 % hObject    handle to runStaticControl (see GCBO)

@@ -1,5 +1,4 @@
 function out = matlab_serial_example(functionality,teensy,link)
-% functionality = 4;
 
 global data 
 out = [];
@@ -15,11 +14,7 @@ s.BytesAvailableFcn = @receive_data;
 
 function receive_data(serial_obj,event)
     data = fread(serial_obj, valuesPerSample, 'uint16');
-    if data == 666
-        disp(data);
-    else
-        disp(data);
-    end
+    disp(data);
     out= [out data];
 end
 
@@ -28,10 +23,19 @@ cleanupObj = onCleanup(@() delete(instrfindall));
     
 % Each number is a position for 10 milliseconds
 % Every 1 sec of trajectory for every 100 values
-dataOut = 1:10;
-% dataOut = 400:0.1:500;
-% dataOut = [dataOut 500:-0.1:400];
-% dataOut = floor(dataOut);
+% dataOut = 1:10;
+dataOut = 0;
+if link == 1 
+    dataOut = 500:-0.5:300;
+    dataOut = [dataOut 300:0.5:500];
+elseif link == 2
+    dataOut = 600:-0.5:400;
+    dataOut = [dataOut 400:0.5:600];
+elseif link == 3
+    dataOut = 400:0.5:600;
+    dataOut = [dataOut 600:-0.5:400];
+end
+dataOut = floor(dataOut);
 total_trajectory_seconds = numel(dataOut)/100;
 
 %State machine
@@ -42,7 +46,7 @@ elseif functionality == 1
 elseif functionality == 2
     startCalibration(s,link);
 elseif functionality == 3
-    stopCalibration(s)
+    stopCalibration(s,link)
 elseif functionality == 4
     runStaticControl(s,link);
 elseif functionality == 5
@@ -81,8 +85,12 @@ function runTrajectory(s,link)
     for i = 1:9
         fwrite(s,link,'uint8');
     end
+    while data~=1
+        pause(0.00001);
+    end
+    disp('Running Trajectory');
     while data~=3
-        pause(0.0001);
+        pause(0.00001);
     end
 end
 function sendTrajectory (s,dataOut,link)
@@ -108,9 +116,12 @@ function startCalibration(s,link)
     end
     disp('Calibration Started');
 end
-function stopCalibration(s)
+function stopCalibration(s,link)
     global data;
     fwrite(s,11,'uint8');
+    for i = 1:9
+        fwrite(s,link,'uint8');
+    end
     while data~= 0
         pause(0.1);
     end

@@ -25,9 +25,9 @@ if nargin == 4
     isMech = 0;
 end
 if ~isMech
-    n = n * 30/(pi); %rad/s -> rpm 
-    M = M * 1000; %Nm -> mNm
+    n = n .* 30/(pi); %rad/s -> rpm 
+    M = M .* 1000; %Nm -> mNm
 end
-I = M/k_M;
-power = abs(pi/30000*n*M) + R*I*I;
+I = M./k_M;
+power = abs(pi./30000.*n.*M) + R.*I.*I;
 end
