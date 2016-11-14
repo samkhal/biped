@@ -1,4 +1,5 @@
-% logan cam
+% Sam Khalandovsky
+% Generates and saves a pulley for Logan's gravity comp prototype
 
 k = 3; %lbf/in
 x = 8; %in
