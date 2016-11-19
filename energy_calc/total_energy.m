@@ -11,7 +11,7 @@
 % max power in W
 % average power in W
 function [energy, max_power, average_power]= total_energy(trajectory)
-dt = 1/1000; %time step
+dt = trajectory.times(2) - trajectory.times(1); %time step
 all_motor_values = [680, 14, .527; 526, 18.1, 12.4;];  %rpm/V  %mNm/A %ohm big motor; small motor
 all_gear_box_values = [111; 128];
 keys = fieldnames(trajectory.torque); %field names to access gearbox and motor values. hard coded and should be changed.
