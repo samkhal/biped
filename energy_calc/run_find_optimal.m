@@ -1,3 +1,6 @@
+% Sam Khalandovsky
+% Run torque function optimization across various orders of polynomial
+
 consts = {};
 for i = 2:35
     joints = {'r_leg_kny'};

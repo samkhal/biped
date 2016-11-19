@@ -1,3 +1,7 @@
+% Sam Khalandovsky
+% Get initial pulley values from knee_pulley, optimize them, and draw the
+% output pulley
+
 knee_pulley
 
 [p_vals, frac] = optimize_pulley(traj, [anchor_dist, anchor_offset, theta_max, spring_max, spring_k, px_1, alpha_dists']);

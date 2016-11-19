@@ -1,3 +1,7 @@
+% Sam Khalandovsky
+% generate the torque function for a given pulley, defined by alpha offsets
+% optionally, draw the pulley
+
 %% input
 % See generate_pulley for input info
 % px_1 is the x-intercept of the first cable path, always negative

@@ -1,3 +1,15 @@
+% Sam Khalandovsky
+% Try to optimize the pulley parameters to decrease energy usage using
+% nonlinear optimization
+
+%% Inputs
+% traj: trajectory to optimize for
+% initial_pulley_vals: vector of parameters to optimize
+
+%% Outputs
+% pulley_vals: vector of optimized parameters
+% fraction_saved: fraction of energy saved by this pulley
+
 function [pulley_vals, fraction_saved] = optimize_pulley(traj, initial_pulley_vals)
     % start with a candidate from knee_pulley
     
