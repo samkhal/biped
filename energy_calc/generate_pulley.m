@@ -39,6 +39,7 @@ pulley_ps = zeros(length(thetas),2);
 
 r0 = tau_profile(thetas(1))/spring_max; % radius at maximum force
 % This initial point will be dropped at the end
+assert(0<r0 && r0<anchor_r, 'anchor must be farther from the joint than the initial minimum radius')
 pulley_ps(1,1) = -r0*sin(anchor_theta+acos(r0/anchor_r)); %x
 pulley_ps(1,2) = -r0*cos(anchor_theta+acos(r0/anchor_r)); %y
 
@@ -64,14 +65,23 @@ function [torque, alpha, f_spring, r] = next_torque(i, alpha_dist)
     torque = f_spring * r;
 end
 
+tol = 0.001; %tolerance for exactness in torque
+max_error = 0;
 for i = 2:length(thetas)
     optim_fun = @(alpha_dist) abs(tau_profile(thetas(i)) - next_torque(i, alpha_dist));
     %alpha_dist = fminsearch(optim_fun, 0);
-    alpha_dist = fminbnd(optim_fun, 0, anchor_dist); %anchor_dist is just some reasonable upper bound
-    
+    [alpha_dist, fval] = fminbnd(optim_fun, 0, anchor_dist); %anchor_dist is just some reasonable upper bound
+    max_error = max(max_error,fval);
+        
     [~, alpha, spring_forces(i), ~] = next_torque(i, alpha_dist);
     pulley_ps(i,:) = alpha;
 end
+
+if max_error>tol
+    warning(['max_error too high: ',num2str(max_error)]);
+end
+
+
 
 %discard first point by setting it equal to second
 pulley_ps(1,:) = pulley_ps(2,:);
@@ -82,7 +92,7 @@ if draw
     axis equal
     hold on
     plot(anchor_ps(:,1),anchor_ps(:,2),'b');
-    plot([pulley_ps(:,1); 0; pulley_ps(1,1)],[pulley_ps(:,2); 0; pulley_ps(1,2)],'r'); 
+    plot([pulley_ps(:,1); 0; pulley_ps(1,1)],[pulley_ps(:,2); 0; pulley_ps(1,2)],'r.'); 
     plot([0 0 -anchor_offset],[0 -anchor_dist -anchor_dist], 'k', 'LineWidth',2)
     for i = [1 floor(length(thetas)/2) length(thetas)]
         plot([pulley_ps(i,1) anchor_ps(i,1)],[pulley_ps(i,2) anchor_ps(i,2)],'k--')
