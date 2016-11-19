@@ -22,7 +22,7 @@ function varargout = BipedGUI(varargin)
 
 % Edit the above text to modify the response to help BipedGUI
 
-% Last Modified by GUIDE v2.5 10-Nov-2016 18:49:08
+% Last Modified by GUIDE v2.5 17-Nov-2016 20:42:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -222,3 +222,17 @@ function link_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in idRequest.
+function idRequest_Callback(hObject, eventdata, handles)
+% hObject    handle to idRequest (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.State,'string','State: Getting IDs');
+teensy = get(handles.link,'string');
+teensy = int8(str2num(teensy));
+link = get(handles.link,'string');
+link = int8(str2num(link));
+matlab_serial_example(6,teensy,link);
+set(handles.State,'string','State: Ready to Proceed');
