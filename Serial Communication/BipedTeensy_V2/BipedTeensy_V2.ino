@@ -7,18 +7,29 @@
 unsigned int link1Addr = 0;
 unsigned int link2Addr = 1;
 unsigned int link3Addr = 2;
-unsigned int pot1addrA = 8;
-unsigned int pot1addrB = 9;
-unsigned int pot1addrC = 10;
-unsigned int pot1addrD = 11;
-unsigned int pot2addrA = 12;
-unsigned int pot2addrB = 13;
-unsigned int pot2addrC = 14;
-unsigned int pot2addrD = 15;
-unsigned int pot3addrA = 16;
-unsigned int pot3addrB = 17;
-unsigned int pot3addrC = 18;
-unsigned int pot3addrD = 19;
+unsigned int zeroTheta1A = 3;
+unsigned int zeroTheta1B = 4;
+unsigned int zeroTheta2A = 5;
+unsigned int zeroTheta2B = 6;
+unsigned int zeroTheta3A = 7;
+unsigned int zeroTheta3B = 8;
+unsigned int pot1addrA = 9;
+unsigned int pot1addrB = 10;
+unsigned int pot1addrC = 11;
+unsigned int pot1addrD = 12;
+unsigned int pot2addrA = 13;
+unsigned int pot2addrB = 14;
+unsigned int pot2addrC = 15;
+unsigned int pot2addrD = 16;
+unsigned int pot3addrA = 17;
+unsigned int pot3addrB = 18;
+unsigned int pot3addrC = 19;
+unsigned int pot3addrD = 20;
+unsigned int orient1 = 21;
+unsigned int orient2 = 22;
+unsigned int orient3 = 23;
+unsigned int zeroAngleAddr = 24;
+
 
 // Serial Communication variables
 uint8_t action = 0;
@@ -43,25 +54,24 @@ uint16_t maxPot;
 typedef struct Joint {
   int lastPID;
   int setPoint;
-  uint16_t *data;
+  int16_t *data;
 };
 
 typedef struct ConstJoint {
-  int teensy;
   int link;
   int position;
   int motor;
   int enable;
-  int lastPID;
-  int kP;
-  int kI;
-  int kD;
+  float kP;
+  float kI;
+  float kD;
   int direction;
   char name[10];
+  int lastPID;
   int minPot;
   int maxPot;
-  int minTheta; // in pot values
-  int maxTheta; // in pot values
+  int minTheta; // in rads values
+  int maxTheta; // in rads values
   int zeroTheta; // in pot values
 };
 
@@ -108,37 +118,61 @@ void write_uint16(uint16_t val) {
 
 //takes number of potentiometer(1-3) and a boolean if it is the minimum value
 //returns the ROM memory of min/max range for that potentiometer
-int readROM(int Pot, bool Min) {
+int readROM(int link, int attribute) {
   int address1;
   int address2;
-  if (Pot == 1) {
-    if (Min == true) {
+  if (link == 1) {
+    if (attribute == 0) {
       address1 = pot1addrA;
       address2 = pot1addrB;
     }
-    else if (Min == false) {
+    else if (attribute == 1) {
       address1 = pot1addrC;
       address2 = pot1addrD;
     }
+    else if (attribute == 3) {
+      address1 = zeroTheta1A;
+      address2 = zeroTheta1B;
+    }
+    else if (attribute == 4) {
+      address1 = orient1;
+      address2 = zeroAngleAddr;
+    }
   }
-  if (Pot == 2) {
-    if (Min == true) {
+  if (link == 2) {
+    if (attribute == 0) {
       address1 = pot2addrA;
       address2 = pot2addrB;
     }
-    else if (Min == false) {
+    else if (attribute == 1) {
       address1 = pot2addrC;
       address2 = pot2addrD;
     }
+    else if (attribute == 3) {
+      address1 = zeroTheta2A;
+      address2 = zeroTheta2B;
+    }
+    else if (attribute == 4) {
+      address1 = orient2;
+      address2 = zeroAngleAddr;
+    }
   }
-  if (Pot == 3) {
-    if (Min == true) {
+  if (link == 3) {
+    if (attribute == 0) {
       address1 = pot3addrA;
       address2 = pot3addrB;
     }
-    else if (Min == false) {
+    else if (attribute == 1) {
       address1 = pot3addrC;
       address2 = pot3addrD;
+    }
+    else if (attribute == 3) {
+      address1 = zeroTheta3A;
+      address2 = zeroTheta3B;
+    }
+    else if (attribute == 4) {
+      address1 = orient3;
+      address2 = zeroAngleAddr;
     }
   }
   int val = EEPROM.read(address1);
@@ -147,20 +181,20 @@ int readROM(int Pot, bool Min) {
 }
 
 //Declaring the joint structs, needs to be changed to link1-3
-//                 T, L, P,  M, E, kP,  kI, kD, mPot, MPot, stPt
-ConstJoint hip_c = {1, 1, A9, 5, 0, 0.04, 0, 0.1, 1};
-ConstJoint upperLeg_c = {1, 2, A7, 4, 1, 0.1, 0, 0.1, 1};
-ConstJoint knee_c = {1, 3, A8, 3, 2, 0.1, 0, 0.1, -1};
-ConstJoint* hip_cp;
-ConstJoint* upperLeg_cp;
-ConstJoint* knee_cp;
+//                    L, P,  M, E, kP,  kI, kD, mPot, MPot, stPt
+ConstJoint link1_c = {1, A9, 5, 0, ((float)0.04), 0, ((float)0.1), 1};
+ConstJoint link2_c = {2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 1};
+ConstJoint link3_c = {3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 0};
+ConstJoint* link1_cp;
+ConstJoint* link2_cp;
+ConstJoint* link3_cp;
 
-Joint hip;
-Joint upperLeg;
-Joint knee;
-Joint* hip_p;
-Joint* upperLeg_p;
-Joint* knee_p;
+Joint link1;
+Joint link2;
+Joint link3;
+Joint* link1_p;
+Joint* link2_p;
+Joint* link3_p;
 
 Joint joint;
 Joint* joint_p;
@@ -178,18 +212,55 @@ void PIDcontrol(int setPoint, Joint* joint, ConstJoint cjoint) {
   //  Integral=0; // zero it if out of bounds
   //  }
   float P = Error * cjoint.kP; // calc proportional term
+  
   //  float I = Integral*kI; // integral term
   float D = ((joint->lastPID - Actual) * cjoint.kD) / PIDPeriod; // derivative term
   int Drive = P ;//+ D; // Total drive = P+I+D
-  Drive = cjoint.direction * Drive * ScaleFactor + (minPWM + maxPWM) / 2; // scale Drive to be in the range 0-255
+  int sign = 1;
+  if(cjoint.direction == 0){
+    sign = -1;
+  }
+  Drive = (sign * Drive * ScaleFactor + (minPWM + maxPWM) / 2); // scale Drive to be in the range 0-255
   if (Drive < minPWM) { // Check which direction to go.
     Drive = minPWM;
   }
   if (Drive > maxPWM) {
     Drive = maxPWM;
   }
-  analogWrite (cjoint.motor, Drive); // send PWM command to motor board
+  write_uint16((uint16_t) Drive);
+//  analogWrite (cjoint.motor, Drive); // send PWM command to motor board
+  
   joint->lastPID = Actual;
+}
+
+void setOrientROM(ConstJoint* cjoint){
+  if (cjoint->link == 1){
+    EEPROM.write(orient1, (byte)(cjoint->direction));
+  }
+  else if (cjoint->link == 2){
+    EEPROM.write(orient2, (byte)(cjoint->direction));
+  }
+  else if (cjoint->link == 3){
+    EEPROM.write(orient3, (byte)(cjoint->direction));
+  }
+  EEPROM.write(zeroAngleAddr, (byte)0);
+}
+
+void setZeroThetaROM(ConstJoint* cjoint){
+  int val = 0;
+  val = analogRead(cjoint->position);
+  if (cjoint->link == 1){
+    EEPROM.write(zeroTheta1A, (byte)(val));
+    EEPROM.write(zeroTheta1B, (byte)(val >> 8));
+  }
+  else if (cjoint->link == 2){
+    EEPROM.write(zeroTheta2A, (byte)(val));
+    EEPROM.write(zeroTheta2B, (byte)(val >> 8));
+  }
+  else if (cjoint->link == 3){
+    EEPROM.write(zeroTheta3A, (byte)(val));
+    EEPROM.write(zeroTheta3B, (byte)(val >> 8));
+  }
 }
 
 //Writes the the maximum and minimum pot values to ROM, takes a pointer of constJoint struct
@@ -228,9 +299,9 @@ bool Calibration(ConstJoint* cjoint) {
 //Runs the trajectory received, takes a pointer of a joint struct and a constJoint struct
 void runTrajectory(Joint* joint_p, ConstJoint cjoint) {
   uint32_t i = 0;
-  digitalWrite(hip_c.enable, HIGH);
-  digitalWrite(upperLeg_c.enable, HIGH);
-  digitalWrite(knee_c.enable, HIGH);
+  digitalWrite(link1_c.enable, HIGH);
+  digitalWrite(link2_c.enable, HIGH);
+  digitalWrite(link3_c.enable, HIGH);
   while (i < dataLength) {
     if (!allowPD) {
       i = i - 1;
@@ -238,72 +309,80 @@ void runTrajectory(Joint* joint_p, ConstJoint cjoint) {
     else if (allowPD) {
       allowPD = false;
       if (link == 4) {
-        PIDcontrol((int)hip_p->data[i], hip_p, hip_c);
-        PIDcontrol((int)upperLeg_p->data[i], upperLeg_p, upperLeg_c);
-        PIDcontrol((int)knee_p->data[i], knee_p, knee_c);
+        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link1_p, link1_c);
+        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link2_p, link2_c);
+        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link3_p, link3_c);
       }
       else {
-        PIDcontrol((int)joint_p->data[i], joint_p, cjoint);
+        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), joint_p, cjoint);
+        write_uint16((uint16_t) radsToPot(joint_p->data[i],cjoint));
       }
     }
     i = i + 1;
   }
-  digitalWrite(hip_c.enable, LOW);
-  digitalWrite(upperLeg_c.enable, LOW);
-  digitalWrite(knee_c.enable, LOW);
+  digitalWrite(link1_c.enable, LOW);
+  digitalWrite(link2_c.enable, LOW);
+  digitalWrite(link3_c.enable, LOW);
 }
 
 //Checks if a joint goes very close to the min/max values and it stops it
 bool checkOOR(ConstJoint cjoint) {
   int pose = analogRead(cjoint.position);
   int i = cjoint.link;
-  if (pose < ((int)readROM(i, true) + 3) || pose > ((int)readROM(i, false) - 3)) {
+  if (pose < ((int)readROM(i, 0) + 3) || pose > ((int)readROM(i, 1) - 3)) {
     return true;
   }
   return false;
 }
 
 //Takes a pointer of a Joint struct and it changes its data from rads to pot values
-void radsToPot(Joint* joint){
-  int ticksPerRad = 1;
+int radsToPot(int16_t data, ConstJoint cjoint){
+  int ticksPerRad = 172;// 3 ticks per degree
   int radsMultiplier = 1000;
-  for (int i = 0; i<sizeof(joint->data); i++){
-      joint->data[i] = (joint->data[i]*ticksPerRad)/radsMultiplier;
-  }
+  return ((data*ticksPerRad)/radsMultiplier + cjoint.zeroTheta);
+}
+
+float potToRads(int val, ConstJoint cjoint){
+  float out;
+  int ticksPerRad = 172;// 3 ticks per degree
+  int radsMultiplier = 1000;
+  val = val-cjoint.zeroTheta;
+  out = (val/ticksPerRad)*radsMultiplier;
+  return out;
 }
 
 void setup() {
   Serial.begin(115200);
-  hip.setPoint = analogRead(hip_c.position);
-  upperLeg.setPoint = analogRead(upperLeg_c.position);
-  knee.setPoint = analogRead(knee_c.position);
-  pinMode(hip_c.motor, OUTPUT);
-  pinMode(upperLeg_c.motor, OUTPUT);
-  pinMode(knee_c.motor, OUTPUT);
-  pinMode(hip_c.enable, OUTPUT);
-  pinMode(upperLeg_c.enable, OUTPUT);
-  pinMode(knee_c.enable, OUTPUT);
-  analogWrite(hip_c.motor, 127);
-  analogWrite(upperLeg_c.motor, 127);
-  analogWrite(knee_c.motor, 127);
-  digitalWrite(hip_c.enable, LOW);
-  digitalWrite(upperLeg_c.enable, LOW);
-  digitalWrite(knee_c.enable, LOW);
+  link1.setPoint = analogRead(link1_c.position);
+  link2.setPoint = analogRead(link2_c.position);
+  link3.setPoint = analogRead(link3_c.position);
+  pinMode(link1_c.motor, OUTPUT);
+  pinMode(link2_c.motor, OUTPUT);
+  pinMode(link3_c.motor, OUTPUT);
+  pinMode(link1_c.enable, OUTPUT);
+  pinMode(link2_c.enable, OUTPUT);
+  pinMode(link3_c.enable, OUTPUT);
+  analogWrite(link1_c.motor, 127);
+  analogWrite(link2_c.motor, 127);
+  analogWrite(link3_c.motor, 127);
+  digitalWrite(link1_c.enable, LOW);
+  digitalWrite(link2_c.enable, LOW);
+  digitalWrite(link3_c.enable, LOW);
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
 
-  hip_cp = &hip_c;
-  upperLeg_cp = &upperLeg_c;
-  knee_cp = &knee_c;
-  hip_p = &hip;
-  upperLeg_p = &upperLeg;
-  knee_p = &knee;
-  strcpy(hip_c.name, "HIP");
-  strcpy(upperLeg_c.name, "UPPERLEG");
-  strcpy(knee_c.name, "KNEE");
-  EEPROM.write(link1Addr, (byte)(10));
-  EEPROM.write(link2Addr, (byte)(11));
-  EEPROM.write(link3Addr, (byte)(12));
+  link1_cp = &link1_c;
+  link2_cp = &link2_c;
+  link3_cp = &link3_c;
+  link1_p = &link1;
+  link2_p = &link2;
+  link3_p = &link3;
+  strcpy(link1_c.name, "LINK1");
+  strcpy(link2_c.name, "LINK2");
+  strcpy(link3_c.name, "LINK3");
+  EEPROM.write(link1Addr, (byte)(7));
+  EEPROM.write(link2Addr, (byte)(8));
+  EEPROM.write(link3Addr, (byte)(9));
 }
 /* Header:
   1 byte: message type
@@ -327,11 +406,11 @@ void loop() {
       action = Serial.read(); // variable used in the state machine
       link = Serial.read(); // what joint/link to control
       if (link == 1) {
-        joint = hip; cjoint = hip_c; joint_p = hip_p; cjoint_p = hip_cp;
+        joint = link1; cjoint = link1_c; joint_p = link1_p; cjoint_p = link1_cp;
       } else if (link == 2) {
-        joint = upperLeg; cjoint = upperLeg_c; joint_p = upperLeg_p; cjoint_p = upperLeg_cp;
+        joint = link2; cjoint = link2_c; joint_p = link2_p; cjoint_p = link2_cp;
       } else if (link == 3) {
-        joint = knee; cjoint = knee_c; joint_p = knee_p; cjoint_p = knee_cp;
+        joint = link3; cjoint = link3_c; joint_p = link3_p; cjoint_p = link3_cp;
       }
       if (action == (uint8_t)1) {
         dataLength = read_uint32();
@@ -354,8 +433,13 @@ void loop() {
       break;
 
     case (uint8_t)10  : // startCalibration
+      minPot = (uint16_t)analogRead(cjoint_p->position);
+      maxPot = minPot;
       cjoint_p->minPot = (uint16_t)joint_p->setPoint;
       cjoint_p->maxPot = (uint16_t)joint_p->setPoint;
+      cjoint_p->zeroTheta = (uint16_t)analogRead(cjoint_p->position);
+      setOrientROM(cjoint_p);
+      setZeroThetaROM(cjoint_p);
       bool stopCalFlag;
       bool calibrationOutOfRange;
       stopCalFlag = true;
@@ -379,6 +463,8 @@ void loop() {
         write_uint16((uint16_t)0);
       }
       else {
+        write_uint16(cjoint_p->direction);
+        write_uint16(cjoint_p->zeroTheta);
         write_uint16(minPot);
         write_uint16(maxPot);
         write_uint16((uint16_t)0);
@@ -392,36 +478,36 @@ void loop() {
       bool OutOfRange;
       stopStaticControl = false;
       OutOfRange = false;
-      hip_p->setPoint = analogRead(hip_c.position);
-      upperLeg_p->setPoint = analogRead(upperLeg_c.position);
-      knee_p->setPoint = analogRead(knee_c.position);
+      link1_p->setPoint = analogRead(link1_c.position);
+      link2_p->setPoint = analogRead(link2_c.position);
+      link3_p->setPoint = analogRead(link3_c.position);
       // setPoint = 250;/////////////////////////////////////////////////
-      digitalWrite(hip_c.enable, HIGH);
-      digitalWrite(upperLeg_c.enable, HIGH);
-      digitalWrite(knee_c.enable, HIGH);
+      digitalWrite(link1_c.enable, HIGH);
+      digitalWrite(link2_c.enable, HIGH);
+      digitalWrite(link3_c.enable, HIGH);
       while (!stopStaticControl && !OutOfRange) {
-        PIDcontrol(hip_p->setPoint, hip_p, hip_c);
-        PIDcontrol(upperLeg_p->setPoint, upperLeg_p, upperLeg_c);
-        PIDcontrol(knee_p->setPoint, knee_p, knee_c);
+        PIDcontrol(link1_p->setPoint, link1_p, link1_c);
+        PIDcontrol(link2_p->setPoint, link2_p, link2_c);
+        PIDcontrol(link3_p->setPoint, link3_p, link3_c);
         if (Serial.available() >= 1) {
           if ((int)Serial.read() == (int)13) { // stopStaticControl
             stopStaticControl = true;
           }
         }
-        OutOfRange = checkOOR(hip_c) || checkOOR(upperLeg_c) || checkOOR(knee_c);
+        OutOfRange = checkOOR(link3_c);
       }
-      digitalWrite(hip_c.enable, LOW);
-      digitalWrite(upperLeg_c.enable, LOW);
-      digitalWrite(knee_c.enable, LOW);
+      digitalWrite(link1_c.enable, LOW);
+      digitalWrite(link2_c.enable, LOW);
+      digitalWrite(link3_c.enable, LOW);
       write_uint16((uint16_t)0);
       break;
     case (uint8_t)1   : // sendTrajectory
       write_uint16(dataLength);
-      joint_p->data = (uint16_t *)malloc(dataLength * sizeof(uint16_t));
+      joint_p->data = (int16_t *)malloc(dataLength * sizeof(int16_t));
 
       for (uint32_t i = 0; i < dataLength; i++) {
         if (Serial.available() >= 2) {
-          a = read_uint16();
+          a = read_int16();
           joint_p->data[i] = a;
         }
         else {
@@ -439,18 +525,28 @@ void loop() {
         a = 2;
         write_uint16(a);
       }
+//      for (int i = 0; i<sizeof(joint.data); i++){
+//        joint_p->data[i] = radsToPot(joint_p->data[i],cjoint);
+//      }
       break;
 
-    case (uint8_t)11   : // get min/max pot values
+    case (uint8_t)11   : // get orientation,zero angle, min & max pot values
       uint16_t minData;
       uint16_t maxData;
-      minData = readROM(link, true);
-      maxData = readROM(link, false);
+      uint16_t orientation;
+      uint16_t zeroAngle;
+      minData = readROM(link, 0);
+      maxData = readROM(link, 1);
+      zeroAngle = readROM(link, 3);
+      orientation = readROM(link, 4);
+      write_uint16(orientation);
+      write_uint16(zeroAngle);
       write_uint16(minData);
       write_uint16(maxData);
       write_uint16((uint16_t)0);
+      break;
       
-    case (uint8_t)14   : // get links associated with this Teensy
+    case (uint8_t)15   : // get links associated with this Teensy
       uint16_t link1;
       uint16_t link2;
       uint16_t link3;
@@ -462,6 +558,7 @@ void loop() {
       write_uint16(link3);
       write_uint16((uint16_t)0);
       break;
+      
     default :
       delay(10);
   }
