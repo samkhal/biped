@@ -302,7 +302,7 @@ elseif link == 9
 elseif link == 10
     if data(end-1)~=666   
         set(handles.L10_MIN,'string',strcat('Min: ', num2str(data(end-2))));
-        set(handles.L20_MAX,'string',strcat('Max: ', num2str(data(end-1))));
+        set(handles.L10_MAX,'string',strcat('Max: ', num2str(data(end-1))));
         set(handles.zero10,'string',strcat('Zero: ', num2str(data(end-3))));
     else
         set(handles.L10_MIN,'string','Min: ERROR');
@@ -427,7 +427,7 @@ else
     elseif x == 10
         if data(end-1)~=666   
             set(handles.L10_MIN,'string',strcat('Min: ', num2str(data(end-2))));
-            set(handles.L20_MAX,'string',strcat('Max: ', num2str(data(end-1))));
+            set(handles.L10_MAX,'string',strcat('Max: ', num2str(data(end-1))));
             set(handles.zero10,'string',strcat('Zero: ', num2str(data(end-3))));
         else
             set(handles.L10_MIN,'string','Min: ERROR');

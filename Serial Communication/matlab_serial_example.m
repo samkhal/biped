@@ -179,7 +179,7 @@ function runTrajectory(s,link)
         fwrite(s,link,'uint8');
     end
     disp('Running Trajectory');
-    while data~=-3
+    while data~=3
         pause(0.1);
     end
     % tranceive data while there are still data
@@ -203,11 +203,11 @@ end
 function sendTrajectory (s,dataOut,ID)
     global data;
     global biped;
-    send_init_bytes(s(biped.IDSerialMap(ID)),dataOut,IDToLink(ID))
+    send_init_bytes(s,dataOut,IDToLink(ID))
     while data ~= numel(dataOut)
         pause(0.01);
     end
-    send_data(s(biped.IDSerialMap(ID)),dataOut)
+    send_data(s,dataOut)
     pause(0.01);
     while data == numel(dataOut)
         pause(0.01);

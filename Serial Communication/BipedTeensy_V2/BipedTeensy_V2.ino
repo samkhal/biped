@@ -181,9 +181,9 @@ int readROM(int link, int attribute) {
 }
 
 //Declaring the joint structs, needs to be changed to link1-3
-//                    L, P,  M, E, kP,  kI, kD, mPot, MPot, stPt
-ConstJoint link1_c = {1, A9, 5, 0, ((float)0.04), 0, ((float)0.1), 1};
-ConstJoint link2_c = {2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 1};
+//                    L, P,  M, E, kP,  kI, kD
+ConstJoint link1_c = {1, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1};
+ConstJoint link2_c = {2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0};
 ConstJoint link3_c = {3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 0};
 ConstJoint* link1_cp;
 ConstJoint* link2_cp;
@@ -227,8 +227,8 @@ void PIDcontrol(int setPoint, Joint* joint, ConstJoint cjoint) {
   if (Drive > maxPWM) {
     Drive = maxPWM;
   }
-  write_uint16((uint16_t) Drive);
-//  analogWrite (cjoint.motor, Drive); // send PWM command to motor board
+//  write_uint16((uint16_t) Drive);
+  analogWrite (cjoint.motor, Drive); // send PWM command to motor board
   
   joint->lastPID = Actual;
 }
@@ -314,8 +314,8 @@ void runTrajectory(Joint* joint_p, ConstJoint cjoint) {
         PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link3_p, link3_c);
       }
       else {
-        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), joint_p, cjoint);
-        write_uint16((uint16_t) radsToPot(joint_p->data[i],cjoint));
+        int16_t val = radsToPot(joint_p->data[i],cjoint);
+        PIDcontrol(val, joint_p, cjoint);
       }
     }
     i = i + 1;
@@ -494,7 +494,7 @@ void loop() {
             stopStaticControl = true;
           }
         }
-        OutOfRange = checkOOR(link3_c);
+//        OutOfRange = checkOOR(link1_c)||checkOOR(link2_c);
       }
       digitalWrite(link1_c.enable, LOW);
       digitalWrite(link2_c.enable, LOW);
@@ -525,9 +525,6 @@ void loop() {
         a = 2;
         write_uint16(a);
       }
-//      for (int i = 0; i<sizeof(joint.data); i++){
-//        joint_p->data[i] = radsToPot(joint_p->data[i],cjoint);
-//      }
       break;
 
     case (uint8_t)11   : // get orientation,zero angle, min & max pot values
@@ -539,6 +536,9 @@ void loop() {
       maxData = readROM(link, 1);
       zeroAngle = readROM(link, 3);
       orientation = readROM(link, 4);
+      cjoint_p->minPot = (int)minData;
+      cjoint_p->maxPot = (int)maxData;
+      cjoint_p->zeroTheta = (int)zeroAngle;
       write_uint16(orientation);
       write_uint16(zeroAngle);
       write_uint16(minData);
