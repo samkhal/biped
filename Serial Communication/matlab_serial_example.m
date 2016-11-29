@@ -51,6 +51,10 @@ elseif functionality == 6
     idRequest(s);
 elseif functionality == 7
     runAllTrajectories(s);
+elseif functionality == 8
+    runAllStatic(s);
+elseif functionality == 9
+    stopAllStatic(s);
 end
     
 if (data == 0)
@@ -200,6 +204,22 @@ function runAllTrajectories(s)
     end
     % tranceive data while there are still data
 end
+function runAllStatic(s)
+    global data;
+    for x = 1:length(s)
+        fwrite(s(x),12,'uint8');
+    end
+    for i = 1:9
+        for x = 1:length(s)
+            fwrite(s(x),1,'uint8');
+        end
+    end
+    disp('Running Static');
+    while data~=0
+        pause(0.00001);
+    end
+    % tranceive data while there are still data
+end
 function sendTrajectory (s,dataOut,ID)
     global data;
     global biped;
@@ -252,6 +272,16 @@ function stopStaticControl(s)
     fwrite(s,13,'uint8');
     while data ~= 0
         pause(0.1);
+    end
+    disp('Static Control Stoped');
+end
+function stopAllStatic(s)
+    global data;
+    for x = 1:length(s)
+        fwrite(s(x),13,'uint8');
+    end
+    while data ~= 0
+        pause(0.5);
     end
     disp('Static Control Stoped');
 end

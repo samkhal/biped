@@ -11,7 +11,7 @@ function varargout = BipedGUI(varargin)
 %
 %      BIPEDGUI('Property','Value',...) creates a new BIPEDGUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before BipedGUI_OpeningFcn gets called.  An
+%      applied to the GUI be fore BipedGUI_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
 %      stop.  All inputs are passed to BipedGUI_OpeningFcn via varargin.
 %
@@ -22,7 +22,7 @@ function varargout = BipedGUI(varargin)
 
 % Edit the above text to modify the response to help BipedGUI
 
-% Last Modified by GUIDE v2.5 20-Nov-2016 19:13:43
+% Last Modified by GUIDE v2.5 28-Nov-2016 17:56:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -459,3 +459,25 @@ else
     end
 end
 set(handles.State,'string','State: Ready to Proceed');
+
+
+% --- Executes on button press in staticAll.
+function staticAll_Callback(hObject, eventdata, handles)
+% hObject    handle to staticAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.State,'string','State: Run Static All');
+link = get(handles.link,'string');
+link = int8(str2num(link));
+matlab_serial_example(8,link);
+
+
+% --- Executes on button press in stopAll.
+function stopAll_Callback(hObject, eventdata, handles)
+% hObject    handle to stopAll (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+set(handles.State,'string','State: Stop Static All');
+link = get(handles.link,'string');
+link = int8(str2num(link));
+matlab_serial_example(9,link);
