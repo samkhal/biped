@@ -4,8 +4,8 @@
 // #include <lcm/lcm-cpp.hpp>
 // #include <SerialStream.h>
 
-#include "../include/bridge.hpp"
-#include "lcm/blink_command.hpp"
+#include "bridge.hpp"
+#include "blink_command.hpp"
 
 LCMSerialBridge::LCMSerialBridge(const std::string& port, LibSerial::SerialStreamBuf::BaudRateEnum baud)
 	// : serial(port){ TODO
