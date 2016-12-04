@@ -72,6 +72,7 @@ save bipedData.mat biped;
 if functionality == 3
     out = out(IDToSerial(ID));
 end
+save outputs.mat 
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%FUNCTIONS%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,6 +219,7 @@ function runAllStatic(s)
     while data~=0
         pause(0.00001);
     end
+%     pause(10);
     % tranceive data while there are still data
 end
 function sendTrajectory (s,dataOut,ID)
@@ -280,9 +282,10 @@ function stopAllStatic(s)
     for x = 1:length(s)
         fwrite(s(x),13,'uint8');
     end
-    while data ~= 0
-        pause(0.5);
-    end
+%     while data ~= 0
+%         pause(0.1);
+%     end
+    pause(60);
     disp('Static Control Stoped');
 end
 function idRequest(s)
@@ -293,7 +296,6 @@ function idRequest(s)
     SERIAL = [];
     for i = 1:length(s);
         data = -1;
-%         fopen(s(i));
         fwrite(s(i),15,'uint8');
         for j = 1:9
             fwrite(s(i),1,'uint8');
@@ -301,7 +303,6 @@ function idRequest(s)
         while data ~= 0
             pause(0.000000001);
         end
-%         fclose(s(i));
         SERIAL = [SERIAL i i i];
         ID = [ID out{i}(end-3) out{i}(end-2) out{i}(end-1)];
     end
