@@ -20,7 +20,6 @@ enum ReadState {
 class LCMSerialBridge {
 private:
 	struct ChannelDef {
-	public:
 		std::string name;
 		lcm::LCM* lcm;
 		void (ChannelDef::*publish)(byte*,uint32_t);
