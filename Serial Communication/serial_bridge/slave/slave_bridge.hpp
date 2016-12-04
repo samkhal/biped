@@ -1,3 +1,4 @@
+#include "fix_std.hpp"
 #include <map>
 
 #ifndef __SLAVE_BRIDGE_H__
@@ -6,18 +7,21 @@
 // using CHANNEL_ID = uint8_t;
 typedef uint8_t CHANNEL_ID;
 
-// typedef char byte;
+enum ReadState {
+	FIND_HEADER,
+	READ_LEN,
+	READ_DATA
+};
 
 /* This class implements a similar interface to LCM proper
 	for use on a microcontroller
 */
-// using namespace std;
 class LCMSerialSlave {
 private:
 	struct ChannelDef {
 		CHANNEL_ID id;
 		void (ChannelDef::*decoder)(byte*,uint32_t);
-		void (ChannelDef::*handler)(CHANNEL_ID, void*);
+		void (*handler)(CHANNEL_ID, void*);
 
 		template <typename MessageType>
 		void decoder_fun(byte* buf, uint32_t len){
@@ -33,6 +37,13 @@ private:
 
 	// Map of channel IDs to message-handler functions
 	std::map<CHANNEL_ID, ChannelDef> input_channels;
+
+	ReadState read_state = FIND_HEADER;
+	uint8_t last_channel_id;
+	uint32_t data_len;
+	byte datalen_buf[sizeof(data_len)];
+	uint32_t data_buf_p = 0;
+	byte* data_buf;
 
 public:
 	LCMSerialSlave();
@@ -57,10 +68,17 @@ public:
 	int subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID, MessageType*));
 
 	/** Handle all available serial messages. Does not block if none are available.
+	 * @param max_bytes maximum number of bytes to read before returning.
+	 * 			        -1 means process all available bytes.
 	 *
 	 * @return 0 on success, -1 on failure
  	 */
-	int handle();
+	int handle(int max_bytes = -1);
 };
+
+// Include implementation here for templated functions
+#define __SLAVE_BRIDGE_IMPL__
+#include "slave_bridge_impl.hpp"
+#undef __SLAVE_BRIDGE_IMPL__ 
 
 #endif
