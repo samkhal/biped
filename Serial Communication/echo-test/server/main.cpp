@@ -3,8 +3,30 @@
 #include <unistd.h>
 
 #include "arduino-serial-lib.h"
+#include <SerialStream.h>
+#include <iostream>
+
+using byte = unsigned char;
 
 int main(){
+	LibSerial::SerialStream serial;
+	serial.Open("/dev/ttyACM0");
+	serial.SetBaudRate(LibSerial::SerialStreamBuf::BAUD_115200);
+
+	std::string msg = "t";
+	std::cout<< "Sending"<<msg <<std::endl;
+
+	serial << msg;
+
+	char recv;
+	serial >> recv;
+	std::cout<<recv<<std::endl;
+	return 0;
+
+
+}
+
+int simple_serial_echo(){
 	printf("Start\n");
 	int serial = serialport_init("/dev/ttyACM0", 115200);
 
