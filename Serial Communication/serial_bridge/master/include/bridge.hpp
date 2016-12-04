@@ -9,7 +9,6 @@
 
 
 using byte = char;
-const uint8_t DATALEN_SIZE = 4; // Size of data length in message 
 
 enum ReadState {
 	FIND_HEADER,
@@ -46,7 +45,7 @@ private:
 	ReadState read_state = FIND_HEADER;
 	uint8_t last_channel_id;
 	uint32_t data_len;
-	byte datalen_buf[DATALEN_SIZE];
+	byte datalen_buf[sizeof(data_len)];
 	uint32_t data_buf_p = 0;
 	byte* data_buf;
 

@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <map>
 
-// #include <lcm/lcm-cpp.hpp>
-// #include <SerialStream.h>
-
 #include "bridge.hpp"
 #include "blink_command.hpp"
+
+//TODO move to impl file
 
 LCMSerialBridge::LCMSerialBridge(const std::string& port, LibSerial::SerialStreamBuf::BaudRateEnum baud)
 	// : serial(port){ TODO
@@ -74,7 +73,7 @@ void LCMSerialBridge::process_serial(int max_bytes){
 				data_buf_p++;
 
 				//Are we done reading the length?
-				if(data_buf_p >= DATALEN_SIZE){
+				if(data_buf_p >= sizeof(data_len)){
 					data_buf_p = 0;
 
 					uint32_t* data_len = reinterpret_cast<uint32_t*>(datalen_buf);
@@ -98,7 +97,6 @@ void LCMSerialBridge::process_serial(int max_bytes){
 					(channel.*channel.ChannelDef::publish)(data_buf, data_len);
 				}
 			}
-
 		}	
 	}
 
@@ -112,7 +110,8 @@ int LCMSerialBridge::handle() {
 int main(){
 	LCMSerialBridge bridge("/dev/ttyACM0");
 	bridge.add_subscriber(0, "BLINK_COMMAND");
-	bridge.add_publisher<blink_command>(1, "BLINK_RESPONSE");
-	bridge.process_serial(10);
+	bridge.add_publisher<blink_command>(1, "BLINK_COUNT");
+	while(1)
+		bridge.process_serial(10);
 	return 0;
 }

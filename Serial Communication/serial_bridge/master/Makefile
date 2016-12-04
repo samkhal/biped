@@ -32,7 +32,7 @@ all: $(BDIR)/main
 .SECONDARY: 
 
 $(LCM_H_DIR)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
-	lcm-gen -x --cpp-std=c++11 --cpp-hpath=$(LCM_H_DIR) $^
+	lcm-gen --cpp --cpp-std=c++11 --cpp-hpath=$(LCM_H_DIR) $^
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(CFLAGS)
