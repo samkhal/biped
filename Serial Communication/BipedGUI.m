@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before BipedGUI is made visible.
 function BipedGUI_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -57,6 +56,12 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
+
+axes(handles.axes3)
+matlabImage = imread('Caminante.png');
+image(matlabImage)
+axis off
+axis image
 
 % UIWAIT makes BipedGUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
