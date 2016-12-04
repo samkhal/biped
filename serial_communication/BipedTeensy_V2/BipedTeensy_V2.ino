@@ -29,6 +29,7 @@ unsigned int orient1 = 21;
 unsigned int orient2 = 22;
 unsigned int orient3 = 23;
 unsigned int zeroAngleAddr = 24;
+long int COUNTER = 0;
 
 
 // Serial Communication variables
@@ -46,8 +47,8 @@ uint32_t sumCounter = 0; //variabl that sums the bytes received
 int PIDPeriod = 10; // milliseconds
 int ScaleFactor = 1;
 int IntThresh = 1;
-int minPWM = 26;
-int maxPWM = 229;
+int minPWM = 26;//26
+int maxPWM = 229;//229
 uint16_t minPot;
 uint16_t maxPot;
 
@@ -55,6 +56,7 @@ typedef struct Joint {
   int lastPID;
   int setPoint;
   int16_t *data;
+  uint16_t rec[5000];
 };
 
 typedef struct ConstJoint {
@@ -184,7 +186,7 @@ int readROM(int link, int attribute) {
 //                    L, P,  M, E, kP,  kI, kD
 ConstJoint link1_c = {1, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1};
 ConstJoint link2_c = {2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0};
-ConstJoint link3_c = {3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 0};
+ConstJoint link3_c = {3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1};
 ConstJoint* link1_cp;
 ConstJoint* link2_cp;
 ConstJoint* link3_cp;
@@ -227,7 +229,11 @@ void PIDcontrol(int setPoint, Joint* joint, ConstJoint cjoint) {
   if (Drive > maxPWM) {
     Drive = maxPWM;
   }
-//  write_uint16((uint16_t) Drive);
+  if (allowPD){
+    joint->rec[COUNTER] = (uint16_t)Drive;
+//    write_uint16((uint16_t) Drive);
+//    allowPD = false;
+  }
   analogWrite (cjoint.motor, Drive); // send PWM command to motor board
   
   joint->lastPID = Actual;
@@ -309,9 +315,9 @@ void runTrajectory(Joint* joint_p, ConstJoint cjoint) {
     else if (allowPD) {
       allowPD = false;
       if (link == 4) {
-        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link1_p, link1_c);
-        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link2_p, link2_c);
-        PIDcontrol((int)radsToPot(joint_p->data[i],cjoint), link3_p, link3_c);
+        PIDcontrol((int)radsToPot(link1_p->data[i],link1_c), link1_p, link1_c);
+        PIDcontrol((int)radsToPot(link2_p->data[i],link2_c), link2_p, link2_c);
+        PIDcontrol((int)radsToPot(link3_p->data[i],link3_c), link3_p, link3_c);
       }
       else {
         int16_t val = radsToPot(joint_p->data[i],cjoint);
@@ -380,9 +386,9 @@ void setup() {
   strcpy(link1_c.name, "LINK1");
   strcpy(link2_c.name, "LINK2");
   strcpy(link3_c.name, "LINK3");
-  EEPROM.write(link1Addr, (byte)(7));
-  EEPROM.write(link2Addr, (byte)(8));
-  EEPROM.write(link3Addr, (byte)(9));
+  EEPROM.write(link1Addr, (byte)(4));
+  EEPROM.write(link2Addr, (byte)(5));
+  EEPROM.write(link3Addr, (byte)(6));
 }
 /* Header:
   1 byte: message type
@@ -483,22 +489,31 @@ void loop() {
       link3_p->setPoint = analogRead(link3_c.position);
       // setPoint = 250;/////////////////////////////////////////////////
       digitalWrite(link1_c.enable, HIGH);
-      digitalWrite(link2_c.enable, HIGH);
+//      digitalWrite(link2_c.enable, HIGH);
       digitalWrite(link3_c.enable, HIGH);
       while (!stopStaticControl && !OutOfRange) {
         PIDcontrol(link1_p->setPoint, link1_p, link1_c);
-        PIDcontrol(link2_p->setPoint, link2_p, link2_c);
+//        PIDcontrol(link2_p->setPoint, link2_p, link2_c);
         PIDcontrol(link3_p->setPoint, link3_p, link3_c);
+        if(COUNTER<=4999 && allowPD){
+          COUNTER++;
+          allowPD = false;
+        }
         if (Serial.available() >= 1) {
           if ((int)Serial.read() == (int)13) { // stopStaticControl
             stopStaticControl = true;
           }
         }
-//        OutOfRange = checkOOR(link1_c)||checkOOR(link2_c);
+        OutOfRange = checkOOR(link1_c)||checkOOR(link3_c);
       }
       digitalWrite(link1_c.enable, LOW);
-      digitalWrite(link2_c.enable, LOW);
+//      digitalWrite(link2_c.enable, LOW);
       digitalWrite(link3_c.enable, LOW);
+      for (int i = 0; i<5000;i++){
+        write_uint16(link1_p->rec[i]);
+//        write_uint16(link2_p->rec[i]);
+        write_uint16(link3_p->rec[i]);
+      }
       write_uint16((uint16_t)0);
       break;
     case (uint8_t)1   : // sendTrajectory
