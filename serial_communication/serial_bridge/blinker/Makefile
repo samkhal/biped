@@ -1,11 +1,11 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -Wall
 
-IDIR =include
+IDIR = .
 ODIR= build/obj
 LDIR =lib
-BDIR = build/bin
-SDIR = src
+BDIR = build
+SDIR = .
 
 LCM_TYPES_DIR = ../types
 LCM_H_DIR = build/lcm
@@ -31,10 +31,13 @@ all: $(BDIR)/main
 
 .SECONDARY: 
 
+$(ODIR):
+	mkdir -p $(ODIR)
+
 $(LCM_H_DIR)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
 	lcm-gen --cpp --cpp-std=c++11 --cpp-hpath=$(LCM_H_DIR) $^
 
-$(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
+$(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS) | $(ODIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(CFLAGS)
 
 $(BDIR)/main: $(OBJ)
@@ -43,4 +46,4 @@ $(BDIR)/main: $(OBJ)
  .PHONY: clean
 
 clean:
-	rm -f $(BDIR)/* $(LCM_H_DIR)/*.hpp $(ODIR)/*.o *~ $(INCDIR)/*~ 
+	rm -rf $(BDIR) $(LCM_H_DIR)/*.hpp $(ODIR) *~ $(INCDIR)/*~ 

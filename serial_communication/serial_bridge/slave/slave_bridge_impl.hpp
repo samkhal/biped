@@ -1,6 +1,6 @@
 // Implementation of slave_bridge.hpp
 
-#ifndef __SLAVE_BRIDGE_IMPL__
+#ifndef SLAVE_BRIDGE_IMPL_HPP_
 #error "Don't include this file directly"
 #endif
 
@@ -18,6 +18,7 @@ int LCMSerialSlave::publish(CHANNEL_ID channel_id, const MessageType* msg){
 	// Store the header, then the body
 	memcpy(buf, &channel_id, sizeof(channel_id));
 	memcpy(&buf[sizeof(channel_id)], &size, sizeof(size));
+
 	msg->encode(buf, header_size, size);
 
 	int written = Serial.write(buf, header_size+size);
@@ -36,42 +37,47 @@ int LCMSerialSlave::subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID,
 	channel.decoder = &ChannelDef::decoder_fun<MessageType>;
 
 	input_channels[channel_id] = channel;
-	return 0; //TODO
+	return 0; //TODO proper return values
 }
 
 int LCMSerialSlave::handle(int max_bytes){
 	int bytes_left = max_bytes;
 
 	while(Serial.available() && (bytes_left > 0 || max_bytes == -1)){
+		byte next_byte = Serial.read();
+		bytes_left--;
+
 		switch(read_state){
 			// Locate the first byte of the next message
 			case FIND_HEADER: {
-				last_channel_id = Serial.read();
-
 				// Is this a valid channel ID? Invalids are skipped
-				if(input_channels.count(last_channel_id)){
+				if(input_channels.count(next_byte)){
+					last_channel_id = next_byte;
 					read_state = READ_LEN;
 				}
+				break;
 			}
 
 			// Read in the datalength
 			case READ_LEN: {
-				datalen_buf[data_buf_p] = Serial.read();
+				datalen_buf[data_buf_p] = next_byte;
 				data_buf_p++;
 
 				//Are we done reading the length?
 				if(data_buf_p >= sizeof(data_len)){
 					data_buf_p = 0;
 
-					uint32_t* data_len = reinterpret_cast<uint32_t*>(datalen_buf);
-					data_buf = new byte[*data_len];
+					uint32_t* data_len_p = reinterpret_cast<uint32_t*>(datalen_buf);
+					data_len = *data_len_p; //TODO cleanup this
+					data_buf = new byte[data_len];
 					read_state = READ_DATA;
 				}
+				break;
 			}
 
 			// Read in the actual data
 			case READ_DATA: {
-				data_buf[data_buf_p] = Serial.read();
+				data_buf[data_buf_p] = next_byte;
 				data_buf_p++;
 
 				// Are we done reading data?
@@ -81,12 +87,19 @@ int LCMSerialSlave::handle(int max_bytes){
 					// Trigger the callback for this message
 					ChannelDef channel = input_channels[last_channel_id];
 					(channel.*channel.ChannelDef::decoder)(data_buf, data_len);
+
+					read_state = FIND_HEADER;
 				}
+				break;
+			}
+
+			default: {
+				break;
 			}
 		}
 	}
 
-	return 0; //TODO
+	return 0; //TODO proper return values
 }
 
 

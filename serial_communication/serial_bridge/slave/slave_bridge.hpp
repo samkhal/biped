@@ -1,11 +1,10 @@
 #include "fix_std.hpp"
 #include <map>
 
-#ifndef __SLAVE_BRIDGE_H__
-#define __SLAVE_BRIDGE_H__
+#ifndef SLAVE_BRIDGE_HPP_
+#define SLAVE_BRIDGE_HPP_
 
-// using CHANNEL_ID = uint8_t;
-typedef uint8_t CHANNEL_ID;
+using CHANNEL_ID = uint8_t;
 
 enum ReadState {
 	FIND_HEADER,
@@ -48,7 +47,6 @@ private:
 public:
 	LCMSerialSlave();
 
-
 	/** Publish an LCM Message over serial
 	 * @param channel_id byte used as channel identifier
 	 * @param msg the message to publish
@@ -67,7 +65,7 @@ public:
 	template<typename MessageType>
 	int subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID, MessageType*));
 
-	/** Handle all available serial messages. Does not block if none are available.
+	/** Handle all available serial messages. Does not block if nothing is available.
 	 * @param max_bytes maximum number of bytes to read before returning.
 	 * 			        -1 means process all available bytes.
 	 *
@@ -77,8 +75,8 @@ public:
 };
 
 // Include implementation here for templated functions
-#define __SLAVE_BRIDGE_IMPL__
+#define SLAVE_BRIDGE_IMPL_HPP_
 #include "slave_bridge_impl.hpp"
-#undef __SLAVE_BRIDGE_IMPL__ 
+#undef SLAVE_BRIDGE_IMPL_HPP_
 
 #endif

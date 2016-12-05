@@ -4,9 +4,8 @@
 #include <SerialStream.h>
 #include <lcm/lcm-cpp.hpp>
 
-#ifndef __MASTER_BRIDGE_H__
-#define __MASTER_BRIDGE_H__
-
+#ifndef MASTER_BRIDGE_HPP_
+#define MASTER_BRIDGE_HPP_
 
 using byte = char;
 
@@ -23,17 +22,12 @@ private:
 		lcm::LCM* lcm;
 		void (ChannelDef::*publish)(byte*,uint32_t);
 
-		ChannelDef(){};
-		ChannelDef(const std::string& channel_name, void(ChannelDef::*publish_)(byte*,uint32_t)) :
-			name(channel_name), publish(publish_){};
-
 		template <typename MessageType>
-		void publish_fun(byte* buf, uint32_t len){
+		void publish_fun(byte* buf, uint32_t len){ //TODO move to impl file
 			MessageType msg;
 			msg.decode(buf, 0, len);
 			lcm->publish(name, &msg);
 		}
-
 	};
 
 	lcm::LCM lcm;
@@ -49,10 +43,14 @@ private:
 	uint32_t data_buf_p = 0;
 	byte* data_buf;
 
+	/** Callback function to passes LCM Message over serial 
+	 */
+	void pass_to_serial(const lcm::ReceiveBuffer* rbuf, const std::string& channel_name);
+
 public:
 	/** Initialize serial connection
 	 * @param port name of the serial port
-	 * @param baud baudrate
+	 * @param baud baudrate, with 115200 as the default
 	 */
 	LCMSerialBridge(const std::string& port, 
 		LibSerial::SerialStreamBuf::BaudRateEnum = LibSerial::SerialStreamBuf::BAUD_115200);
@@ -72,10 +70,22 @@ public:
 	template <typename MessageType>
 	void add_publisher(uint8_t channel_id, const std::string& channel_name);
 
-
-	void pass_to_serial(const lcm::ReceiveBuffer* rbuf, const std::string& channel_name);
+	/** Read from serial and publish any complete LCM messages
+	 * @param max_bytes maximum number of bytes to process. -1 means "process all"
+	 */
 	void process_serial(int max_bytes = -1);
-	int handle();
+
+	/* Handle LCM Messages. Do not block
+	 * @param timeout time in ms to wait for messages, 
+	 * 
+	 * @return >0 if message handled, 0 on timeout, <0 on error
+	 */
+	int handle(int timeout = 0);
+	//TODO test behavior with timeout=0
 };
+
+#define BRIDGE_IMPL_HPP_
+#include "bridge_impl.hpp"
+#undef BRIDGE_IMPL_HPP_
 
 #endif
