@@ -67,7 +67,7 @@ public:
 	template<typename MessageType>
 	int subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID, MessageType*));
 
-	/** Handle all available serial messages. Does not block if none are available.
+	/** Handle all available serial messages. Does not block if nothing is available.
 	 * @param max_bytes maximum number of bytes to read before returning.
 	 * 			        -1 means process all available bytes.
 	 *

@@ -43,35 +43,49 @@ int LCMSerialSlave::handle(int max_bytes){
 	int bytes_left = max_bytes;
 
 	while(Serial.available() && (bytes_left > 0 || max_bytes == -1)){
+		byte next_byte = Serial.read();
+		bytes_left--;
+
+		Serial.print("|ReadByte:");
+		Serial.print((int)next_byte);
+		Serial.print("|State:");
+		Serial.print(read_state);
 		switch(read_state){
 			// Locate the first byte of the next message
 			case FIND_HEADER: {
-				last_channel_id = Serial.read();
+				last_channel_id = next_byte; 
 
 				// Is this a valid channel ID? Invalids are skipped
 				if(input_channels.count(last_channel_id)){
 					read_state = READ_LEN;
+					Serial.print("|S:ChannelFound:");
+					Serial.print(last_channel_id);
 				}
+				break;
 			}
 
 			// Read in the datalength
 			case READ_LEN: {
-				datalen_buf[data_buf_p] = Serial.read();
+				datalen_buf[data_buf_p] = next_byte;
 				data_buf_p++;
 
 				//Are we done reading the length?
 				if(data_buf_p >= sizeof(data_len)){
 					data_buf_p = 0;
 
-					uint32_t* data_len = reinterpret_cast<uint32_t*>(datalen_buf);
-					data_buf = new byte[*data_len];
+					uint32_t* data_len_p = reinterpret_cast<uint32_t*>(datalen_buf);
+					data_len = *data_len_p; //TODO cleanup this
+					data_buf = new byte[data_len];
 					read_state = READ_DATA;
+					Serial.print("|S:LenFound:");
+					Serial.print(data_len);
 				}
+				break;
 			}
 
 			// Read in the actual data
 			case READ_DATA: {
-				data_buf[data_buf_p] = Serial.read();
+				data_buf[data_buf_p] = next_byte;
 				data_buf_p++;
 
 				// Are we done reading data?
@@ -81,9 +95,19 @@ int LCMSerialSlave::handle(int max_bytes){
 					// Trigger the callback for this message
 					ChannelDef channel = input_channels[last_channel_id];
 					(channel.*channel.ChannelDef::decoder)(data_buf, data_len);
+
+					read_state = FIND_HEADER;
 				}
+				break;
+			}
+
+			default: {
+				Serial.print("DEFAULT!");
+				break;
 			}
 		}
+		// Serial.print("Still_more?");
+		// Serial.print(Serial.available());
 	}
 
 	return 0; //TODO

@@ -7,7 +7,7 @@
 void blink_listener(const lcm::ReceiveBuffer* rbuf, 
 					const std::string& channel, 
 					const blink_count* msg, void* context){
-	std::cout << msg->count << std::endl;
+	std::cout << "Received count: " << msg->count << std::endl;
 }
 
 int main(){

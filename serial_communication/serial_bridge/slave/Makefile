@@ -1,5 +1,4 @@
 ARDUINO_LIBS = TimerOne 
-MONITOR_PORT = /dev/ttyACM0
 BOARD_TAG    = teensy31
 
 LCM_TYPES_DIR = ../types

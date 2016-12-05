@@ -37,6 +37,8 @@ private:
 	};
 
 	lcm::LCM lcm;
+//DEBUG
+public:
 	LibSerial::SerialStream serial;
 
 	std::map<const std::string, uint8_t> input_channel_ids;
@@ -75,7 +77,14 @@ public:
 
 	void pass_to_serial(const lcm::ReceiveBuffer* rbuf, const std::string& channel_name);
 	void process_serial(int max_bytes = -1);
-	int handle();
+
+	/* Handle LCM Messages. Do not block
+	 * @param timeout time in ms to wait for messages, 
+	 * 
+	 * @return >0 if message handled, 0 on timeout, <0 on error
+	 */
+	int handle(int timeout = 0);
+	//TODO test behavior with timeout=0
 };
 
 #endif
