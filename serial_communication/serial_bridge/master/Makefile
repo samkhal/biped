@@ -1,6 +1,7 @@
 CXX=g++
 CXXFLAGS=-std=c++11 -Wall
 
+#include, object, lib, build, and src directories
 IDIR = .
 ODIR= build/obj
 LDIR =lib
