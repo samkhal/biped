@@ -1,6 +1,6 @@
 // Implementation of slave_bridge.hpp
 
-#ifndef __SLAVE_BRIDGE_IMPL__
+#ifndef SLAVE_BRIDGE_IMPL_HPP_
 #error "Don't include this file directly"
 #endif
 
@@ -18,6 +18,7 @@ int LCMSerialSlave::publish(CHANNEL_ID channel_id, const MessageType* msg){
 	// Store the header, then the body
 	memcpy(buf, &channel_id, sizeof(channel_id));
 	memcpy(&buf[sizeof(channel_id)], &size, sizeof(size));
+
 	msg->encode(buf, header_size, size);
 
 	int written = Serial.write(buf, header_size+size);
@@ -36,7 +37,7 @@ int LCMSerialSlave::subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID,
 	channel.decoder = &ChannelDef::decoder_fun<MessageType>;
 
 	input_channels[channel_id] = channel;
-	return 0; //TODO
+	return 0; //TODO proper return values
 }
 
 int LCMSerialSlave::handle(int max_bytes){
@@ -46,20 +47,13 @@ int LCMSerialSlave::handle(int max_bytes){
 		byte next_byte = Serial.read();
 		bytes_left--;
 
-		Serial.print("|ReadByte:");
-		Serial.print((int)next_byte);
-		Serial.print("|State:");
-		Serial.print(read_state);
 		switch(read_state){
 			// Locate the first byte of the next message
 			case FIND_HEADER: {
-				last_channel_id = next_byte; 
-
 				// Is this a valid channel ID? Invalids are skipped
-				if(input_channels.count(last_channel_id)){
+				if(input_channels.count(next_byte)){
+					last_channel_id = next_byte;
 					read_state = READ_LEN;
-					Serial.print("|S:ChannelFound:");
-					Serial.print(last_channel_id);
 				}
 				break;
 			}
@@ -77,8 +71,6 @@ int LCMSerialSlave::handle(int max_bytes){
 					data_len = *data_len_p; //TODO cleanup this
 					data_buf = new byte[data_len];
 					read_state = READ_DATA;
-					Serial.print("|S:LenFound:");
-					Serial.print(data_len);
 				}
 				break;
 			}
@@ -102,15 +94,12 @@ int LCMSerialSlave::handle(int max_bytes){
 			}
 
 			default: {
-				Serial.print("DEFAULT!");
 				break;
 			}
 		}
-		// Serial.print("Still_more?");
-		// Serial.print(Serial.available());
 	}
 
-	return 0; //TODO
+	return 0; //TODO proper return values
 }
 
 
