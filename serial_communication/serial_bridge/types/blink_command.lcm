@@ -1,6 +1,0 @@
-
-struct blink_command
-{
-	const int32_t OFF=0, ON=1;
-	int32_t command; 
-}

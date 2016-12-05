@@ -1,5 +1,0 @@
-
-struct blink_count
-{
-	int32_t count;
-}
