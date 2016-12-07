@@ -5,8 +5,8 @@
 % val: value to convert
 % unit: standard abbreviated name of unit to convert from
 
-function si_value = imp(val,unit)
-% conv stores conversion factors to SI
+function imp_value = imp(val,unit)
+% conv stores conversion factors to imperial
 persistent conv; 
 if isempty(conv) 
     conv = containers.Map;
@@ -17,7 +17,7 @@ if isempty(conv)
 end
 
 try
-    si_value = conv(unit)*val;
+    imp_value = conv(unit)*val;
 catch 
     error(['unit "' unit '" not found']);
 end
