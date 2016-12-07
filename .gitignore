@@ -4,4 +4,14 @@
 *.tmp
 *.slx.autosave
 *~
+*.swp
+*.swo
+*.pyc
+*.sublime-project
+*.sublime-workspace
+*.debug.yaml
+
+__pycache__/
+.ipynb_checkpoints/
+/misc/
 build*/
