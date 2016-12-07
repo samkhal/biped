@@ -1,0 +1,551 @@
+<robot name="caminante">
+  
+  <link name="l_foot">
+    <inertial>
+      <mass value="0.410" />
+      <origin rpy="0 0 0" xyz="0.027 0 -0.067" />
+      <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
+    </inertial>
+    <visual>
+      <origin rpy="1.5657   -0.0000   -1.5708" xyz="0.0771   -0.0732    0.1504" />
+      <geometry>
+        <mesh filename="meshes/Left_Foot.obj" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+  </link>
+ 
+
+  <link name="l_lglut">
+    <inertial>
+      <mass value="0.437298303222345" />
+      <origin rpy="0  0  0" xyz="-0.03492  0.03099  0.00015" />
+      <inertia ixx="0.000344658356090036" ixy="1.4438940947967E-05" ixz="5.03774354824921E-05" iyy="0.000819710121372963" iyz="1.99893504999227E-05" izz="0.00066955963284712" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="-0.00384 -0.3021  -0.06945" />
+      <geometry>
+        <mesh filename="meshes/Left_Hip.obj" scale="1 1 1" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="l_lleg">
+    <inertial>
+      <mass value="0.512558545145301" />
+      <origin rpy="0  0  0" xyz="0      -0.11018  0.00843" />
+      <inertia ixx="0.00213377963819277" ixy="3.74835359824284E-05" ixz="4.14809936352257E-06" iyy="0.000231679313040171" iyz="0.000107877166470471" izz="0.0021213704718963" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="0.07301 -0.09254 -0.0714" />
+      <geometry>
+        <mesh filename="meshes/Bottom_Left_Leg.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <link name="l_talus">
+    <inertial>
+      <mass value="0.117206413777382" />
+      <origin rpy="0  0  0" xyz="0       0.00525  0.02552" />
+      <inertia ixx="0.000111896827570048" ixy="5.94543100842475E-07" ixz="2.57140126177776E-06" iyy="0.000105965848764851" iyz="2.65868228080628E-05" izz="4.20803404080659E-05" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="0.07317  0.12875 -0.07027" />
+      <geometry>
+        <mesh filename="meshes/Left_Ankle.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+  </link>
+
+
+  <link name="l_uleg">
+    <inertial>
+      <mass value="0.498661421818378" />
+      <origin rpy="0  0  0" xyz="0      -0.09292 -0.00071" />
+      <inertia ixx="0.00222023286489819" ixy="2.76170328092637E-05" ixz="4.42071982951624E-07" iyy="0.000133616406118555" iyz="1.5209311638611E-05" izz="0.00230781854965746" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="0.07675 -0.30208 -0.07247" />
+      <geometry>
+        <mesh filename="meshes/Top_Left_Leg.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+    
+    
+    
+  </link>
+
+  <link name="pelvis">
+    <inertial>
+      <mass value="6.4909068" />
+      <origin rpy="1.56567  0      -1.57079" xyz="0 0 0" />
+      <inertia ixx="0.0271179077728007" ixy="1.18852566353138E-05" ixz="2.95478792996208E-05" iyy="0.0323353494450389" iyz="0.00289482168449842" izz="0.0422145237899791" />
+    </inertial>
+    <visual>
+      <geometry>
+        
+        <origin rpy="1.56567  0      -1.57079" xyz="0.0786    0.05923   -0.41164" />
+        <mesh filename="meshes/Body.obj" scale="1 1 1" />
+      </geometry>
+    </visual>
+  </link>
+ 
+  <link name="r_foot">
+    <inertial>
+      <mass value="0.41" />
+      <origin rpy="0 0 0" xyz="0.027 0 -0.067" />
+      <inertia ixx="0.002" ixy="0" ixz="0" iyy="0.007" iyz="0" izz="0.008" />
+    </inertial>
+    <visual>
+      <origin rpy="1.5657   -0.0000   -1.5708" xyz="0.0771    0.1935    0.1504" />
+      <geometry>
+        <mesh filename="meshes/Right_Foot.obj" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="heel">
+      <origin rpy="0 0 0" xyz="-0.0876 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="toe">
+      <origin rpy="0 0 0" xyz="0.1728 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+    <!-- <visual group="midfoot_front">
+      <origin rpy="0 0 0" xyz="0.086 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+    <collision group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.0" />
+      </geometry>
+    </collision>
+<!--     <visual group="midfoot_rear">
+      <origin rpy="0 0 0" xyz="-0.0008 -0.0300001 -0.040001" />
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </visual> -->
+  </link>
+
+
+  
+  <link name="r_lglut">
+    <inertial>
+      <mass value="0.429542604129865" />
+      <origin rpy="0  0  0" xyz="0.03461  0.03088  0.00015" />
+      <inertia ixx="0.000335620222780637" ixy="1.71766252899159E-05" ixz="6.82036560203188E-05" iyy="0.000796625170345829" iyz="1.87749814800264E-05" izz="0.000651844767117383" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="-0.11497 -0.30207 -0.0756" />
+      <geometry>
+        <mesh filename="meshes/Right_Hip.obj" scale="1 1 1" />
+      </geometry>
+    </visual>
+  </link>
+  <link name="r_lleg">
+    <inertial>
+      <mass value="0.496399914621672" />
+      <origin rpy="0  0  0" xyz="0      -0.11414  0.00893" />
+      <inertia ixx="0.00193251368574828" ixy="2.87905126861506E-05" ixz="3.64310219704147E-06" iyy="0.000228879661927419" iyz="9.27392912409724E-05" izz="0.00191229395918849" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="-0.1935  -0.09254 -0.0714" />
+      <geometry>
+        <mesh filename="meshes/Bottom_Right_Leg.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <link name="r_talus">
+    <inertial>
+      <mass value="0.113529232705104" />
+      <origin rpy="0  0  0" xyz="0       0.00601  0.02692" />
+      <inertia ixx="0.000102683690789615" ixy="5.24094963661094E-07" ixz="2.43532379680455E-06" iyy="9.8810717962194E-05" iyz="2.27559446851328E-05" izz="3.98903277983113E-05" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="-0.19355  0.12875 -0.07027" />
+      <geometry>
+        <mesh filename="meshes/Right_Ankle.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+  </link>
+
+
+
+  <link name="r_uleg">
+    <inertial>
+      <mass value="0.473894617598188" />
+      <origin rpy="0  0  0" xyz="0      -0.09427 -0.00073" />
+      <inertia ixx="0.00219613513040201" ixy="2.41554166439975E-05" ixz="4.92477643768768E-07" iyy="0.000130736562803138" iyz="1.49414818095768E-05" izz="0.00228460638702232" />
+    </inertial>
+    <visual>
+      <origin rpy="0  0  0" xyz="-0.19021 -0.30208 -0.07247" />
+      <geometry>
+        <mesh filename="meshes/Top_Right_Leg.obj" scale="1 1 1" />
+      </geometry>
+      <material name="red">
+        <color rgba="0.675 0.169 0.216 1.0" />
+      </material>
+    </visual>
+    
+    
+    
+ </link> 
+
+
+
+
+
+
+
+  <joint name="l_leg_akx" type="revolute">
+    <origin rpy="-0.0012    1.5657    1.5696" xyz="0   -0.0220    0.0060" />
+    <axis xyz="1 0 0" />
+    <parent link="l_talus" />
+    <child link="l_foot" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="4.4928" lower="-0.8" upper="0.8" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.8" soft_upper_limit="10.8" />
+  </joint>
+  <joint name="l_leg_aky" type="revolute">
+    <origin rpy="0  0  0" xyz="-1.50000000e-04  -2.21290000e-01  -1.13000000e-03" />
+    <axis xyz="-1  0  0" />
+    <parent link="l_lleg" />
+    <child link="l_talus" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-1" upper="0.7" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11" soft_upper_limit="10.7" />
+  </joint>
+  <joint name="l_leg_hpx" type="revolute">
+    
+    <origin rpy="1.56567  0      -1.57079" xyz="0.0107    0.05539   -0.10919" />
+    
+    <axis xyz="0      -0.00511  0.99998" />  
+    <parent link="pelvis" />
+    <child link="l_lglut" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-0.523599" upper="0.523599" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.5236" soft_upper_limit="10.5236" />
+  </joint>
+  <joint name="l_leg_hpy" type="revolute">
+    
+    <origin rpy="0  0  0" xyz="-8.05900000e-02  -1.00000000e-05   3.02000000e-03" />
+    <axis xyz="-1  0  0" />
+    <parent link="l_lglut" />
+    <child link="l_uleg" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-1.61234" upper="0.65764" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.6123" soft_upper_limit="10.6576" />
+  </joint>
+
+  <joint name="l_leg_kny" type="revolute">
+    <origin rpy="0  0  0" xyz="0.00373 -0.20954 -0.00107" />
+    <axis xyz="-1  0  0" />
+    <parent link="l_uleg" />
+    <child link="l_lleg" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="0" upper="2" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3564" />
+  </joint>
+
+
+
+  <joint name="r_leg_akx" type="revolute">
+    <origin rpy="-0.0012    1.5657    1.5696" xyz="0   -0.0220    0.0060" />
+    <axis xyz="1 0 0" />
+    <parent link="r_talus" />
+    <child link="r_foot" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="4.4928" lower="-0.8" upper="0.8" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.8" soft_upper_limit="10.8" />
+  </joint>
+  <joint name="r_leg_aky" type="revolute">
+    <origin rpy="0  0  0" xyz="4.00000000e-05  -2.21290000e-01  -1.13000000e-03" />
+    <axis xyz="-1  0  0" />
+    <parent link="r_lleg" />
+    <child link="r_talus" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-1" upper="0.7" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11" soft_upper_limit="10.7" />
+  </joint>
+  <joint name="r_leg_hpx" type="revolute">
+    <origin rpy="1.56567  0      -1.57079" xyz="0.00455  -0.05573  -0.10919" />
+    <axis xyz="0       0.00511 -0.99998" />
+    <parent link="pelvis" />
+    <child link="r_lglut" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-0.523599" upper="0.523599" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10.5236" soft_upper_limit="10.5236" />
+  </joint>
+  <joint name="r_leg_hpy" type="revolute">
+    <origin rpy="0  0  0" xyz="7.52400000e-02   1.00000000e-05  -3.13000000e-03" />
+    <axis xyz="-1  0  0" />
+    <parent link="r_lglut" />
+    <child link="r_uleg" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="-1.61234" upper="0.65764" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-11.6123" soft_upper_limit="10.6576" />
+  </joint>
+
+  <joint name="r_leg_kny" type="revolute">
+    <origin rpy="0  0  0" xyz="0.00328 -0.20954 -0.00107" />
+    <axis xyz="-1  0  0" />
+    <parent link="r_uleg" />
+    <child link="r_lleg" />
+    <dynamics damping="0.1" friction="0" />
+    <limit effort="67.932" lower="0" upper="2" velocity="12" />
+    <safety_controller k_position="100" k_velocity="100" soft_lower_limit="-10" soft_upper_limit="12.3564" />
+  </joint>
+ 
+  <frame link="l_foot" name="l_foot_sole" rpy="0 0 0" xyz="0.0426  0.0017 -0.040001" />
+  <frame link="r_foot" name="r_foot_sole" rpy="0 0 0" xyz="0.0426 -0.0017 -0.040001" />
+  <frame link="l_foot" name="l_foot_toe" rpy="0 0 0" xyz="0.1728 0.0017 -0.040001" />
+  <frame link="r_foot" name="r_foot_toe" rpy="0 0 0" xyz="0.1728 -0.0017 -0.040001" />
+
+
+
+ 
+  
+
+
+
+  <transmission name="l_leg_kny_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_leg_kny_motor" />
+    <joint name="l_leg_kny" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_leg_akx_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_leg_akx_motor" />
+    <joint name="l_leg_akx" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_leg_hpy_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_leg_hpy_motor" />
+    <joint name="l_leg_hpy" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_leg_hpx_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_leg_hpx_motor" />
+    <joint name="l_leg_hpx" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="l_leg_aky_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="l_leg_aky_motor" />
+    <joint name="l_leg_aky" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+
+
+
+  <transmission name="r_leg_kny_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_leg_kny_motor" />
+    <joint name="r_leg_kny" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_leg_akx_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_leg_akx_motor" />
+    <joint name="r_leg_akx" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_leg_hpy_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_leg_hpy_motor" />
+    <joint name="r_leg_hpy" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_leg_hpx_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_leg_hpx_motor" />
+    <joint name="r_leg_hpx" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission name="r_leg_aky_trans" type="pr2_mechanism_model/SimpleTransmission">
+    <actuator name="r_leg_aky_motor" />
+    <joint name="r_leg_aky" />
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+
+
+
+</robot>
