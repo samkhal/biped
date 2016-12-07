@@ -58,8 +58,8 @@ function [torque, alpha, f_spring, r] = next_torque(i, alpha_dist)
     x_diff = free_len - free_len_last;
     
     %new radius is distance from pull line to origin
-    cross2d = @(a,b) cross(horzcat(a,0),horzcat(b,0));
-    r = norm(cross2d(alpha-anchor_ps(i,:),-anchor_ps(i,:)))/norm(alpha-anchor_ps(i,:));
+    cross2d = @(a,b) subsref(cross(horzcat(a,0),horzcat(b,0)),substruct('()',{3}));
+    r = abs(cross2d(alpha-anchor_ps(i,:),-anchor_ps(i,:)))/norm(alpha-anchor_ps(i,:));
         
     f_spring = spring_forces(i-1) + k_spring*x_diff;
     torque = f_spring * r;
