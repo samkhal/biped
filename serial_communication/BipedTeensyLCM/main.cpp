@@ -4,6 +4,13 @@
 #include <TimerThree.h>
 #include <stdio.h>
 #include <string.h>
+#include "commData2Teensy.hpp"
+#include "commDataFromTeensy.hpp"
+#include "channel.h"
+#include "Joint.h"
+#include "ConstJoint.h"
+
+LCMSerialSlave lcm;
 
 //ROM Memory addresses
 unsigned int link1Addr = 0;
@@ -23,7 +30,7 @@ unsigned int pot2addrA = 13;
 unsigned int pot2addrB = 14;
 unsigned int pot2addrC = 15;
 unsigned int pot2addrD = 16;
-unsigned int pot3addrA = 17;
+unsigned int pot3addrA =   17;
 unsigned int pot3addrB = 18;
 unsigned int pot3addrC = 19;
 unsigned int pot3addrD = 20;
@@ -31,51 +38,24 @@ unsigned int orient1 = 21;
 unsigned int orient2 = 22;
 unsigned int orient3 = 23;
 unsigned int zeroAngleAddr = 24;
-long int COUNTER = 0;
 
-typedef struct Joint {
-  int lastPID;
-  int setPoint;
-  int16_t *data;
-  uint16_t rec[5000];
-};
-
-typedef struct ConstJoint {
-  int link;
-  int position;
-  int motor;
-  int enable;
-  float kP;
-  float kI;
-  float kD;
-  int direction;
-  int motorOrientation;
-  int potOrientation;
-  int potCabling;
-  char name[10];
-  int lastPID;
-  int minPot;
-  int maxPot;
-  int minTheta; // in rads values
-  int maxTheta; // in rads values
-  int zeroTheta; // in pot values
-};
+struct channel Channel;
 
 ConstJoint JointTable[13]= {
-//                          L, P,  M, E,    kP,       kI,      kD,     Dir,
+// L, P,  M, E,    kP,       kI,     kD,   Dir, chan
 {},
-{1, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1},
-{2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0},
-{3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1},
-{4, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1},
-{5, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0},
-{6, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1},
-{7, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1},
-{8, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0},
-{9, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1},
-{10, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1},
-{11, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0},
-{12, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1}
+{1, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY1_IN},
+{2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, Channel.TEENSY1_IN},
+{3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY1_IN},
+{4, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY2_IN},
+{5, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, Channel.TEENSY2_IN},
+{6, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY2_IN},
+{7, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY3_IN},
+{8, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, Channel.TEENSY3_IN},
+{9, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY3_IN},
+{10, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY4_IN},
+{11, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, Channel.TEENSY4_IN},
+{12, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, Channel.TEENSY4_IN}
 };
 
 
@@ -92,6 +72,7 @@ uint32_t sumCounter = 0; //variabl that sums the bytes received
 
 // PID Variables
 int PIDPeriod = 10; // milliseconds
+int zeroTorque = 127;
 int ScaleFactor = 1;
 int IntThresh = 1;
 int minPWM = 26;//26
@@ -249,13 +230,7 @@ void PIDcontrol(int setPoint, Joint* joint, ConstJoint cjoint) {
   if (Drive > maxPWM) {
     Drive = maxPWM;
   }
-  if (allowPD){
-    joint->rec[COUNTER] = (uint16_t)Drive;
-//    write_uint16((uint16_t) Drive);
-//    allowPD = false;
-  }
   analogWrite (cjoint.motor, Drive); // send PWM command to motor board
-
   joint->lastPID = Actual;
 }
 
@@ -378,6 +353,87 @@ float potToRads(int val, ConstJoint cjoint){
   return out;
 }
 
+void jointSelection(int32_t link){
+  if (link == 1) {
+    joint = link1; cjoint = link1_c; joint_p = link1_p; cjoint_p = link1_cp;
+  } else if (link == 2) {
+    joint = link2; cjoint = link2_c; joint_p = link2_p; cjoint_p = link2_cp;
+  } else if (link == 3) {
+    joint = link3; cjoint = link3_c; joint_p = link3_p; cjoint_p = link3_cp;
+  }
+}
+
+// LCM callback. Starts blinking if it's an ON command
+void stateMachine(CHANNEL_ID id, commData2Teensy* msg){
+
+  switch (msg->command) {
+    case commData2Teensy::ID_REQUEST :
+      int32_t link1;
+      int32_t link2;
+      int32_t link3;
+      link1 = EEPROM.read(link1Addr);
+      link2 = EEPROM.read(link2Addr);
+      link3 = EEPROM.read(link3Addr);
+      commDataFromTeensy msgOut;
+			msgOut.joint1 = link1;
+      msgOut.joint2 = link2;
+      msgOut.joint3 = link3;
+			lcm.publish(link1_c.channel, &msgOut);
+      break;
+    case commData2Teensy::START_CALIBRATION :
+      jointSelection(msg->joint);
+      minPot = (uint16_t)analogRead(cjoint_p->position);
+      maxPot = minPot;
+      cjoint_p->minPot = (uint16_t)joint_p->setPoint;
+      cjoint_p->maxPot = (uint16_t)joint_p->setPoint;
+      cjoint_p->zeroTheta = (uint16_t)analogRead(cjoint_p->position);
+      bool stopCalFlag;
+      bool calibrationOutOfRange;
+      stopCalFlag = true;
+      calibrationOutOfRange = false;
+      write_uint16((uint16_t)0);
+      while (stopCalFlag) {
+        if (Calibration(cjoint_p) == false) {
+          calibrationOutOfRange = true;
+        }
+        if (Serial.available() >= 10) { //Check for flag instead
+          if ((int)Serial.read() == (int)11) { // stopCalibration
+            stopCalFlag = false;
+            a = read_uint32();
+            a = read_uint32();
+            a = Serial.read();
+          }
+        }
+      }
+      if (calibrationOutOfRange == true) {
+        write_uint16((uint16_t)666);
+        write_uint16((uint16_t)0);
+      }
+      else {
+        write_uint16(cjoint_p->direction);
+        write_uint16(cjoint_p->zeroTheta);
+        write_uint16(minPot);
+        write_uint16(maxPot);
+        write_uint16((uint16_t)0);
+      }
+      break;
+    case commData2Teensy::STOP_CALIBRATION :
+    break;
+    case commData2Teensy::SEND_TRAJECTORY :
+    break;
+    case commData2Teensy::RUN_STATIC_CONTROL :
+    break;
+    case commData2Teensy::RUN_STATIC_ALL :
+    break;
+    case commData2Teensy::RUN_TRAJECTORY :
+    break;
+    case commData2Teensy::RUN_ALL_TRAJECTORIES :
+    break;
+    case commData2Teensy::STOP :
+    break;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   link1.setPoint = analogRead(link1_c.position);
@@ -389,9 +445,9 @@ void setup() {
   pinMode(link1_c.enable, OUTPUT);
   pinMode(link2_c.enable, OUTPUT);
   pinMode(link3_c.enable, OUTPUT);
-  analogWrite(link1_c.motor, 127);
-  analogWrite(link2_c.motor, 127);
-  analogWrite(link3_c.motor, 127);
+  analogWrite(link1_c.motor, zeroTorque);
+  analogWrite(link2_c.motor, zeroTorque);
+  analogWrite(link3_c.motor, zeroTorque);
   digitalWrite(link1_c.enable, LOW);
   digitalWrite(link2_c.enable, LOW);
   digitalWrite(link3_c.enable, LOW);
@@ -403,12 +459,19 @@ void setup() {
   link1_p = &link1;
   link2_p = &link2;
   link3_p = &link3;
+  setOrientROM(link1_cp);
+  setZeroThetaROM(link1_cp);
+  setOrientROM(link2_cp);
+  setZeroThetaROM(link2_cp);
+  setOrientROM(link3_cp);
+  setZeroThetaROM(link3_cp);
   strcpy(link1_c.name, "LINK1");
   strcpy(link2_c.name, "LINK2");
   strcpy(link3_c.name, "LINK3");
-  EEPROM.write(link1Addr, (byte)(4));//THESE SHOULD BE COMMENTED OUT AFTER PERMANENT CHANGES!
-  EEPROM.write(link2Addr, (byte)(5));
-  EEPROM.write(link3Addr, (byte)(6));
+  lcm.subscribe(link1_c.channel, &stateMachine);
+  // EEPROM.write(link1Addr, (byte)(4));//THESE SHOULD BE COMMENTED OUT AFTER PERMANENT CHANGES!
+  // EEPROM.write(link2Addr, (byte)(5));
+  // EEPROM.write(link3Addr, (byte)(6));
 }
 /* Header:
   1 byte: message type
@@ -515,10 +578,6 @@ void loop() {
         PIDcontrol(link1_p->setPoint, link1_p, link1_c);
         PIDcontrol(link2_p->setPoint, link2_p, link2_c);
         PIDcontrol(link3_p->setPoint, link3_p, link3_c);
-        if(COUNTER<=4999 && allowPD){
-          COUNTER++;
-          allowPD = false;
-        }
         if (Serial.available() >= 1) {
           if ((int)Serial.read() == (int)13) { // stopStaticControl
             stopStaticControl = true;
@@ -529,11 +588,6 @@ void loop() {
       digitalWrite(link1_c.enable, LOW);
       digitalWrite(link2_c.enable, LOW);
       digitalWrite(link3_c.enable, LOW);
-      for (int i = 0; i<5000;i++){
-        write_uint16(link1_p->rec[i]);
-        write_uint16(link2_p->rec[i]);
-        write_uint16(link3_p->rec[i]);
-      }
       write_uint16((uint16_t)0);
       break;
     case (uint8_t)1   : // sendTrajectory

@@ -10,7 +10,7 @@ ifndef OBJDIR
     endif
 endif
 
-LCM_TYPES_DIR = types
+LCM_TYPES_DIR = ../types
 LCM_H_DIR = $(OBJDIR)/lcm
 
 # Add the LCM headers to the common dependencies
