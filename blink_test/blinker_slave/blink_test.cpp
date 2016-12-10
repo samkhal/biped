@@ -1,14 +1,16 @@
 #include "WProgram.h"
 
 #include "slave_bridge.hpp"
-#include "blink_command.hpp"
-#include "blink_count.hpp"
+#include "biped_lcm/blink_command.hpp"
+#include "biped_lcm/blink_count.hpp"
 
 #include <TimerOne.h>
 
 /** Simple client. Waits for LCM blink command message, 
  * the publishes a blink count every second roughly.
  */
+
+using namespace biped_lcm;
 
 LCMSerialSlave lcm;
 
