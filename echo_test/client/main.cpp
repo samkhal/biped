@@ -3,17 +3,18 @@
 
 // Simple echo routine
 
+using byte = uint8_t;
 int main(){
 
   Serial.begin(115200);
 
   while(1){
     if(Serial.available()){
-      char byte = Serial.read();
+      byte msg = Serial.read();
 
-      delay(2000);
+      // delay(1000);
 
-      Serial.write(byte+1);
+      Serial.write(msg);
     }
   }
 }
