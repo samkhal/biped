@@ -37,10 +37,7 @@ $(BDIR):
 	mkdir -p $(BDIR)
 
 $(BDIR)/%.o: $(SDIR)/%.cpp $(DEPS) | $(BDIR)
-	@echo $(BDIR)
-	echo STOP
 	$(CXX) $(CXXFLAGS) -c -o $@ $< $(CFLAGS)
 
 $(BDIR)/$(TARGET): $(OBJ)
-	@echo WHAT
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS)

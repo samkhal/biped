@@ -56,9 +56,9 @@ export OBJDIR = $(realpath $(BUILD_DIR))/$(BOARD-TAG)
 export CPPFLAGS = -I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
 
 onboard: $(LCM_HEADERS) 
-	@echo "Entering onboard submake"
-	@echo $(CPPFLAGS)
-	@echo $(MKFILE_DIR)
+	# @echo "Entering onboard submake"
+	# @echo $(CPPFLAGS)
+	# @echo $(MKFILE_DIR)
 	# set makelevel to not suppress config output
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
@@ -78,9 +78,10 @@ SOURCES = $(foreach t, $(NODE_TARGETS), $(wildcard t/*.cpp))
 OBJECTS = $(addprefix $(BUILD_DIR)/, $(SOURCES:%.cpp=%.o))
 
 $(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
-	@echo TARGET $@
-	@echo MATCH $*
-	@echo $(NODE_TARGETS)
+	# @echo TARGET $@
+	# @echo MATCH $*
+	# @echo $(NODE_TARGETS)
+	@echo Building $*
 
 	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$*; \
 	export TARGET=$(notdir $@); \
