@@ -1,0 +1,6 @@
+struct commDataFromTeensy
+{
+	int32_t joint1;
+	int32_t joint2;
+	int32_t joint3;
+}
