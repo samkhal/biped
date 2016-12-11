@@ -51,9 +51,9 @@ $(LCM_B_DIR)/$(LCM_TARGET_JAR): $(addprefix $(LCM_B_DIR)/,$(LCM_JAR_DEPS))
 	cd $(LCM_B_DIR) && jar cf $(LCM_TARGET_JAR) $(LCM_JAR_DEPS)
 
 #------------Build onboard
-export OBJDIR = $(realpath $(BUILD_DIR))/$(BOARD-TAG)
+export BDIR_ABS=$(realpath $(BUILD_DIR))
 # Add the LCM headers to the include path
-export CPPFLAGS = -I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
+export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
 
 onboard: $(LCM_HEADERS) 
 	# @echo "Entering onboard submake"
