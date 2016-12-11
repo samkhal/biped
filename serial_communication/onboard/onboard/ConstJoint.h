@@ -23,4 +23,21 @@ struct ConstJoint {
   int zeroTheta; // in pot values
 };
 
+const ConstJoint JointTable[13]= {
+// L, P,  M, E,    kP,       kI,     kD,   Dir, chan
+{},
+{1, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, 0},
+{2, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, 0},
+{3, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, 0},
+{4, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, 0},
+{5, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, 0},
+{6, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, 0},
+{7, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, 0},
+{8, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, 0},
+{9, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, 0},
+{10, A9, 5, 0, ((float)0.1), 0, ((float)0.1), 1, 0},
+{11, A7, 4, 1, ((float)0.1), 0, ((float)0.1), 0, 0},
+{12, A8, 3, 2, ((float)0.1), 0, ((float)0.1), 1, 0}
+};
+
 #endif
