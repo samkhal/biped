@@ -120,7 +120,6 @@
     }
     tempCJoint->minPot = minPot;
     tempCJoint->maxPot = maxPot;
-    setPotRange(tempCJoint->link, minPot, maxPot);
     if (potVal < minPotNaturalRange || potVal > maxPotNaturalRange) {
       return false;
     }
@@ -236,6 +235,7 @@
       case commData2Teensy::STOP_CALIBRATION :
         msgOut.minPot = (&tempCJoint)->minPot;
         msgOut.maxPot = (&tempCJoint)->maxPot;
+        setPotRange(tempCJoint->link, minPot, maxPot);
         lcm.publish(OUT, &msgOut);
         calibrationFlag = true;
         break;
