@@ -8,7 +8,8 @@ struct commData2Teensy
 			RUN_STATIC_ALL=5,
 			RUN_TRAJECTORY=6,
 			RUN_ALL_TRAJECTORIES=7,
-			STOP=8;
+			STOP=8,
+			WAIT=9;
 	int32_t command;
 	int32_t joint;
 }

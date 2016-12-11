@@ -35,8 +35,8 @@
   uint16_t maxPot;
 
   //State Machine Variables
-  int action;
-  int link;
+  int action = commData2Teensy::WAIT;
+  int link = 1;
   boolean calibrationFlag = true;
   volatile unsigned long int timer = 0;
   volatile bool allowPD = true; //flag for allowing the control
@@ -235,23 +235,37 @@
       case commData2Teensy::STOP_CALIBRATION :
         msgOut.minPot = (&tempCJoint)->minPot;
         msgOut.maxPot = (&tempCJoint)->maxPot;
-        setPotRange(tempCJoint->link, minPot, maxPot);
+        setPotRange((&tempCJoint)->link, minPot, maxPot);
         lcm.publish(OUT, &msgOut);
         calibrationFlag = true;
+        action =commData2Teensy::WAIT;
         break;
 
       case commData2Teensy::SEND_TRAJECTORY :
       break;
+
       case commData2Teensy::RUN_STATIC_CONTROL :
       break;
+
       case commData2Teensy::RUN_STATIC_ALL :
       break;
+
       case commData2Teensy::RUN_TRAJECTORY :
       break;
+
       case commData2Teensy::RUN_ALL_TRAJECTORIES :
       break;
+
       case commData2Teensy::STOP :
       break;
+
+      case commData2Teensy::WAIT :
+        delay(1);
+        break;
+
+      default:
+        delay(1);
+        break;
     }
   }
 
