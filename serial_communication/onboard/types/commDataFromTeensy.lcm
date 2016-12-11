@@ -3,4 +3,6 @@ struct commDataFromTeensy
 	int32_t joint1;
 	int32_t joint2;
 	int32_t joint3;
+	int32_t minPot;
+	int32_t maxPot;
 }

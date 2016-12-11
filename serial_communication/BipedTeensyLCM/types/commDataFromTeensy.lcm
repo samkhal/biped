@@ -1,5 +1,6 @@
 struct commDataFromTeensy
 {
+	//ID_REQUEST Variables, returns a number from 1-12 which represents a joint
 	int32_t joint1;
 	int32_t joint2;
 	int32_t joint3;

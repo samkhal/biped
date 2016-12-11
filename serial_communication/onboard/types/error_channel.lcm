@@ -1,0 +1,4 @@
+struct error_channel
+{
+  boolean isOutOfRange;
+}
