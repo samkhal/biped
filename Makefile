@@ -20,6 +20,7 @@ export CXX=g++
 export CXXFLAGS=-std=c++11 -Wall
 
 BUILD_DIR = build
+NODE_TARGET_NAME = main
 
 #path to this makefile, i.e. to the top level biped dir
 MKFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -63,7 +64,7 @@ onboard: $(LCM_HEADERS)
 	$(MAKE) -C $(ONBOARD)
 
 #------------Build nodes
-NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /node, $(NODES)))
+NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /$(NODE_TARGET_NAME), $(NODES)))
 
 # Use pkg-config to look up flags: PKG_CONFIG_PATH must be set
 LCM_CFLAGS = `pkg-config --cflags lcm`
@@ -76,7 +77,7 @@ LDFLAGS=-L/usr/local/lib $(LCM_LDFLAGS)
 SOURCES = $(foreach t, $(NODE_TARGETS), $(wildcard t/*.cpp))
 OBJECTS = $(addprefix $(BUILD_DIR)/, $(SOURCES:%.cpp=%.o))
 
-$(NODE_TARGETS): $(BUILD_DIR)/%/node :
+$(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
 	@echo TARGET $@
 	@echo MATCH $*
 	@echo $(NODE_TARGETS)
