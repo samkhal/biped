@@ -53,7 +53,6 @@ $(LCM_B_DIR)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
 # Build LCM Java: 
 # Build .java and .class files
 $(LCM_JAVA_DIR)/%.class: $(LCM_TYPES_DIR)/%.lcm
-	mkdir -p $(LCM_B_DIR)
 	lcm-gen -j --jpath $(LCM_B_DIR) $<
 	javac -source $(MATLAB_JAVA) -target $(MATLAB_JAVA) -cp $(LCM_JAR) $(LCM_JAVA_DIR)/$*.java
 
