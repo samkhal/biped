@@ -2,8 +2,8 @@
 % Generates and a knee pulley, then calculates it's function
 
 %% Setup parameters
-anchor_dist = 0.05; %m
-anchor_offset = 0.01;
+anchor_dist = si(7.54,'in'); %m
+anchor_offset = si(0.47,'in');
 
 %torque_vals = [0.5, 0.5, 11.2, 11.2];%N*m
 torque_vals = [0.0, 0.0, 11.2, 11.2];%N*m

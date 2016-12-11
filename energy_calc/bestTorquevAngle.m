@@ -10,8 +10,10 @@
 %% outputs
 % best_torques matrix of best torques-Nm separated into a positive and
 % negative function
+% edges, a vector of the bin edges
+% fun, a function that takes an angle and returns a torque
 
-function best_torques = bestTorquevAngle(joint, traj)
+function [best_torques, edges, fun] = bestTorquevAngle(joint, traj)
     sortedStates = sortrows([[traj.pos.(joint)]', [traj.vel.(joint)]', [traj.torque.(joint)]']);
     edges = min([traj.pos.(joint)]):1/100*(max([traj.pos.(joint)])-min([traj.pos.(joint)])):max([traj.pos.(joint)]);
     bins = discretize(sortedStates(:,1),edges);
@@ -47,4 +49,19 @@ function best_torques = bestTorquevAngle(joint, traj)
     ylabel('torque Nm');
     title(strcat(joint, 's best input torque v angle'),'Interpreter','none');
     legend( 'negative','positive');
+    
+    %get single torque value
+    torque_pos = best_torques(:,2);
+    torque_neg = best_torques(:,1);
+    torque_full = torque_neg; 
+    torque_full(torque_neg==0) = torque_pos(torque_neg==0);
+    
+    %create function
+    function torque = test(angle)
+        torque = interp1(edges(1:end-1), torque_full, angle, 'previous', 'extrap');
+        if isnan(torque)
+            torque = torque_full(1);
+        end
+    end
+    fun = @test;
 end
