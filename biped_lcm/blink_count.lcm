@@ -1,0 +1,6 @@
+package biped_lcm;
+
+struct blink_count
+{
+	int32_t count;
+}
