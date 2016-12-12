@@ -31,6 +31,8 @@ void LCMSerialBridge::add_subscriber(uint8_t channel_id, const std::string& chan
 
 template <typename MessageType>
 void LCMSerialBridge::add_publisher(uint8_t channel_id, const std::string& channel_name) {
+	std::cout << "Publishing to " << channel_name << std::endl;
+
 	ChannelDef channel;
 	channel.name = channel_name;
 	channel.lcm = &lcm;

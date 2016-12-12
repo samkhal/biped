@@ -1,16 +1,24 @@
 #include <iostream>
 #include "bridge.hpp"
-#include "biped_lcm/blink_command.hpp"
-#include "biped_lcm/blink_count.hpp"
+
+#include "common/serial_channels.hpp"
+#include "biped_lcm/log_msg.hpp"
+#include "biped_lcm/robot_state.hpp"
 
 // Open a bridge for passing the blink messages around
 // TODO: global storage of channel IDs
 
 int main(){
-	LCMSerialBridge bridge("/dev/ttyACM0");
-	std::cout << "Opened port" << std::endl;
-	bridge.add_subscriber(0, "BLINK_COMMAND");
-	bridge.add_publisher<biped_lcm::blink_count>(1, "BLINK_COUNT");
+	std::string port = "/dev/ttyACM0";
+	std::string prefix = "teensy_ul_";
+	LCMSerialBridge bridge(port);
+	std::cout << "Opened port " << port << std::endl;
+
+	bridge.add_subscriber(CMD_MODE, prefix+"cmd_mode");
+	bridge.add_subscriber(CMD_POS, prefix+"cmd_pos");
+
+	bridge.add_publisher<biped_lcm::log_msg>(LOG_MSG, prefix+"log_msg");
+	bridge.add_publisher<biped_lcm::robot_state>(STATE, prefix+"state");
 
 	while(1){
 		bridge.handle(1);
