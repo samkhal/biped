@@ -1,0 +1,8 @@
+package biped_lcm;
+
+struct robot_state {
+	int8_t joint_num;
+
+	float pos[joint_num];
+	float vel[joint_num];
+}

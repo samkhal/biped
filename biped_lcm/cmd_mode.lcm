@@ -1,0 +1,6 @@
+package biped_lcm;
+
+struct cmd_mode {
+	const int8_t IDLE=0, HOLD_POSITION=1;
+	int8_t 	cmd;
+}
