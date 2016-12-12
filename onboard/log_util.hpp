@@ -39,7 +39,8 @@ inline void Logger::info(const std::string& msg){
 void Logger::log_publish(uint8_t log_level, const std::string& msg_string){
 	log_msg msg;
 	msg.msg = msg_string;
-	lcm->publish(LOG_MSG, &msg);
+	msg.log_level = log_level;
+	lcm->publish(ChannelID::LOG_MSG, &msg);
 }
 
 #endif

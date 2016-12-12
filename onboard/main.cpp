@@ -33,10 +33,14 @@ void pos_hold(){
 }
 
 void publish_robot_state(){
-	logger.info("Publishing robot state");
+	static int pub_count = 0;
+	char buffer[15];   
+	itoa(pub_count,buffer,10);
+	logger.info(std::string("Publishing robot state") + buffer);
+	pub_count++;
 }
 
-void cmd_handler(CHANNEL_ID channel, cmd_mode* msg){
+void cmd_handler(ChannelID channel, cmd_mode* msg){
 	switch(msg->cmd) {
 	case cmd_mode::IDLE:
 		cur_state = State::IDLE;
@@ -49,17 +53,35 @@ void cmd_handler(CHANNEL_ID channel, cmd_mode* msg){
 	}
 }
 
+// Simple debug routines
+void toggle_LED(int skips=0){
+	static bool first_run = true;
+	static int led_state = LOW;
+	static int skip_count = skips;
+
+	if(first_run){
+		pinMode(LED_BUILTIN, OUTPUT);
+		first_run = false;
+	}else if(skip_count>0){
+		skip_count--;
+	}else{
+		led_state = 1-led_state;
+		skip_count = skips;
+	}
+	digitalWrite(LED_BUILTIN, led_state);
+}
+
 int main(){
 	Serial.begin(115200);
-	lcm.subscribe(CMD_MODE, &cmd_handler);
+	lcm.subscribe(ChannelID::CMD_MODE, &cmd_handler);
 
 	while(1){
 		// Call the appropriate state function
-		// state_table[(int)cur_state]();
-		logger.info("INFO HERE");
+		state_table[(int)cur_state]();
+		toggle_LED(100);
 
 		lcm.handle();
-		delay(1000);
+		// delay(10);
 	}
 	return 0;
 }

@@ -9,7 +9,7 @@
 #error "Don't include this file directly"
 #endif
 
-// #define DEBUG //TODO: proper logging
+#define DEBUG //TODO: proper logging
 
 LCMSerialBridge::LCMSerialBridge(const std::string& port, LibSerial::SerialStreamBuf::BaudRateEnum baud)
 {
@@ -22,7 +22,7 @@ LCMSerialBridge::LCMSerialBridge(const std::string& port, LibSerial::SerialStrea
 	}
 }
 
-void LCMSerialBridge::add_subscriber(uint8_t channel_id, const std::string& channel_name) {
+void LCMSerialBridge::add_subscriber(ChannelID channel_id, const std::string& channel_name) {
 	std::cout << "Subscribing to " << channel_name << std::endl;
 
 	input_channel_ids[channel_name] = channel_id;
@@ -30,7 +30,7 @@ void LCMSerialBridge::add_subscriber(uint8_t channel_id, const std::string& chan
 }
 
 template <typename MessageType>
-void LCMSerialBridge::add_publisher(uint8_t channel_id, const std::string& channel_name) {
+void LCMSerialBridge::add_publisher(ChannelID channel_id, const std::string& channel_name) {
 	std::cout << "Publishing to " << channel_name << std::endl;
 
 	ChannelDef channel;
@@ -53,7 +53,7 @@ void LCMSerialBridge::pass_to_serial(const lcm::ReceiveBuffer* rbuf, const std::
 	#endif
 
 	// Write the ID
-	serial << input_channel_ids[channel_name]; 
+	serial << static_cast<uint8_t>(input_channel_ids[channel_name]); 
 	// Write the data length
 	serial.write((byte*)(&rbuf->data_size), sizeof(rbuf->data_size)); //TODO cast properly TODO use streams instead
 	//Write the data itself
@@ -72,8 +72,9 @@ void LCMSerialBridge::process_serial(int max_bytes){
 			// Locate the first byte of the next message
 			case FIND_HEADER: {
 				// Is this a valid channel ID? Invalids are skipped
-				if(output_channels.count(next_byte)){
-					last_channel_id = next_byte;
+				ChannelID chan_id = static_cast<ChannelID>(next_byte);
+				if(output_channels.count(chan_id)){
+					last_channel_id = chan_id;
 					read_state = READ_LEN;
 				}
 				break;
