@@ -8,7 +8,7 @@ LCMSerialSlave::LCMSerialSlave(){
 }
 
 template<typename MessageType>
-int LCMSerialSlave::publish(CHANNEL_ID channel_id, const MessageType* msg){
+int LCMSerialSlave::publish(ChannelID channel_id, const MessageType* msg){
 	uint32_t size = msg->getEncodedSize();
 
 	// Allocate enough room for the header and body
@@ -24,13 +24,15 @@ int LCMSerialSlave::publish(CHANNEL_ID channel_id, const MessageType* msg){
 	int written = Serial.write(buf, header_size+size);
 	Serial.send_now(); //Flush message
 
+	delete buf;
+
 	return written>0 ? 0 : -1;
 }
 
 template<typename MessageType>
-int LCMSerialSlave::subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID, MessageType*)){
+int LCMSerialSlave::subscribe(ChannelID channel_id, void (*handler)(ChannelID, MessageType*)){
 
-	auto untyped_handler = reinterpret_cast<void (*)(CHANNEL_ID, void*)>(handler);
+	auto untyped_handler = reinterpret_cast<void (*)(ChannelID, void*)>(handler);
 	ChannelDef channel;
 	channel.id = channel_id;
 	channel.handler = untyped_handler;
@@ -51,8 +53,9 @@ int LCMSerialSlave::handle(int max_bytes){
 			// Locate the first byte of the next message
 			case FIND_HEADER: {
 				// Is this a valid channel ID? Invalids are skipped
-				if(input_channels.count(next_byte)){
-					last_channel_id = next_byte;
+				ChannelID chan_id = static_cast<ChannelID>(next_byte);
+				if(input_channels.count(chan_id)){
+					last_channel_id = chan_id;
 					read_state = READ_LEN;
 				}
 				break;
@@ -87,6 +90,8 @@ int LCMSerialSlave::handle(int max_bytes){
 					// Trigger the callback for this message
 					ChannelDef channel = input_channels[last_channel_id];
 					(channel.*channel.ChannelDef::decoder)(data_buf, data_len);
+
+					delete data_buf;
 
 					read_state = FIND_HEADER;
 				}

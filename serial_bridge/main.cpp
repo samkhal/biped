@@ -7,12 +7,18 @@
 // Open a bridge for passing the blink messages around
 // TODO: global storage of channel IDs
 
+typedef ChannelID CID;
+
 int main(){
-	LCMSerialBridge bridge("/dev/ttyACM0");
-	std::cout << "Opened port" << std::endl;
-	bridge.add_subscriber(0, "TO_TEENSY");
-	bridge.add_publisher<biped_lcm::error_channel>(2, "ERROR");
-	bridge.add_publisher<biped_lcm::commDataFromTeensy>(1, "FROM_TEENSY");
+	std::string port = "/dev/ttyACM0";
+	std::string prefix = "teensy_ul_";
+	LCMSerialBridge bridge(port);
+	std::cout << "Opened port " << port << std::endl;
+
+	bridge.add_subscriber(CID::CMD_MODE, prefix+"cmd_mode");
+
+	bridge.add_publisher<biped_lcm::log_msg>(CID::LOG_MSG, prefix+"log_msg");
+	bridge.add_publisher<biped_lcm::commDataFromTeensy>(CID::STATE, prefix+"state");
 
 	while(1){
 		bridge.handle(1);
