@@ -5,6 +5,9 @@ serial_bridge
 # Code running onboard
 ONBOARD = onboard
 
+# Includes accessible by anyone
+COMMON_INCLUDE = .
+
 LCM_TYPES_DIR = biped_lcm
 LCM_PACKAGE_NAME = biped_lcm
 LCM_TARGET_JAR = biped_lcm.jar
@@ -17,7 +20,7 @@ LCM_JAR = $(DRAKE_DISTRO)/build/install/share/java/lcm.jar
 #----------------------------------------------
 
 export CXX=g++
-export CXXFLAGS=-std=c++11 -Wall
+export CXXFLAGS=-std=c++11 -Wall -I$(realpath $(COMMON_INCLUDE))
 
 BUILD_DIR = build
 
@@ -39,7 +42,7 @@ LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $
 #---------- Other misc vars
 # Used by onboard compilation
 # Add the LCM headers to the include path
-export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
+export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) -I$(realpath $(COMMON_INCLUDE)) `pkg-config --cflags-only-I lcm`
 
 NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /$(NODE_TARGET_NAME), $(NODES)))
 
