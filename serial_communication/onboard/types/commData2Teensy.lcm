@@ -12,4 +12,5 @@ struct commData2Teensy
 			WAIT=9;
 	int32_t command;
 	int32_t joint;
+	int32_t dataLength;
 }

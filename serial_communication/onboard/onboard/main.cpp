@@ -37,7 +37,10 @@
   //State Machine Variables
   int action = commData2Teensy::WAIT;
   int link = 1;
-  boolean calibrationFlag = true;
+  uint32_t dataLength;
+  bool calibrationFlag = true;
+  bool staticControlFlag = true;
+  bool OutOfRange;
   volatile unsigned long int timer = 0;
   volatile bool allowPD = true; //flag for allowing the control
 
@@ -167,6 +170,7 @@
   void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
     action = msg_IN->command;
     link = msg_IN->joint;
+    dataLength = msg_IN->dataLength;
     commDataFromTeensy msg_OUT;
     msg_OUT.joint1 = msg_IN->command;
     lcm.publish(1, &msg_OUT);
@@ -223,7 +227,7 @@
         }
         if (Calibration(&tempCJoint) == false) {
           error_channel error_msg;
-          error_msg.isOutOfRange = true;
+          error_msg.potHardwareOutOfRange = true;
           lcm.publish(ERROR, &error_msg);
         }
         else {
@@ -242,13 +246,48 @@
         break;
 
       case commData2Teensy::SEND_TRAJECTORY :
-      break;
+        break;
 
       case commData2Teensy::RUN_STATIC_CONTROL :
-      break;
+        if (staticControlFlag == true){
+          (&tempJoint)->setPoint = analogRead((&tempCJoint)->position);
+          digitalWrite(tempCJoint.enable, HIGH);
+          staticControlFlag = false;
+        }
+
+        OutOfRange = checkOOR(tempCJoint);
+        if (OutOfRange) {
+          error_channel error_msg;
+          error_msg.isOutOfRange = true;
+          lcm.publish(ERROR, &error_msg);
+          action = commData2Teensy::STOP;
+        }
+        else{
+          PIDcontrol((&tempJoint)->setPoint, &tempJoint, tempCJoint);
+        }
+        break;
 
       case commData2Teensy::RUN_STATIC_ALL :
-      break;
+        if (staticControlFlag == true){
+          for (int i=0; i<3; i++){
+            (&links[i])->setPoint = analogRead((&linksConst[i])->position);
+            digitalWrite(linksConst[i].enable, HIGH);
+          }
+          staticControlFlag = false;
+        }
+        OutOfRange = checkOOR(linksConst[0])||checkOOR(linksConst[1])||checkOOR(linksConst[2]);
+        if (OutOfRange) {
+          error_channel error_msg;
+          error_msg.isOutOfRange = true;
+          lcm.publish(ERROR, &error_msg);
+          action = commData2Teensy::STOP;
+        }
+        else{
+          for (int i=0; i<3; i++){
+            PIDcontrol((&links[i])->setPoint, &links[i], linksConst[i]);
+          }
+        }
+        break;
 
       case commData2Teensy::RUN_TRAJECTORY :
       break;
@@ -257,14 +296,17 @@
       break;
 
       case commData2Teensy::STOP :
-      break;
+        for (int i=0; i<3; i++){
+          digitalWrite(linksConst[i].enable, LOW);
+        }
+        staticControlFlag = true;
+        action = commData2Teensy::WAIT;
+        break;
 
       case commData2Teensy::WAIT :
-        delay(1);
         break;
 
       default:
-        delay(1);
         break;
     }
   }
