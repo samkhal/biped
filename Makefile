@@ -66,6 +66,10 @@ onboard: $(LCM_HEADERS)
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
 
+upload: $(LCM_HEADERS)
+	export MAKELEVEL=0;\
+	$(MAKE) upload -C $(ONBOARD)
+
 #Build nodes
 $(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
 	@echo Building $*
