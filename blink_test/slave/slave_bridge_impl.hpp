@@ -24,6 +24,8 @@ int LCMSerialSlave::publish(CHANNEL_ID channel_id, const MessageType* msg){
 	int written = Serial.write(buf, header_size+size);
 	Serial.send_now(); //Flush message
 
+	delete buf;
+
 	return written>0 ? 0 : -1;
 }
 
@@ -88,6 +90,7 @@ int LCMSerialSlave::handle(int max_bytes){
 					ChannelDef channel = input_channels[last_channel_id];
 					(channel.*channel.ChannelDef::decoder)(data_buf, data_len);
 
+					delete data_buf;
 					read_state = FIND_HEADER;
 				}
 				break;
