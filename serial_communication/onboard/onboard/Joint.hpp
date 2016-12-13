@@ -1,5 +1,6 @@
 #ifndef JOINT_HPP_
 #define JOINT_HPP_
+#include "ROM_DATA.h" // array to data addresses and enum
 
 class Joint {
   public:
@@ -28,7 +29,8 @@ class Joint {
     void setMinTheta(int minTheta_){minTheta = minTheta_;} // in rads values
     void setMaxTheta(int maxTheta_){maxTheta = maxTheta_;} // in rads values
     void setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
-    void setLocalJointNum(){localJointNum = ((jointNumber-1)%3)+1;}//get number from 1 to 3 instead of 1-12
+    void setLocalJointNum(){localJointNum = ((jointNumber-1)%numOfJoints);}//get number from 0 to 2 instead of 1-12
+    void setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 
     //Getters
     int getJointNumber() {return jointNumber;}
@@ -48,6 +50,12 @@ class Joint {
     int getMaxTheta() {return maxTheta;}
     int getZeroPot() {return zeroPot;}
     int getLocalJointNum() {return localJointNum;}
+    JointROM getMemoryAddr(){return memoryAddr;}
+
+    //Other methods
+    int readPotentiometer(){return analogRead(potPin);}
+    void motorPWM(int drive){analogWrite(motorPin,drive);}
+    void setSetPointFromPot(){setPoint = readPotentiometer();}
 
   private:
     int jointNumber;
@@ -67,6 +75,7 @@ class Joint {
     int minTheta; // in rads values
     int maxTheta; // in rads values
     int zeroPot; // in pot values
+    JointROM memoryAddr;
 };
 
 

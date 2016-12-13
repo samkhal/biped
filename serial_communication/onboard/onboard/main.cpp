@@ -6,8 +6,6 @@
   #include "commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
   #include "error_channel.hpp"
   #include "Joint.hpp" // struct that stores joint data
-  // #include "ConstJoint.h" // struct for constant joint data
-  #include "ROM_DATA.h" // array to data addresses and enum
 
   LCMSerialSlave lcm; //initialize LCM object
   Joint joints[numOfJoints];
@@ -36,55 +34,49 @@
   uint16_t maxPot;
 
   //State Machine Variables
-  enum COMMANDS{
-    ID_REQUEST,
-		START_CALIBRATION,
-    STOP_CALIBRATION,
-    GET_CALIBRATION,
-		SEND_TRAJECTORY,
-		RUN_STATIC_CONTROL,
-		RUN_STATIC_ALL,
-		RUN_TRAJECTORY,
-		RUN_ALL_TRAJECTORIES,
-    STOP,
-		WAIT
+  enum STATES{
+    CALIBRATION,
+    SEND_TRAJECTORY,
+    RUN_STATIC_CONTROL,
+    RUN_STATIC_ALL,
+    RUN_TRAJECTORY,
+    RUN_ALL_TRAJECTORIES,
+    WAIT
   };
+
   int command = 0;
   bool EMERGENCY = false;
   int state = commData2Teensy::WAIT;
-  int currJoint = 0;
   int currLocalJoint = 0;
   uint32_t dataLength;
   bool OutOfRange;
   volatile unsigned long int timer = 0;
   volatile bool allowPD = true; //flag for allowing the control
 
-  //takes number of link/joint of teensy and an attribute
-  // attributes: 0 - zeroTheta, 1 - minPot, 2 - maxPot, 3 - orientation
   int readROM_minPot(Joint joint) {
-    int address1 = jointMem[joint.getLocalJointNum()].minPotAddr;
-    int address2 = jointMem[joint.getLocalJointNum()].minPotAddr +1;
+    int address1 = joint.getMemoryAddr().minPotAddr;
+    int address2 = joint.getMemoryAddr().minPotAddr +1;
     int val = EEPROM.read(address1);
     val = val + (EEPROM.read(address2) << 8);
     return val;
   }
   int readROM_maxPot(Joint joint) {
-    int address1 = jointMem[joint.getLocalJointNum()].maxPotAddr;
-    int address2 = jointMem[joint.getLocalJointNum()].maxPotAddr +1;
+    int address1 = joint.getMemoryAddr().maxPotAddr;
+    int address2 = joint.getMemoryAddr().maxPotAddr +1;
     int val = EEPROM.read(address1);
     val = val + (EEPROM.read(address2) << 8);
     return val;
   }
   int readROM_zeroPot(Joint joint) {
-    int address1 = jointMem[joint.getLocalJointNum()].zeroPotAddr;
-    int address2 = jointMem[joint.getLocalJointNum()].zeroPotAddr +1;
+    int address1 = joint.getMemoryAddr().zeroPotAddr;
+    int address2 = joint.getMemoryAddr().zeroPotAddr +1;
     int val = EEPROM.read(address1);
     val = val + (EEPROM.read(address2) << 8);
     return val;
   }
   int readROM_orientation(Joint joint) {
-    int address1 = jointMem[joint.getLocalJointNum()].orientationAddr;
-    int address2 = jointMem[joint.getLocalJointNum()].orientationAddr +1;
+    int address1 = joint.getMemoryAddr().orientationAddr;
+    int address2 = joint.getMemoryAddr().orientationAddr +1;
     int val = EEPROM.read(address1);
     val = val + (EEPROM.read(address2) << 8);
     return val;
@@ -92,27 +84,27 @@
 
   //Set the potentiometer max and min values
   void setPotRange(Joint* joint, int min, int max){
-    EEPROM.write(jointMem[joint->getLocalJointNum()].minPotAddr, (byte)(joint->getMinPot()));
-    EEPROM.write(jointMem[joint->getLocalJointNum()].minPotAddr +1, (byte)(joint->getMinPot() >> 8));
-    EEPROM.write(jointMem[joint->getLocalJointNum()].maxPotAddr, (byte)(joint->getMaxPot()));
-    EEPROM.write(jointMem[joint->getLocalJointNum()].maxPotAddr +1, (byte)(joint->getMaxPot() >> 8));
+    EEPROM.write(joint->getMemoryAddr().minPotAddr, (byte)min);
+    EEPROM.write(joint->getMemoryAddr().minPotAddr +1, (byte)(min >> 8));
+    EEPROM.write(joint->getMemoryAddr().maxPotAddr, (byte)max);
+    EEPROM.write(joint->getMemoryAddr().maxPotAddr +1, (byte)(max >> 8));
   }
 
   //Stores the orientation of motion in ROM
   void setOrientROM(Joint* joint){
-    EEPROM.write(jointMem[joint->getLocalJointNum()].orientationAddr, (byte)(joint->getDirection()));
+    EEPROM.write(joint->getMemoryAddr().orientationAddr, (byte)(joint->getDirection()));
   }
 
   //Reads current angle and stores it as zero theta pot position in ROM
   void setZeroThetaROM(Joint* joint){
-    int val = analogRead(joint->getPotPin());
-    EEPROM.write(jointMem[joint->getLocalJointNum()].zeroPotAddr, (byte)(val));
-    EEPROM.write(jointMem[joint->getLocalJointNum()].zeroPotAddr +1, (byte)(val >> 8));
+    int val = joint->readPotentiometer();
+    EEPROM.write(joint->getMemoryAddr().zeroPotAddr, (byte)(val));
+    EEPROM.write(joint->getMemoryAddr().zeroPotAddr +1, (byte)(val >> 8));
   }
 
   //Checks if a joint goes very close to the min/max values and it stops it
   bool checkOOR(Joint joint) {
-    int pose = analogRead(joint.getPotPin());
+    int pose = joint.readPotentiometer();
     if (pose < ((int)readROM_minPot(joint) + OutOfRangeThreshold) ||
      pose > ((int)readROM_maxPot(joint) - OutOfRangeThreshold)) {
       return true;
@@ -135,7 +127,7 @@
   // Writes the the maximum and minimum pot values to ROM,
   // takes a pointer of constJoint struct, returns false if out of range
   bool CalibrationCheck(Joint* joint) {
-    int potVal = analogRead(joint->getPotPin());
+    int potVal = joint->readPotentiometer();
     if (minPot > (uint16_t)potVal) {
       minPot = (uint16_t)potVal;
     }
@@ -152,10 +144,10 @@
 
   //PID control, takes a setpoint in pot values, a joint struct pointer and a constjoint struct (of the same joint)
   void PIDcontrol(int setPoint, Joint* joint) {
-    int Actual = analogRead(joint->getPotPin());
+    int Actual = joint->readPotentiometer();
     int Error = setPoint - Actual;
     float P = Error * joint->getkP(); // calc proportional term
-    float D = ((joint->lastPID - Actual) * joint->getkD()) / PIDPeriod; // derivative term
+    // float D = ((joint->lastPID - Actual) * joint->getkD()) / PIDPeriod; // derivative term
     int Drive = P ;//+ D; // Total drive = P+I+D
     int sign = 1;
     if(joint->getDirection() == 0){// Check which direction to go.
@@ -168,7 +160,7 @@
     if (Drive > maxPWM) {
       Drive = maxPWM;
     }
-    analogWrite (joint->getMotorPin(), Drive); // send PWM command to motor board
+    joint->motorPWM(Drive); // send PWM command to motor board
     joint->lastPID = Actual;
   }
 
@@ -177,14 +169,14 @@
     commDataFromTeensy msgOut;
     int32_t links[numOfJoints];
     for (int i = 0; i<numOfJoints; i++){
-      links[i] = EEPROM.read(jointMem[i].jointAddr);
+      links[i] = EEPROM.read(joints[i].getMemoryAddr().jointAddr);
       msgOut.joints[i] = links[i];
     }
     lcm.publish(OUT, &msgOut);
   }
 
   void Calibration_State(){
-    if (CalibrationCheck(&joints[currJoint]) == false) {
+    if (CalibrationCheck(&joints[currLocalJoint]) == false) {
       error_channel error_msg;
       error_msg.potHardwareOutOfRange = true;
       lcm.publish(ERROR, &error_msg);
@@ -197,8 +189,8 @@
       error_channel error_msg;
       error_msg.isOutOfRange = true;
       lcm.publish(ERROR, &error_msg);
-      command = COMMANDS::STOP;
-      state = commData2Teensy::WAIT;
+      command = commData2Teensy::STOP;
+      state = STATES::WAIT;
       EMERGENCY = true;
     }
     else{
@@ -206,9 +198,9 @@
     }
   }
 
-//Convert from Joint number 1-12 to 1-3 for local uses
+//Convert from Joint number 1-12 to 0-2 for local uses
   int convertToLocalJointNumber(int num){
-    return ((num-1)%3)+1;
+    return ((num-1)%numOfJoints);
   }
 
   void Static_Control_All_State(){
@@ -217,12 +209,12 @@
       error_channel error_msg;
       error_msg.isOutOfRange = true;
       lcm.publish(ERROR, &error_msg);
-      command = COMMANDS::STOP;
-      state = commData2Teensy::WAIT;
+      command = commData2Teensy::STOP;
+      state = STATES::WAIT;
       EMERGENCY = true;
     }
     else{
-      for (int i=0; i<3; i++){
+      for (int i=0; i<numOfJoints; i++){
         PIDcontrol((&joints[i])->setPoint, &joints[i]);
       }
     }
@@ -241,8 +233,8 @@
 void stateAssignment(){
     switch (command) {
 
-      case COMMANDS::ID_REQUEST:
-        if (state == commData2Teensy::WAIT){
+      case commData2Teensy::ID_REQUEST:
+        if (state == STATES::WAIT){
           ID_Request();
         }
         else{
@@ -252,15 +244,15 @@ void stateAssignment(){
         }
         break;
 
-      case COMMANDS::START_CALIBRATION:
-        if (state == commData2Teensy::WAIT){
-          uint16_t val = (uint16_t)analogRead(joints[currLocalJoint].getPotPin());
+      case commData2Teensy::START_CALIBRATION:
+        if (state == STATES::WAIT){
+          uint16_t val = (uint16_t)joints[currLocalJoint].readPotentiometer();
           minPot = val;
           maxPot = val;
           (&joints[currLocalJoint])->setMinPot(val);
           (&joints[currLocalJoint])->setMaxPot(val);
           (&joints[currLocalJoint])->setZeroPot(val);
-          state = commData2Teensy::CALIBRATION;
+          state = STATES::CALIBRATION;
         }
         else{
           error_channel msg_Out;
@@ -269,14 +261,14 @@ void stateAssignment(){
         }
         break;
 
-      case COMMANDS::STOP_CALIBRATION:
-        if (state == commData2Teensy::CALIBRATION){
+      case commData2Teensy::STOP_CALIBRATION:
+        if (state == STATES::CALIBRATION){
           commDataFromTeensy msg_Out;
           msg_Out.minPot = (&joints[currLocalJoint])->getMinPot();
           msg_Out.maxPot = (&joints[currLocalJoint])->getMaxPot();
-          setPotRange(&joints[currLocalJoint], (&joints[currLocalJoint])->getMinPot(), (&joints[currJoint])->getMaxPot());
+          setPotRange(&joints[currLocalJoint], (&joints[currLocalJoint])->getMinPot(), (&joints[currLocalJoint])->getMaxPot());
           lcm.publish(OUT, &msg_Out);
-          state = commData2Teensy::WAIT;
+          state = STATES::WAIT;
         }
         else{
           error_channel msg_Out;
@@ -285,15 +277,15 @@ void stateAssignment(){
         }
         break;
 
-      case COMMANDS::GET_CALIBRATION:
+      case commData2Teensy::GET_CALIBRATION:
         break;
 
-      case COMMANDS::SEND_TRAJECTORY:
+      case commData2Teensy::SEND_TRAJECTORY:
         break;
 
-      case COMMANDS::RUN_STATIC_CONTROL:
+      case commData2Teensy::RUN_STATIC_CONTROL:
         if (state == commData2Teensy::WAIT){
-          (&joints[currLocalJoint])->setPoint = analogRead((joints[currLocalJoint]).getPotPin());
+          (&joints[currLocalJoint])->setSetPointFromPot();
           digitalWrite(joints[currLocalJoint].getEnablePin(), HIGH);
           state = commData2Teensy::RUN_STATIC_CONTROL;
         }
@@ -304,10 +296,10 @@ void stateAssignment(){
         }
         break;
 
-      case COMMANDS::RUN_STATIC_ALL:
+      case commData2Teensy::RUN_STATIC_ALL:
         if (state == commData2Teensy::WAIT){
           for (int i=0; i<3; i++){
-            (&joints[i])->setPoint = analogRead((&joints[i])->getPotPin());
+            (&joints[i])->setSetPointFromPot();
             digitalWrite(joints[i].getEnablePin(), HIGH);
           }
           state = commData2Teensy::RUN_STATIC_ALL;
@@ -319,13 +311,13 @@ void stateAssignment(){
         }
         break;
 
-      case COMMANDS::RUN_TRAJECTORY:
+      case commData2Teensy::RUN_TRAJECTORY:
         break;
 
-      case COMMANDS::RUN_ALL_TRAJECTORIES:
+      case commData2Teensy::RUN_ALL_TRAJECTORIES:
         break;
 
-      case COMMANDS::STOP:
+      case commData2Teensy::STOP:
         for (int i=0; i<3; i++){
           digitalWrite(joints[i].getEnablePin(), LOW);
         }
@@ -333,7 +325,8 @@ void stateAssignment(){
         EMERGENCY = false;
         break;
 
-      case COMMANDS::WAIT:
+      case commData2Teensy::WAIT:
+        state = commData2Teensy::WAIT;
         break;
     }
   }
@@ -341,7 +334,7 @@ void stateAssignment(){
 //============================CALLBACK====================================
   void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
     command = msg_IN->command;
-    currJoint = msg_IN->joint;
+    int currJoint = msg_IN->joint;
     currLocalJoint = convertToLocalJointNumber(currJoint);
     dataLength = msg_IN->dataLength;
     stateAssignment();
@@ -356,7 +349,8 @@ void stateAssignment(){
     ROM_allocate(numOfJoints);
     for (int i=0; i<3; i++){
       joints[i] = JointTable[EEPROM.read(jointMem[i].jointAddr)];
-      joints[i].setPoint = analogRead(joints[i].getPotPin());
+      joints[i].setSetPointFromPot();
+      joints[i].setMemoryAddr(jointMem[i]);
       pinMode(joints[i].getMotorPin(), OUTPUT);
       pinMode(joints[i].getEnablePin(), OUTPUT);
       analogWrite(joints[i].getMotorPin(), zeroTorque);
@@ -376,28 +370,27 @@ void stateAssignment(){
       stateAssignment();
     }
     lcm.handle();
-    commDataFromTeensy msgOut;
     switch (state) {
 
-      case commData2Teensy::CALIBRATION:
+      case STATES::CALIBRATION:
         Calibration_State();
         break;
 
-      case commData2Teensy::RUN_STATIC_CONTROL :
+      case STATES::RUN_STATIC_CONTROL :
         Static_Control_State();
         break;
 
-      case commData2Teensy::RUN_STATIC_ALL :
+      case STATES::RUN_STATIC_ALL :
         Static_Control_All_State();
         break;
 
-      case commData2Teensy::RUN_TRAJECTORY :
+      case STATES::RUN_TRAJECTORY :
       break;
 
-      case commData2Teensy::RUN_ALL_TRAJECTORIES :
+      case STATES::RUN_ALL_TRAJECTORIES :
       break;
 
-      case commData2Teensy::WAIT :
+      case STATES::WAIT :
         break;
 
       default:

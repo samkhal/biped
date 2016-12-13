@@ -37,10 +37,3 @@ void ROM_allocate(int numOfJoints){
     jointMem[i] = jROM;
   }
 }
-
-enum ROM_ATTR{
-  ZEROTHETA = 0,
-  MIN_POT = 1,
-  MAX_POT = 2,
-  ORIENT = 3
-};
