@@ -1,8 +1,8 @@
   #include "WProgram.h"
   #include <TimerThree.h> // Timer library
   #include "slave_bridge.hpp" //LCM slave file
-  #include "commData2Teensy.hpp" // header file for data from dispatcher to teensy
-  #include "commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
+  #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
+  #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
   #include "error_channel.hpp"
   #include "Joint.hpp" // struct that stores joint data
   #include <vector>
