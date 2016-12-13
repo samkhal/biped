@@ -2,4 +2,5 @@ struct error_channel
 {
   boolean potHardwareOutOfRange;
   boolean isOutOfRange;
+  boolean inappropriateCommand;
 }

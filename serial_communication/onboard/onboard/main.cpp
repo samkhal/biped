@@ -5,11 +5,12 @@
   #include "commData2Teensy.hpp" // header file for data from dispatcher to teensy
   #include "commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
   #include "error_channel.hpp"
-  #include "Joint.h" // struct that stores joint data
-  #include "ConstJoint.h" // struct for constant joint data
+  #include "Joint.hpp" // struct that stores joint data
+  // #include "ConstJoint.h" // struct for constant joint data
   #include "ROM_DATA.h" // array to data addresses and enum
 
   LCMSerialSlave lcm; //initialize LCM object
+  Joint joints[numOfJoints];
 
   // Channels
   const int IN  = 0;
@@ -30,99 +31,119 @@
   const int radsMultiplier = 1000;//positions in rads are multiplied by 1000
   const int OutOfRangeThreshold = 4;
 
-  //^probably gonna change with LCM
+
   uint16_t minPot;
   uint16_t maxPot;
 
   //State Machine Variables
-  int action = commData2Teensy::WAIT;
-  int link = 1;
+  enum COMMANDS{
+    ID_REQUEST,
+		START_CALIBRATION,
+    STOP_CALIBRATION,
+    GET_CALIBRATION,
+		SEND_TRAJECTORY,
+		RUN_STATIC_CONTROL,
+		RUN_STATIC_ALL,
+		RUN_TRAJECTORY,
+		RUN_ALL_TRAJECTORIES,
+    STOP,
+		WAIT
+  };
+  int command = 0;
+  bool EMERGENCY = false;
+  int state = commData2Teensy::WAIT;
+  int currJoint = 0;
+  int currLocalJoint = 0;
   uint32_t dataLength;
-  bool calibrationFlag = true;
-  bool staticControlFlag = true;
   bool OutOfRange;
   volatile unsigned long int timer = 0;
   volatile bool allowPD = true; //flag for allowing the control
 
-  //Array of constant joint params
-  ConstJoint linksConst[3] = {
-    JointTable[EEPROM.read(ROM_ENUM::link1Addr)],
-    JointTable[EEPROM.read(ROM_ENUM::link2Addr)],
-    JointTable[EEPROM.read(ROM_ENUM::link3Addr)]};
-
-  //Array of joints initialization
-  Joint links [3];
-
-  //Temp joints
-  Joint tempJoint;
-  ConstJoint tempCJoint;
-
   //takes number of link/joint of teensy and an attribute
   // attributes: 0 - zeroTheta, 1 - minPot, 2 - maxPot, 3 - orientation
-  int readROM(int link, int attribute) {
-    int address1 = ROM[(link*2-1) + attribute*6 + 2];
-    int address2 = ROM[(link*2) + attribute*6 + 2];
+  int readROM_minPot(Joint joint) {
+    int address1 = jointMem[joint.getLocalJointNum()].minPotAddr;
+    int address2 = jointMem[joint.getLocalJointNum()].minPotAddr +1;
+    int val = EEPROM.read(address1);
+    val = val + (EEPROM.read(address2) << 8);
+    return val;
+  }
+  int readROM_maxPot(Joint joint) {
+    int address1 = jointMem[joint.getLocalJointNum()].maxPotAddr;
+    int address2 = jointMem[joint.getLocalJointNum()].maxPotAddr +1;
+    int val = EEPROM.read(address1);
+    val = val + (EEPROM.read(address2) << 8);
+    return val;
+  }
+  int readROM_zeroPot(Joint joint) {
+    int address1 = jointMem[joint.getLocalJointNum()].zeroPotAddr;
+    int address2 = jointMem[joint.getLocalJointNum()].zeroPotAddr +1;
+    int val = EEPROM.read(address1);
+    val = val + (EEPROM.read(address2) << 8);
+    return val;
+  }
+  int readROM_orientation(Joint joint) {
+    int address1 = jointMem[joint.getLocalJointNum()].orientationAddr;
+    int address2 = jointMem[joint.getLocalJointNum()].orientationAddr +1;
     int val = EEPROM.read(address1);
     val = val + (EEPROM.read(address2) << 8);
     return val;
   }
 
   //Set the potentiometer max and min values
-  void setPotRange(int joint, int min, int max){
-    ConstJoint* cjoint = &tempCJoint;
-    EEPROM.write(ROM_MIN_POT[joint * MEM_BYTES], (byte)(cjoint->minPot));
-    EEPROM.write(ROM_MIN_POT[joint * MEM_BYTES +1], (byte)(cjoint->minPot >> 8));
-    EEPROM.write(ROM_MAX_POT[joint * MEM_BYTES], (byte)(cjoint->minPot));
-    EEPROM.write(ROM_MAX_POT[joint * MEM_BYTES +1], (byte)(cjoint->minPot >> 8));
+  void setPotRange(Joint* joint, int min, int max){
+    EEPROM.write(jointMem[joint->getLocalJointNum()].minPotAddr, (byte)(joint->getMinPot()));
+    EEPROM.write(jointMem[joint->getLocalJointNum()].minPotAddr +1, (byte)(joint->getMinPot() >> 8));
+    EEPROM.write(jointMem[joint->getLocalJointNum()].maxPotAddr, (byte)(joint->getMaxPot()));
+    EEPROM.write(jointMem[joint->getLocalJointNum()].maxPotAddr +1, (byte)(joint->getMaxPot() >> 8));
   }
 
   //Stores the orientation of motion in ROM
-  void setOrientROM(ConstJoint* cjoint){
-    EEPROM.write(ROM_ORIENTATION[cjoint->link * MEM_BYTES], (byte)(cjoint->direction));
+  void setOrientROM(Joint* joint){
+    EEPROM.write(jointMem[joint->getLocalJointNum()].orientationAddr, (byte)(joint->getDirection()));
   }
 
-  //Reads current angle and stores ia as zero theta pot position in ROM
-  void setZeroThetaROM(ConstJoint* cjoint){
-    int val = analogRead(cjoint->position);
-    EEPROM.write(ROM_ZERO_THETA[cjoint->link * MEM_BYTES], (byte)(val));
-    EEPROM.write(ROM_ZERO_THETA[cjoint->link * MEM_BYTES +1], (byte)(val >> 8));
+  //Reads current angle and stores it as zero theta pot position in ROM
+  void setZeroThetaROM(Joint* joint){
+    int val = analogRead(joint->getPotPin());
+    EEPROM.write(jointMem[joint->getLocalJointNum()].zeroPotAddr, (byte)(val));
+    EEPROM.write(jointMem[joint->getLocalJointNum()].zeroPotAddr +1, (byte)(val >> 8));
   }
 
   //Checks if a joint goes very close to the min/max values and it stops it
-  bool checkOOR(ConstJoint cjoint) {
-    int pose = analogRead(cjoint.position);
-    int i = cjoint.link;
-    if (pose < ((int)readROM(i, ROM_ATTR::MIN_POT) + OutOfRangeThreshold) ||
-     pose > ((int)readROM(i, ROM_ATTR::MIN_POT) - OutOfRangeThreshold)) {
+  bool checkOOR(Joint joint) {
+    int pose = analogRead(joint.getPotPin());
+    if (pose < ((int)readROM_minPot(joint) + OutOfRangeThreshold) ||
+     pose > ((int)readROM_maxPot(joint) - OutOfRangeThreshold)) {
       return true;
     }
     return false;
   }
 
-  //Takes a pointer of a Joint struct and it changes its data from rads to pot values
-  int radsToPot(int16_t data, ConstJoint cjoint){
-    return ((data*ticksPerRad)/radsMultiplier + cjoint.zeroTheta);
-  }
+  // //Takes a pointer of a Joint struct and it changes its data from rads to pot values
+  // int radsToPot(int16_t data, ConstJoint cjoint){
+  //   return ((data*ticksPerRad)/radsMultiplier + cjoint.zeroTheta);
+  // }
+  //
+  // float potToRads(int val, ConstJoint cjoint){
+  //   float out;
+  //   val = val-cjoint.zeroTheta;
+  //   out = (val/ticksPerRad)*radsMultiplier;
+  //   return out;
+  // }
 
-  float potToRads(int val, ConstJoint cjoint){
-    float out;
-    val = val-cjoint.zeroTheta;
-    out = (val/ticksPerRad)*radsMultiplier;
-    return out;
-  }
-
-  //Writes the the maximum and minimum pot values to ROM,
-  //takes a pointer of constJoint struct, returns false if out of range
-  bool Calibration(ConstJoint* tempCJoint) {
-    int potVal = analogRead(tempCJoint->position);
+  // Writes the the maximum and minimum pot values to ROM,
+  // takes a pointer of constJoint struct, returns false if out of range
+  bool CalibrationCheck(Joint* joint) {
+    int potVal = analogRead(joint->getPotPin());
     if (minPot > (uint16_t)potVal) {
       minPot = (uint16_t)potVal;
     }
     else if (maxPot < (uint16_t)potVal) {
       maxPot = (uint16_t)potVal;
     }
-    tempCJoint->minPot = minPot;
-    tempCJoint->maxPot = maxPot;
+    joint->setMinPot(minPot);
+    joint->setMaxPot(maxPot);
     if (potVal < minPotNaturalRange || potVal > maxPotNaturalRange) {
       return false;
     }
@@ -130,14 +151,14 @@
   }
 
   //PID control, takes a setpoint in pot values, a joint struct pointer and a constjoint struct (of the same joint)
-  void PIDcontrol(int setPoint, Joint* tempJoint, ConstJoint tempCJoint) {
-    int Actual = analogRead(tempCJoint.position);
+  void PIDcontrol(int setPoint, Joint* joint) {
+    int Actual = analogRead(joint->getPotPin());
     int Error = setPoint - Actual;
-    float P = Error * tempCJoint.kP; // calc proportional term
-    float D = ((tempJoint->lastPID - Actual) * tempCJoint.kD) / PIDPeriod; // derivative term
+    float P = Error * joint->getkP(); // calc proportional term
+    float D = ((joint->lastPID - Actual) * joint->getkD()) / PIDPeriod; // derivative term
     int Drive = P ;//+ D; // Total drive = P+I+D
     int sign = 1;
-    if(tempCJoint.direction == 0){// Check which direction to go.
+    if(joint->getDirection() == 0){// Check which direction to go.
       sign = -1;
     }
     Drive = (sign * Drive * ScaleFactor + (minPWM + maxPWM) / 2); // scale Drive to have 0 at 127
@@ -147,14 +168,64 @@
     if (Drive > maxPWM) {
       Drive = maxPWM;
     }
-    analogWrite (tempCJoint.motor, Drive); // send PWM command to motor board
-    tempJoint->lastPID = Actual;
+    analogWrite (joint->getMotorPin(), Drive); // send PWM command to motor board
+    joint->lastPID = Actual;
   }
 
-  //set the appropriate temp joints
-  void jointSelection(int32_t link){
-    tempJoint = links[link-1];
-    tempCJoint = linksConst[link-1];
+  //State machine functions
+  void ID_Request(){
+    commDataFromTeensy msgOut;
+    int32_t links[numOfJoints];
+    for (int i = 0; i<numOfJoints; i++){
+      links[i] = EEPROM.read(jointMem[i].jointAddr);
+      msgOut.joints[i] = links[i];
+    }
+    lcm.publish(OUT, &msgOut);
+  }
+
+  void Calibration_State(){
+    if (CalibrationCheck(&joints[currJoint]) == false) {
+      error_channel error_msg;
+      error_msg.potHardwareOutOfRange = true;
+      lcm.publish(ERROR, &error_msg);
+    }
+  }
+
+  void Static_Control_State(){
+    OutOfRange = checkOOR(joints[currLocalJoint]);
+    if (OutOfRange) {
+      error_channel error_msg;
+      error_msg.isOutOfRange = true;
+      lcm.publish(ERROR, &error_msg);
+      command = COMMANDS::STOP;
+      state = commData2Teensy::WAIT;
+      EMERGENCY = true;
+    }
+    else{
+      PIDcontrol((&joints[currLocalJoint])->setPoint, &joints[currLocalJoint]);
+    }
+  }
+
+//Convert from Joint number 1-12 to 1-3 for local uses
+  int convertToLocalJointNumber(int num){
+    return ((num-1)%3)+1;
+  }
+
+  void Static_Control_All_State(){
+    OutOfRange = checkOOR(joints[0])||checkOOR(joints[1])||checkOOR(joints[2]);
+    if (OutOfRange) {
+      error_channel error_msg;
+      error_msg.isOutOfRange = true;
+      lcm.publish(ERROR, &error_msg);
+      command = COMMANDS::STOP;
+      state = commData2Teensy::WAIT;
+      EMERGENCY = true;
+    }
+    else{
+      for (int i=0; i<3; i++){
+        PIDcontrol((&joints[i])->setPoint, &joints[i]);
+      }
+    }
   }
 
   //Timer interrupt callback, increases the timer variable and sets the flag ready for PID control
@@ -165,15 +236,115 @@
       timer = 0;
     }
   }
+//================================STATE_ASSIGNMENT=======================================
+  //State assignment
+void stateAssignment(){
+    switch (command) {
 
-  //Callback from lcm messages
+      case COMMANDS::ID_REQUEST:
+        if (state == commData2Teensy::WAIT){
+          ID_Request();
+        }
+        else{
+          error_channel msg_Out;
+          msg_Out.inappropriateCommand = true;
+          lcm.publish(OUT, &msg_Out);
+        }
+        break;
+
+      case COMMANDS::START_CALIBRATION:
+        if (state == commData2Teensy::WAIT){
+          uint16_t val = (uint16_t)analogRead(joints[currLocalJoint].getPotPin());
+          minPot = val;
+          maxPot = val;
+          (&joints[currLocalJoint])->setMinPot(val);
+          (&joints[currLocalJoint])->setMaxPot(val);
+          (&joints[currLocalJoint])->setZeroPot(val);
+          state = commData2Teensy::CALIBRATION;
+        }
+        else{
+          error_channel msg_Out;
+          msg_Out.inappropriateCommand = true;
+          lcm.publish(OUT, &msg_Out);
+        }
+        break;
+
+      case COMMANDS::STOP_CALIBRATION:
+        if (state == commData2Teensy::CALIBRATION){
+          commDataFromTeensy msg_Out;
+          msg_Out.minPot = (&joints[currLocalJoint])->getMinPot();
+          msg_Out.maxPot = (&joints[currLocalJoint])->getMaxPot();
+          setPotRange(&joints[currLocalJoint], (&joints[currLocalJoint])->getMinPot(), (&joints[currJoint])->getMaxPot());
+          lcm.publish(OUT, &msg_Out);
+          state = commData2Teensy::WAIT;
+        }
+        else{
+          error_channel msg_Out;
+          msg_Out.inappropriateCommand = true;
+          lcm.publish(OUT, &msg_Out);
+        }
+        break;
+
+      case COMMANDS::GET_CALIBRATION:
+        break;
+
+      case COMMANDS::SEND_TRAJECTORY:
+        break;
+
+      case COMMANDS::RUN_STATIC_CONTROL:
+        if (state == commData2Teensy::WAIT){
+          (&joints[currLocalJoint])->setPoint = analogRead((joints[currLocalJoint]).getPotPin());
+          digitalWrite(joints[currLocalJoint].getEnablePin(), HIGH);
+          state = commData2Teensy::RUN_STATIC_CONTROL;
+        }
+        else{
+          error_channel msg_Out;
+          msg_Out.inappropriateCommand = true;
+          lcm.publish(OUT, &msg_Out);
+        }
+        break;
+
+      case COMMANDS::RUN_STATIC_ALL:
+        if (state == commData2Teensy::WAIT){
+          for (int i=0; i<3; i++){
+            (&joints[i])->setPoint = analogRead((&joints[i])->getPotPin());
+            digitalWrite(joints[i].getEnablePin(), HIGH);
+          }
+          state = commData2Teensy::RUN_STATIC_ALL;
+        }
+        else{
+          error_channel msg_Out;
+          msg_Out.inappropriateCommand = true;
+          lcm.publish(OUT, &msg_Out);
+        }
+        break;
+
+      case COMMANDS::RUN_TRAJECTORY:
+        break;
+
+      case COMMANDS::RUN_ALL_TRAJECTORIES:
+        break;
+
+      case COMMANDS::STOP:
+        for (int i=0; i<3; i++){
+          digitalWrite(joints[i].getEnablePin(), LOW);
+        }
+        state = commData2Teensy::WAIT;
+        EMERGENCY = false;
+        break;
+
+      case COMMANDS::WAIT:
+        break;
+    }
+  }
+
+//============================CALLBACK====================================
   void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
-    action = msg_IN->command;
-    link = msg_IN->joint;
+    command = msg_IN->command;
+    currJoint = msg_IN->joint;
+    currLocalJoint = convertToLocalJointNumber(currJoint);
     dataLength = msg_IN->dataLength;
-    commDataFromTeensy msg_OUT;
-    msg_OUT.joint1 = msg_IN->command;
-    lcm.publish(1, &msg_OUT);
+    stateAssignment();
   }
 
 
@@ -182,14 +353,17 @@
   // Setup - Runs once
   void setup() {
     Serial.begin(115200);
+    ROM_allocate(numOfJoints);
     for (int i=0; i<3; i++){
-      links[i].setPoint = analogRead(linksConst[i].position);
-      pinMode(linksConst[i].motor, OUTPUT);
-      pinMode(linksConst[i].enable, OUTPUT);
-      analogWrite(linksConst[i].motor, zeroTorque);
-      digitalWrite(linksConst[i].enable, LOW);
-      setOrientROM(&linksConst[i]);
-      setZeroThetaROM(&linksConst[i]);
+      joints[i] = JointTable[EEPROM.read(jointMem[i].jointAddr)];
+      joints[i].setPoint = analogRead(joints[i].getPotPin());
+      pinMode(joints[i].getMotorPin(), OUTPUT);
+      pinMode(joints[i].getEnablePin(), OUTPUT);
+      analogWrite(joints[i].getMotorPin(), zeroTorque);
+      digitalWrite(joints[i].getEnablePin(), LOW);
+      joints[i].setLocalJointNum();
+      setOrientROM(&joints[i]);
+      setZeroThetaROM(&joints[i]);
     }
     Timer3.initialize(1000); //1 ms
     Timer3.attachInterrupt(timerCallback);
@@ -198,95 +372,23 @@
 
   // Main loop
   void loop() {
+    if (EMERGENCY){
+      stateAssignment();
+    }
     lcm.handle();
-    jointSelection(link);
     commDataFromTeensy msgOut;
-    switch (action) {
+    switch (state) {
 
-      case commData2Teensy::ID_REQUEST:
-        int32_t link1;
-        int32_t link2;
-        int32_t link3;
-        link1 = EEPROM.read(ROM_ENUM::link1Addr);
-        link2 = EEPROM.read(ROM_ENUM::link2Addr);
-        link3 = EEPROM.read(ROM_ENUM::link3Addr);
-        msgOut.joint1 = link1;
-        msgOut.joint2 = link2;
-        msgOut.joint3 = link3;
-        lcm.publish(OUT, &msgOut);
-        break;
-
-      case commData2Teensy::START_CALIBRATION :
-        if (calibrationFlag==true){
-          minPot = (uint16_t)analogRead(tempCJoint.position);
-          maxPot = minPot;
-          (&tempCJoint)->minPot = (uint16_t)tempJoint.setPoint;
-          (&tempCJoint)->maxPot = (uint16_t)tempJoint.setPoint;
-          (&tempCJoint)->zeroTheta = (uint16_t)analogRead(tempCJoint.position);
-          calibrationFlag = false;
-        }
-        if (Calibration(&tempCJoint) == false) {
-          error_channel error_msg;
-          error_msg.potHardwareOutOfRange = true;
-          lcm.publish(ERROR, &error_msg);
-        }
-        else {
-          (&tempCJoint)->minPot = (uint16_t)tempJoint.setPoint;
-          (&tempCJoint)->maxPot = (uint16_t)tempJoint.setPoint;
-        }
-        break;
-
-      case commData2Teensy::STOP_CALIBRATION :
-        msgOut.minPot = (&tempCJoint)->minPot;
-        msgOut.maxPot = (&tempCJoint)->maxPot;
-        setPotRange((&tempCJoint)->link, minPot, maxPot);
-        lcm.publish(OUT, &msgOut);
-        calibrationFlag = true;
-        action =commData2Teensy::WAIT;
-        break;
-
-      case commData2Teensy::SEND_TRAJECTORY :
+      case commData2Teensy::CALIBRATION:
+        Calibration_State();
         break;
 
       case commData2Teensy::RUN_STATIC_CONTROL :
-        if (staticControlFlag == true){
-          (&tempJoint)->setPoint = analogRead((&tempCJoint)->position);
-          digitalWrite(tempCJoint.enable, HIGH);
-          staticControlFlag = false;
-        }
-
-        OutOfRange = checkOOR(tempCJoint);
-        if (OutOfRange) {
-          error_channel error_msg;
-          error_msg.isOutOfRange = true;
-          lcm.publish(ERROR, &error_msg);
-          action = commData2Teensy::STOP;
-        }
-        else{
-          PIDcontrol((&tempJoint)->setPoint, &tempJoint, tempCJoint);
-        }
+        Static_Control_State();
         break;
 
       case commData2Teensy::RUN_STATIC_ALL :
-        if (staticControlFlag == true){
-          for (int i=0; i<3; i++){
-            (&links[i])->setPoint = analogRead((&linksConst[i])->position);
-            digitalWrite(linksConst[i].enable, HIGH);
-          }
-          staticControlFlag = false;
-        }
-        OutOfRange = checkOOR(linksConst[0])||checkOOR(linksConst[1])||checkOOR(linksConst[2]);
-        if (OutOfRange) {
-          error_channel error_msg;
-          error_msg.isOutOfRange = true;
-          lcm.publish(ERROR, &error_msg);
-          action = commData2Teensy::STOP;
-        }
-        else{
-          for (int i=0; i<3; i++){
-            PIDcontrol((&links[i])->setPoint, &links[i], linksConst[i]);
-          }
-        }
+        Static_Control_All_State();
         break;
 
       case commData2Teensy::RUN_TRAJECTORY :
@@ -294,14 +396,6 @@
 
       case commData2Teensy::RUN_ALL_TRAJECTORIES :
       break;
-
-      case commData2Teensy::STOP :
-        for (int i=0; i<3; i++){
-          digitalWrite(linksConst[i].enable, LOW);
-        }
-        staticControlFlag = true;
-        action = commData2Teensy::WAIT;
-        break;
 
       case commData2Teensy::WAIT :
         break;
