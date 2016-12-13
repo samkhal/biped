@@ -1,5 +1,8 @@
+#ifndef ROM_DATA_H_
+#define ROM_DATA_H_
+
 //ROM Memory Addresses
-const int MEM_BYTES = 2;
+const int MEM_BYTES = sizeof(uint16_t);
 int jointAddrOffset = 0;
 int minPotAddrOffset = 0;
 int maxPotAddrOffset = 0;
@@ -37,3 +40,5 @@ void ROM_allocate(int numOfJoints){
     jointMem[i] = jROM;
   }
 }
+
+#endif
