@@ -3,7 +3,7 @@ NODES = \
 serial_bridge 
 
 # Code running onboard
-ONBOARD = onboard_tmp
+ONBOARD = onboard
 
 LCM_TYPES_DIR = biped_lcm
 LCM_PACKAGE_NAME = biped_lcm
