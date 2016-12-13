@@ -1,3 +1,5 @@
+package biped_lcm;
+
 struct commDataFromTeensy
 {
 	int32_t joints[3];

@@ -1,3 +1,5 @@
+package biped_lcm;
+
 struct commData2Teensy
 {
 	const int32_t

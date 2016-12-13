@@ -1,3 +1,5 @@
+package biped_lcm;
+
 struct error_channel
 {
   boolean potHardwareOutOfRange;
