@@ -37,16 +37,8 @@ class Joint {
 
     //Getters
     int getJointNumber() {return jointNumber;}
-    int getPotPin() {return potPin;}
     int getMotorPin() {return motorPin;}
     int getEnablePin() {return enablePin;}
-    float getkP () {return kP;}
-    float getkI () {return kI;}
-    float getkD () {return kD;}
-    int getDirection () {return direction;}
-    int getMotorOrientation() {return motorOrientation;}
-    int getPotOrientation() {return potOrientation;}
-    int getPotCabling() {return potCabling;}
     int getMinPot() {return minPot;}
     int getMaxPot() {return maxPot;}
     int getMinTheta() {return minTheta;}
@@ -55,36 +47,14 @@ class Joint {
     int getLocalJointNum() {return localJointNum;}
     JointROM getMemoryAddr(){return memoryAddr;}
 
-    //Other methods
-    int readPotentiometer(){return analogRead(potPin);}
-    void motorPWM(int drive){analogWrite(motorPin,drive);}
-    void setEnable(bool state){digitalWrite(enablePin, state);}
-    void setSetPointFromPot(){setPoint = readPotentiometer();}
-    int readROM_joint(){
+    //Methods to read data from ROM
+    int readROM(int address){
       uint16_t val;
-      EEPROM.get(memoryAddr.jointAddr,val);
+      EEPROM.get(address,val);
       return val;
     }
-    int readROM_minPot(){
-      uint16_t val;
-      EEPROM.get(memoryAddr.minPotAddr,val);
-      return val;
-    }
-    int readROM_maxPot(){
-      uint16_t val;
-      EEPROM.get(memoryAddr.maxPotAddr,val);
-      return val;
-    }
-    int readROM_zeroPot(){
-      uint16_t val;
-      EEPROM.get(memoryAddr.zeroPotAddr,val);
-      return val;
-    }
-    int readROM_orientation(){
-      uint16_t val;
-      EEPROM.get(memoryAddr.orientationAddr,val);
-      return val;
-    }
+
+    //Methods to write data to ROM
     void writeROM_potRange(){
       EEPROM.put(memoryAddr.minPotAddr, (uint16_t)minPot);
       EEPROM.put(memoryAddr.maxPotAddr, (uint16_t)maxPot);
@@ -96,6 +66,12 @@ class Joint {
     void writeROM_orientation(){
       EEPROM.put(memoryAddr.orientationAddr, (uint16_t)(direction));
     }
+
+    //Other methods
+    int readPotentiometer(){return analogRead(potPin);}
+    void motorPWM(int drive){analogWrite(motorPin,drive);}
+    void setEnable(bool state){digitalWrite(enablePin, state);}
+    void setSetPointFromPot(){setPoint = readPotentiometer();}
 
     //PID control, takes a setpoint in pot values, a joint struct pointer and a constjoint struct (of the same joint)
     void PIDcontrol() {
@@ -122,15 +98,14 @@ class Joint {
     //Checks if a joint goes very close to the min/max values and it stops it
     bool checkOOR() {
       int pose = readPotentiometer();
-      if (pose < ((int)readROM_minPot() + OutOfRangeThreshold) ||
-       pose > ((int)readROM_maxPot() - OutOfRangeThreshold)) {
+      if (pose < ((int)readROM(memoryAddr.minPotAddr) + OutOfRangeThreshold) ||
+       pose > ((int)readROM(memoryAddr.maxPotAddr) - OutOfRangeThreshold)) {
         return true;
       }
       return false;
     }
 
-    // Writes the the maximum and minimum pot values to ROM,
-    // takes a pointer of constJoint struct, returns false if out of range
+    //Writes the the maximum and minimum pot values, checks for physical OutOfRange
     bool CalibrationCheck() {
       int potVal = readPotentiometer();
       if (minPot > (uint16_t)potVal) {
@@ -168,7 +143,7 @@ class Joint {
     JointROM memoryAddr;
 };
 
-
+//Table of all robot's joints
 const Joint JointTable[12] = {
 //  Joint#, PotPin, MotorPin, EnablePin, kP,  kI,  kD,   Direction
 Joint(1,   A9,       5,        0,      0.1f,   0,  0.1f,   1),
