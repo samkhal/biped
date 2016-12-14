@@ -4,12 +4,15 @@
 #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
 #include "biped_lcm/error_channel.hpp" //header file for error messages
-#include "Joint.hpp" // struct that stores joint data
-#include <vector>
+#include "Joint.h" // struct that stores joint data
+#include "JointTable.h"
 
 using namespace biped_lcm; // for messages
 
+const int numOfJoints = 3;
+
 LCMSerialSlave lcm; //initialize LCM object
+std::vector<JointROM> jointMem; // initialize array of 3 ROM memory structs
 std::vector<Joint> joints; //vector of joints
 
 // Channels
@@ -206,7 +209,7 @@ void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
 // Setup - Runs once
 void setup() {
   Serial.begin(115200);
-  ROM_allocate(numOfJoints);
+  jointMem = ROM_allocate(numOfJoints, jointMem);
   for (int i=0; i<numOfJoints; i++){
     uint16_t index;
     EEPROM.get(jointMem[i].jointAddr,index);
