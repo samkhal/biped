@@ -209,7 +209,7 @@ void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
 // Setup - Runs once
 void setup() {
   Serial.begin(115200);
-  jointMem = ROM_allocate(numOfJoints, jointMem);
+  ROM_allocate(numOfJoints, jointMem);
   for (int i=0; i<numOfJoints; i++){
     uint16_t index;
     EEPROM.get(jointMem[i].jointAddr,index);

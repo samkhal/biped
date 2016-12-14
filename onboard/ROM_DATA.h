@@ -11,8 +11,8 @@ struct JointROM {
   int orientationAddr;
 };
 
-extern void calculateOffsets(int numOfJoints);
+void calculateOffsets(int numOfJoints);
 
-extern std::vector<JointROM> ROM_allocate(int numOfJoints,std::vector<JointROM> jointMem);
+void ROM_allocate(int numOfJoints,std::vector<JointROM>& jointMem);
 
 #endif
