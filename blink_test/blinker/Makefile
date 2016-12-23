@@ -7,7 +7,7 @@ LDIR =lib
 BDIR = build
 SDIR = .
 
-LCM_TYPES_DIR = ../types
+LCM_TYPES_DIR = ../../biped_lcm
 LCM_H_DIR = build/lcm
 LCM_TARGET_JAR = $(ODIR)/types.jar
 # TODO: make this independent of DRAKE_DISTRO

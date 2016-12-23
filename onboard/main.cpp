@@ -56,17 +56,18 @@ void timerCallback() {
 void ID_Request(){
   commDataFromTeensy msgOut;
   for (int i = 0; i<numOfJoints; i++){
-    msgOut.joints[i] = (uint16_t) joints[i].readROM(joints[i].getMemoryAddr().jointAddr);
+    msgOut.joints[i] = (uint8_t) joints[i].getJointNumber();
   }
   lcm.publish(OUT, &msgOut);
 }
 
-//==============================State Machine functions===================================
+// //==============================State Machine functions===================================
 void Calibration_State(){
   if (joints[currLocalJoint].CalibrationCheck() == false) {
     error_channel error_msg;
-    error_msg.potHardwareOutOfRange = true;
+    // error_msg.name = "potentiometer hardware out of range";
     lcm.publish(ERROR, &error_msg);
+    state = STATES::WAIT;
   }
 }
 
@@ -75,7 +76,7 @@ void Static_Control_State(){
   if (OutOfRange) {
     stopMotors();
     error_channel error_msg;
-    error_msg.isOutOfRange = true;
+    // error_msg.name = "out of range";
     lcm.publish(ERROR, &error_msg);
     state = STATES::WAIT;
   }
@@ -89,7 +90,7 @@ void Static_Control_All_State(){
   if (OutOfRange) {
     stopMotors();
     error_channel error_msg;
-    error_msg.isOutOfRange = true;
+    // error_msg.name = "out of range";
     lcm.publish(ERROR, &error_msg);
     state = STATES::WAIT;
   }
@@ -111,8 +112,8 @@ void stateAssignment(int command){
       }
       else{
         error_channel msg_Out;
-        msg_Out.inappropriateCommand = true;
-        lcm.publish(OUT, &msg_Out);
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
       }
       break;
 
@@ -126,8 +127,8 @@ void stateAssignment(int command){
       }
       else{
         error_channel msg_Out;
-        msg_Out.inappropriateCommand = true;
-        lcm.publish(OUT, &msg_Out);
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
       }
       break;
 
@@ -142,12 +143,23 @@ void stateAssignment(int command){
       }
       else{
         error_channel msg_Out;
-        msg_Out.inappropriateCommand = true;
-        lcm.publish(OUT, &msg_Out);
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
       }
       break;
 
     case commData2Teensy::GET_CALIBRATION:
+      if (state == STATES::WAIT){
+        commDataFromTeensy msg_Out;
+        msg_Out.minPot = joints[currLocalJoint].getMinPot();
+        msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
+        lcm.publish(OUT, &msg_Out);
+      }
+      else{
+        error_channel msg_Out;
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
+      }
       break;
 
     case commData2Teensy::RECEIVE_TRAJECTORY:
@@ -161,8 +173,8 @@ void stateAssignment(int command){
       }
       else{
         error_channel msg_Out;
-        msg_Out.inappropriateCommand = true;
-        lcm.publish(OUT, &msg_Out);
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
       }
       break;
 
@@ -176,8 +188,8 @@ void stateAssignment(int command){
       }
       else{
         error_channel msg_Out;
-        msg_Out.inappropriateCommand = true;
-        lcm.publish(OUT, &msg_Out);
+        // msg_Out.name = "inappropriate command";
+        lcm.publish(ERROR, &msg_Out);
       }
       break;
 
@@ -211,9 +223,10 @@ void setup() {
   Serial.begin(115200);
   ROM_allocate(numOfJoints, jointMem);
   for (int i=0; i<numOfJoints; i++){
-    uint16_t index;
+    // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
+    uint8_t index;
     EEPROM.get(jointMem[i].jointAddr,index);
-    joints.push_back(JointTable[index-1]);//because joint 1 is JointTable[0]
+    joints.push_back(JointTable[i]);
     joints[i].setSetPointFromPot();
     joints[i].setMemoryAddr(jointMem[i]);
     pinMode(joints[i].getMotorPin(), OUTPUT);

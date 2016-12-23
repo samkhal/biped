@@ -1,0 +1,18 @@
+
+struct commData2Teensy
+{
+	const int32_t
+		ID_REQUEST = 0,
+		START_CALIBRATION = 1,
+		STOP_CALIBRATION = 2,
+		GET_CALIBRATION = 3,
+		RECEIVE_TRAJECTORY = 4,
+		RUN_STATIC_CONTROL = 5,
+		RUN_STATIC_ALL = 6,
+		RUN_TRAJECTORY = 7,
+		RUN_ALL_TRAJECTORIES = 8,
+		STOP = 9;
+	int32_t command;
+	int32_t joint;
+	int32_t dataLength;
+}
