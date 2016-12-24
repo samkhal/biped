@@ -3,16 +3,21 @@
 #include "slave_bridge.hpp" //LCM slave file
 #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
-#include "biped_lcm/error_channel.hpp" //header file for error messages
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
 #include "common/serial_channels.hpp"
+#include "biped_lcm/log_msg.hpp"
+#include "log_util.hpp"
 
 using namespace biped_lcm; // for messages
 
 const int numOfJoints = 3;
 
 LCMSerialSlave lcm; //initialize LCM object
+Logger loginfo(lcm, log_msg::INFO);
+Logger logwarn(lcm, log_msg::WARN);
+Logger logerr(lcm, log_msg::ERROR);
+
 std::vector<JointROM> jointMem; // initialize array of 3 ROM memory structs
 std::vector<Joint> joints; //vector of joints
 
