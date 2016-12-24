@@ -4,6 +4,7 @@
 #include "fix_std.hpp"
 
 #include "common/serial_channels.hpp"
+#include "biped_lcm/log_msg.hpp"
 #include "log_util.hpp"
 
 #include <TimerOne.h>
@@ -11,7 +12,9 @@
 using namespace biped_lcm;
 
 LCMSerialSlave lcm;
-Logger logger(lcm);
+Logger loginfo(lcm, log_msg::INFO);
+Logger logwarn(lcm, log_msg::WARN);
+Logger logerr(lcm, log_msg::ERROR);
 
 // States and state table
 enum class State : uint8_t {IDLE=0, POS_HOLD};
@@ -34,9 +37,7 @@ void pos_hold(){
 
 void publish_robot_state(){
 	static int pub_count = 0;
-	char buffer[15];   
-	itoa(pub_count,buffer,10);
-	logger.info(std::string("Publishing robot state") + buffer);
+	loginfo << "Publishing robot state " << pub_count << std::flush;
 	pub_count++;
 }
 
