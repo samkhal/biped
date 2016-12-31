@@ -1,6 +1,7 @@
 # List all independent nodes, separated with escaped newlines
 NODES = \
-serial_bridge 
+serial_bridge \
+cmd_tester
 
 # Code running onboard
 ONBOARD = onboard
