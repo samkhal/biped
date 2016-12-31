@@ -2,7 +2,7 @@
 #include "bridge.hpp"
 #include "biped_lcm/commData2Teensy.hpp"
 #include "biped_lcm/commDataFromTeensy.hpp"
-#include "biped_lcm/error_channel.hpp"
+#include "biped_lcm/log_msg.hpp"
 
 // Open a bridge for passing the blink messages around
 // TODO: global storage of channel IDs

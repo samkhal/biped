@@ -16,7 +16,7 @@ const int numOfJoints = 3;
 LCMSerialSlave lcm; //initialize LCM object
 Logger loginfo(lcm, log_msg::INFO);
 Logger logwarn(lcm, log_msg::WARN);
-Logger logerr(lcm, log_msg::ERROR);
+Logger logerror(lcm, log_msg::ERROR);
 
 std::vector<JointROM> jointMem; // initialize array of 3 ROM memory structs
 std::vector<Joint> joints; //vector of joints
@@ -65,9 +65,7 @@ void ID_Request(){
 // //==============================State Machine functions===================================
 void Calibration_State(){
   if (joints[currLocalJoint].CalibrationCheck() == false) {
-    error_channel error_msg;
-    // error_msg.name = "potentiometer hardware out of range";
-    lcm.publish(ChannelID::LOG_MSG, &error_msg);
+    logerror << "potentiometer hardware out of range" << std::flush;
     state = STATES::WAIT;
   }
 }
@@ -76,9 +74,7 @@ void Static_Control_State(){
   bool OutOfRange = joints[currLocalJoint].checkOOR();
   if (OutOfRange) {
     stopMotors();
-    error_channel error_msg;
-    // error_msg.name = "out of range";
-    lcm.publish(LOG_MSG, &error_msg);
+    logerror << "out of range" << std::flush;
     state = STATES::WAIT;
   }
   else{
@@ -90,9 +86,7 @@ void Static_Control_All_State(){
   bool OutOfRange = joints[0].checkOOR()||joints[1].checkOOR()||joints[2].checkOOR();
   if (OutOfRange) {
     stopMotors();
-    error_channel error_msg;
-    // error_msg.name = "out of range";
-    lcm.publish(ChannelID::LOG_MSG, &error_msg);
+    logerror << "out of range" << std::flush;
     state = STATES::WAIT;
   }
   else{
@@ -112,9 +106,7 @@ void stateAssignment(int command){
         ID_Request();
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -127,9 +119,7 @@ void stateAssignment(int command){
         state = STATES::CALIBRATION;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -143,9 +133,7 @@ void stateAssignment(int command){
         state = STATES::WAIT;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -157,9 +145,7 @@ void stateAssignment(int command){
         lcm.publish(ChannelID::STATE, &msg_Out);
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -173,9 +159,7 @@ void stateAssignment(int command){
         state = commData2Teensy::RUN_STATIC_CONTROL;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -188,9 +172,7 @@ void stateAssignment(int command){
         state = commData2Teensy::RUN_STATIC_ALL;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -209,7 +191,7 @@ void stateAssignment(int command){
 }
 
 //============================CALLBACK====================================
-void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
+void callback(ChannelID id, commData2Teensy* msg_IN){
   int command = msg_IN->command;
   int currJoint = msg_IN->joint;
   currLocalJoint = convertToLocalJointNumber(currJoint);
