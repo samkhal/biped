@@ -222,7 +222,7 @@ void setup() {
   }
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
-  lcm.subscribe(ChannelID::CMD_MODE, &callback); // 0 is incoming, 1 is out
+  lcm.subscribe(ChannelID::CMD_MODE, &callback);
 }
 
 // Main loop
