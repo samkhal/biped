@@ -6,6 +6,7 @@
 #include "biped_lcm/error_channel.hpp" //header file for error messages
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
+#include "common/serial_channels.hpp"
 
 using namespace biped_lcm; // for messages
 
@@ -14,11 +15,6 @@ const int numOfJoints = 3;
 LCMSerialSlave lcm; //initialize LCM object
 std::vector<JointROM> jointMem; // initialize array of 3 ROM memory structs
 std::vector<Joint> joints; //vector of joints
-
-// Channels
-const int IN  = 0;
-const int OUT = 1;
-const int ERROR = 2;
 
 //State Machine Variables
 enum STATES{
@@ -58,7 +54,7 @@ void ID_Request(){
   for (int i = 0; i<numOfJoints; i++){
     msgOut.joints[i] = (uint8_t) joints[i].getJointNumber();
   }
-  lcm.publish(OUT, &msgOut);
+  lcm.publish(ChannelID::STATE, &msgOut);
 }
 
 // //==============================State Machine functions===================================
@@ -66,7 +62,7 @@ void Calibration_State(){
   if (joints[currLocalJoint].CalibrationCheck() == false) {
     error_channel error_msg;
     // error_msg.name = "potentiometer hardware out of range";
-    lcm.publish(ERROR, &error_msg);
+    lcm.publish(ChannelID::LOG_MSG, &error_msg);
     state = STATES::WAIT;
   }
 }
@@ -77,7 +73,7 @@ void Static_Control_State(){
     stopMotors();
     error_channel error_msg;
     // error_msg.name = "out of range";
-    lcm.publish(ERROR, &error_msg);
+    lcm.publish(LOG_MSG, &error_msg);
     state = STATES::WAIT;
   }
   else{
@@ -91,7 +87,7 @@ void Static_Control_All_State(){
     stopMotors();
     error_channel error_msg;
     // error_msg.name = "out of range";
-    lcm.publish(ERROR, &error_msg);
+    lcm.publish(ChannelID::LOG_MSG, &error_msg);
     state = STATES::WAIT;
   }
   else{
@@ -113,7 +109,7 @@ void stateAssignment(int command){
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -128,7 +124,7 @@ void stateAssignment(int command){
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -138,13 +134,13 @@ void stateAssignment(int command){
         msg_Out.minPot = joints[currLocalJoint].getMinPot();
         msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
         joints[currLocalJoint].writeROM_potRange();
-        lcm.publish(OUT, &msg_Out);
+        lcm.publish(ChannelID::STATE, &msg_Out);
         state = STATES::WAIT;
       }
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -153,12 +149,12 @@ void stateAssignment(int command){
         commDataFromTeensy msg_Out;
         msg_Out.minPot = joints[currLocalJoint].getMinPot();
         msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
-        lcm.publish(OUT, &msg_Out);
+        lcm.publish(ChannelID::STATE, &msg_Out);
       }
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -174,7 +170,7 @@ void stateAssignment(int command){
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -189,7 +185,7 @@ void stateAssignment(int command){
       else{
         error_channel msg_Out;
         // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        lcm.publish(ChannelID::LOG_MSG, &msg_Out);
       }
       break;
 
@@ -239,7 +235,7 @@ void setup() {
   }
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
-  lcm.subscribe(IN, &callback); // 0 is incoming, 1 is out
+  lcm.subscribe(ChannelID::CMD_MODE, &callback); // 0 is incoming, 1 is out
 }
 
 // Main loop
