@@ -19,6 +19,11 @@ namespace std {
     Serial.println(e);
     while(1);
   }
+} 
+
+extern "C"{
+  int _getpid(){ return -1;}
+  int _kill(int pid, int sig){ return -1; }
 }
 
 #endif
