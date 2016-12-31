@@ -30,7 +30,8 @@ private:
 			msg.msg = str();
 			str(""); // Clear current string
 			msg.log_level = log_level;
-			return lcm.publish(ChannelID::LOG_MSG, &msg);
+			lcm.publish(ChannelID::LOG_MSG, &msg);
+			return 0;
 		}
 	};
 public:
