@@ -1,4 +1,4 @@
-ARDUINO_LIBS = TimerOne 
+ARDUINO_LIBS = TimerThree EEPROM
 MONITOR_PORT = /dev/ttyACM0
 BOARD_TAG    = teensy31
 

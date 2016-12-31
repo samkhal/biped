@@ -3,7 +3,7 @@ NODES = \
 serial_bridge 
 
 # Code running onboard
-ONBOARD = onboard_tmp
+ONBOARD = onboard
 
 LCM_TYPES_DIR = biped_lcm
 LCM_PACKAGE_NAME = biped_lcm
@@ -65,6 +65,10 @@ onboard: $(LCM_HEADERS)
 	# set makelevel to not suppress config output
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
+
+upload: $(LCM_HEADERS)
+	export MAKELEVEL=0;\
+	$(MAKE) upload -C $(ONBOARD)
 
 #Build nodes
 $(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
