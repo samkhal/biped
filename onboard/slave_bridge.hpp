@@ -53,7 +53,7 @@ public:
 	 * @return 0 on success, -1 on failure
 	 */
 	template<typename MessageType>
-	int publish(ChannelID channel_id, const MessageType* msg);
+	int publish(ChannelID channel_id, const MessageType* msg) const;
 
 	/** Subscribe to a serial LCM Message that will trigger a callback function
 	 * @param channel_id id of channel to subscribe to

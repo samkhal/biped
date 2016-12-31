@@ -8,7 +8,7 @@ LCMSerialSlave::LCMSerialSlave(){
 }
 
 template<typename MessageType>
-int LCMSerialSlave::publish(ChannelID channel_id, const MessageType* msg){
+int LCMSerialSlave::publish(ChannelID channel_id, const MessageType* msg) const{
 	uint32_t size = msg->getEncodedSize();
 
 	// Allocate enough room for the header and body
