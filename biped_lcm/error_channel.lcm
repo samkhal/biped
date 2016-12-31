@@ -1,7 +1,0 @@
-package biped_lcm;
-
-struct error_channel
-{
-//  string name; it does not accept strings for a reason as a type
-  int8_t jointNumber;
-}
