@@ -32,7 +32,7 @@ LCM_DEFS = $(wildcard $(LCM_TYPES_DIR)/*.lcm)
 LCM_B_DIR = $(BUILD_DIR)/$(LCM_TYPES_DIR)
 export LCM_BDIR_ABS=$(MKFILE_DIR)$(LCM_B_DIR)
 
-LCM_HEADERS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_B_DIR)/%.hpp, $(LCM_DEFS))
+LCM_HEADERS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_B_DIR)/$(LCM_PACKAGE_NAME)/%.hpp, $(LCM_DEFS))
 LCM_JAVA_DIR = $(LCM_B_DIR)/$(LCM_PACKAGE_NAME)
 LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $(LCM_DEFS))
 
@@ -47,7 +47,7 @@ default: all
 
 #Build LCM CPP:
 
-$(LCM_B_DIR)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
+$(LCM_B_DIR)/$(LCM_PACKAGE_NAME)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
 	lcm-gen --cpp --cpp-std=c++11 --cpp-hpath=$(LCM_B_DIR) $^
 
 # Build LCM Java: 
