@@ -70,7 +70,7 @@ onboard: $(LCM_HEADERS)
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
 
-upload: $(LCM_HEADERS)
+upload_original: $(LCM_HEADERS)
 	export MAKELEVEL=0;\
 	$(MAKE) upload -C $(ONBOARD)
 
@@ -91,6 +91,7 @@ lcm-cpp: $(LCM_HEADERS)
 lcm-java: $(LCM_B_DIR)/$(LCM_TARGET_JAR)
 
 all: lcm-cpp lcm-java onboard nodes
+upload: lcm-cpp lcm-java upload_original nodes
 
 clean:
 	rm -rf $(BUILD_DIR)
