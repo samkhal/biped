@@ -41,7 +41,6 @@ LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $
 # Add the LCM headers to the include path
 export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
 
-NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /$(NODE_TARGET_NAME), $(NODES)))
 #-------Color coded output
 CCRESET          = \033[0m
 CCGREEN = \033[0;32m
@@ -75,17 +74,17 @@ upload: $(LCM_HEADERS)
 	export MAKELEVEL=0;\
 	$(MAKE) upload -C $(ONBOARD)
 
+
 #Build nodes
-$(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
-	@echo Building $*
+$(NODES): $(LCM_HEADERS)
 	@echo "$(CCGREEN)Building $@ $(CCRESET)"
 
-	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$*; \
-	export TARGET=$(notdir $@); \
-	$(MAKE) -C $*
+	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$@; \
+	export TARGET=$(NODE_TARGET_NAME); \
+	$(MAKE) -C $@
 
 #------------Generic targets
-nodes: $(NODE_TARGETS)
+nodes: $(NODES)
 
 lcm-cpp: $(LCM_HEADERS)
 
