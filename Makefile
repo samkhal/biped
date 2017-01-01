@@ -42,6 +42,10 @@ LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $
 export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) `pkg-config --cflags-only-I lcm`
 
 NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /$(NODE_TARGET_NAME), $(NODES)))
+#-------Color coded output
+CCRESET          = \033[0m
+CCGREEN = \033[0;32m
+CCRED = \033[0;31m
 
 default: all
 
@@ -62,6 +66,7 @@ $(LCM_B_DIR)/$(LCM_TARGET_JAR): $(addprefix $(LCM_B_DIR)/,$(LCM_JAR_DEPS))
 
 #Build onboard
 onboard: $(LCM_HEADERS) 
+	@echo "$(CCGREEN)Building $@ $(CCRESET)"
 	# set makelevel to not suppress config output
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
@@ -73,6 +78,7 @@ upload: $(LCM_HEADERS)
 #Build nodes
 $(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
 	@echo Building $*
+	@echo "$(CCGREEN)Building $@ $(CCRESET)"
 
 	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$*; \
 	export TARGET=$(notdir $@); \
