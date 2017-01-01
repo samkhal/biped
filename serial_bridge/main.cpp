@@ -11,7 +11,7 @@ typedef ChannelID CID;
 
 int main(){
 	std::string port = "/dev/ttyACM0";
-	std::string prefix = "teensy_ul_";
+	std::string prefix = "UL_";
 	LCMSerialBridge bridge(port);
 	std::cout << "Opened port " << port << std::endl;
 

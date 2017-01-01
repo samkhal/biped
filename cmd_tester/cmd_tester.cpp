@@ -14,7 +14,7 @@ int main(){
 		commData2Teensy msg;
 		std::cin >> msg.command;
 		std::cout << "Publishing command " << msg.command << std::endl;
-		lcm.publish("teensy_ul_cmd_mode", &msg);
+		lcm.publish("UL_cmd_mode", &msg);
 	}
 	return 0;
 }
