@@ -5,6 +5,8 @@ BOARD_TAG    = teensy31
 # Set the build directory ourselves
 ifdef BDIR_ABS
 	OBJDIR=$(BDIR_ABS)/$(BOARD_TAG)
+else
+$(error run make at the top level)
 endif
 
 ifndef OBJDIR

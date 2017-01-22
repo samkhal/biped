@@ -37,7 +37,7 @@ LCM_DEFS = $(wildcard $(LCM_TYPES_DIR)/*.lcm)
 LCM_B_DIR = $(BUILD_DIR)/$(LCM_TYPES_DIR)
 export LCM_BDIR_ABS=$(MKFILE_DIR)$(LCM_B_DIR)
 
-LCM_HEADERS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_B_DIR)/%.hpp, $(LCM_DEFS))
+LCM_HEADERS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_B_DIR)/$(LCM_PACKAGE_NAME)/%.hpp, $(LCM_DEFS))
 LCM_JAVA_DIR = $(LCM_B_DIR)/$(LCM_PACKAGE_NAME)
 LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $(LCM_DEFS))
 
@@ -46,13 +46,16 @@ LCM_JAR_DEPS = $(patsubst $(LCM_TYPES_DIR)/%.lcm, $(LCM_PACKAGE_NAME)/%.class, $
 # Add the LCM headers to the include path
 export CPPFLAGS=-I$(realpath $(LCM_B_DIR)) -I$(realpath $(COMMON_INCLUDE)) `pkg-config --cflags-only-I lcm`
 
-NODE_TARGETS = $(addprefix $(BUILD_DIR)/,$(addsuffix /$(NODE_TARGET_NAME), $(NODES)))
+#-------Color coded output
+CCRESET          = \033[0m
+CCGREEN = \033[0;32m
+CCRED = \033[0;31m
 
 default: all
 
 #Build LCM CPP:
 
-$(LCM_B_DIR)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
+$(LCM_B_DIR)/$(LCM_PACKAGE_NAME)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
 	lcm-gen --cpp --cpp-std=c++11 --cpp-hpath=$(LCM_B_DIR) $^
 
 # Build LCM Java: 
@@ -67,30 +70,33 @@ $(LCM_B_DIR)/$(LCM_TARGET_JAR): $(addprefix $(LCM_B_DIR)/,$(LCM_JAR_DEPS))
 
 #Build onboard
 onboard: $(LCM_HEADERS) 
+	@echo "$(CCGREEN)Building $@ $(CCRESET)"
 	# set makelevel to not suppress config output
 	export MAKELEVEL=0;\
 	$(MAKE) -C $(ONBOARD)
 
-upload: $(LCM_HEADERS)
+upload_original: $(LCM_HEADERS)
 	export MAKELEVEL=0;\
 	$(MAKE) upload -C $(ONBOARD)
 
-#Build nodes
-$(NODE_TARGETS): $(BUILD_DIR)/%/$(NODE_TARGET_NAME):
-	@echo Building $*
 
-	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$*; \
-	export TARGET=$(notdir $@); \
-	$(MAKE) -C $*
+#Build nodes
+$(NODES): $(LCM_HEADERS)
+	@echo "$(CCGREEN)Building $@ $(CCRESET)"
+
+	export BDIR_ABS=$(MKFILE_DIR)$(BUILD_DIR)/$@; \
+	export TARGET=$(NODE_TARGET_NAME); \
+	$(MAKE) -C $@
 
 #------------Generic targets
-nodes: $(NODE_TARGETS)
+nodes: $(NODES)
 
 lcm-cpp: $(LCM_HEADERS)
 
 lcm-java: $(LCM_B_DIR)/$(LCM_TARGET_JAR)
 
 all: lcm-cpp lcm-java onboard nodes
+upload: lcm-cpp lcm-java upload_original nodes
 
 clean:
 	rm -rf $(BUILD_DIR)
