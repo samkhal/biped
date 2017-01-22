@@ -209,7 +209,7 @@ void setup() {
     // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
     uint8_t index;
     EEPROM.get(jointMem[i].jointAddr,index);
-    joints.push_back(JointTable[i]);
+    joints.push_back(JointTable[index-1]);
     joints[i].setSetPointFromPot();
     joints[i].setMemoryAddr(jointMem[i]);
     pinMode(joints[i].getMotorPin(), OUTPUT);
