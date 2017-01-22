@@ -3,22 +3,23 @@
 #include "slave_bridge.hpp" //LCM slave file
 #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
-#include "biped_lcm/error_channel.hpp" //header file for error messages
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
+#include "common/serial_channels.hpp"
+#include "biped_lcm/log_msg.hpp"
+#include "log_util.hpp"
 
 using namespace biped_lcm; // for messages
 
 const int numOfJoints = 3;
 
 LCMSerialSlave lcm; //initialize LCM object
+Logger loginfo(lcm, log_msg::INFO);
+Logger logwarn(lcm, log_msg::WARN);
+Logger logerror(lcm, log_msg::ERROR);
+
 std::vector<JointROM> jointMem; // initialize array of 3 ROM memory structs
 std::vector<Joint> joints; //vector of joints
-
-// Channels
-const int IN  = 0;
-const int OUT = 1;
-const int ERROR = 2;
 
 //State Machine Variables
 enum STATES{
@@ -58,15 +59,13 @@ void ID_Request(){
   for (int i = 0; i<numOfJoints; i++){
     msgOut.joints[i] = (uint8_t) joints[i].getJointNumber();
   }
-  lcm.publish(OUT, &msgOut);
+  lcm.publish(ChannelID::STATE, &msgOut);
 }
 
 // //==============================State Machine functions===================================
 void Calibration_State(){
   if (joints[currLocalJoint].CalibrationCheck() == false) {
-    error_channel error_msg;
-    // error_msg.name = "potentiometer hardware out of range";
-    lcm.publish(ERROR, &error_msg);
+    logerror << "potentiometer hardware out of range" << std::flush;
     state = STATES::WAIT;
   }
 }
@@ -75,9 +74,7 @@ void Static_Control_State(){
   bool OutOfRange = joints[currLocalJoint].checkOOR();
   if (OutOfRange) {
     stopMotors();
-    error_channel error_msg;
-    // error_msg.name = "out of range";
-    lcm.publish(ERROR, &error_msg);
+    logerror << "out of range" << std::flush;
     state = STATES::WAIT;
   }
   else{
@@ -89,9 +86,7 @@ void Static_Control_All_State(){
   bool OutOfRange = joints[0].checkOOR()||joints[1].checkOOR()||joints[2].checkOOR();
   if (OutOfRange) {
     stopMotors();
-    error_channel error_msg;
-    // error_msg.name = "out of range";
-    lcm.publish(ERROR, &error_msg);
+    logerror << "out of range" << std::flush;
     state = STATES::WAIT;
   }
   else{
@@ -111,9 +106,7 @@ void stateAssignment(int command){
         ID_Request();
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -126,9 +119,7 @@ void stateAssignment(int command){
         state = STATES::CALIBRATION;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -138,13 +129,11 @@ void stateAssignment(int command){
         msg_Out.minPot = joints[currLocalJoint].getMinPot();
         msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
         joints[currLocalJoint].writeROM_potRange();
-        lcm.publish(OUT, &msg_Out);
+        lcm.publish(ChannelID::STATE, &msg_Out);
         state = STATES::WAIT;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -153,12 +142,10 @@ void stateAssignment(int command){
         commDataFromTeensy msg_Out;
         msg_Out.minPot = joints[currLocalJoint].getMinPot();
         msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
-        lcm.publish(OUT, &msg_Out);
+        lcm.publish(ChannelID::STATE, &msg_Out);
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -172,9 +159,7 @@ void stateAssignment(int command){
         state = commData2Teensy::RUN_STATIC_CONTROL;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -187,9 +172,7 @@ void stateAssignment(int command){
         state = commData2Teensy::RUN_STATIC_ALL;
       }
       else{
-        error_channel msg_Out;
-        // msg_Out.name = "inappropriate command";
-        lcm.publish(ERROR, &msg_Out);
+        logerror << "inappropriate command" << std::flush;
       }
       break;
 
@@ -208,7 +191,7 @@ void stateAssignment(int command){
 }
 
 //============================CALLBACK====================================
-void callback(CHANNEL_ID id, commData2Teensy* msg_IN){
+void callback(ChannelID id, commData2Teensy* msg_IN){
   int command = msg_IN->command;
   int currJoint = msg_IN->joint;
   currLocalJoint = convertToLocalJointNumber(currJoint);
@@ -239,7 +222,7 @@ void setup() {
   }
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
-  lcm.subscribe(IN, &callback); // 0 is incoming, 1 is out
+  lcm.subscribe(ChannelID::CMD_MODE, &callback);
 }
 
 // Main loop

@@ -1,10 +1,9 @@
 #include "fix_std.hpp"
+#include "common/serial_channels.hpp"
 #include <map>
 
 #ifndef SLAVE_BRIDGE_HPP_
 #define SLAVE_BRIDGE_HPP_
-
-using CHANNEL_ID = uint8_t;
 
 enum ReadState {
 	FIND_HEADER,
@@ -18,13 +17,13 @@ enum ReadState {
 class LCMSerialSlave {
 private:
 	struct ChannelDef {
-		CHANNEL_ID id;
+		ChannelID id;
 		void (ChannelDef::*decoder)(byte*,uint32_t);
-		void (*handler)(CHANNEL_ID, void*);
+		void (*handler)(ChannelID, void*);
 
 		template <typename MessageType>
 		void decoder_fun(byte* buf, uint32_t len){
-			auto typed_handler = reinterpret_cast<void (*)(CHANNEL_ID, MessageType*)>(handler);
+			auto typed_handler = reinterpret_cast<void (*)(ChannelID, MessageType*)>(handler);
 
 			// Decode message and call handler
 			MessageType msg;
@@ -35,14 +34,14 @@ private:
 	};
 
 	// Map of channel IDs to message-handler functions
-	std::map<CHANNEL_ID, ChannelDef> input_channels;
+	std::map<ChannelID, ChannelDef> input_channels;
 
 	ReadState read_state = FIND_HEADER;
-	uint8_t last_channel_id;
+	ChannelID last_channel_id;
 	uint32_t data_len;
 	byte datalen_buf[sizeof(data_len)];
 	uint32_t data_buf_p = 0;
-	byte* data_buf;
+	byte* data_buf; //TODO smart pointers
 
 public:
 	LCMSerialSlave();
@@ -54,7 +53,7 @@ public:
 	 * @return 0 on success, -1 on failure
 	 */
 	template<typename MessageType>
-	int publish(CHANNEL_ID channel_id, const MessageType* msg);
+	int publish(ChannelID channel_id, const MessageType* msg) const;
 
 	/** Subscribe to a serial LCM Message that will trigger a callback function
 	 * @param channel_id id of channel to subscribe to
@@ -63,7 +62,7 @@ public:
 	 * @return 0 on success, -1 on failure
 	 */
 	template<typename MessageType>
-	int subscribe(CHANNEL_ID channel_id, void (*handler)(CHANNEL_ID, MessageType*));
+	int subscribe(ChannelID channel_id, void (*handler)(ChannelID, MessageType*));
 
 	/** Handle all available serial messages. Does not block if nothing is available.
 	 * @param max_bytes maximum number of bytes to read before returning.

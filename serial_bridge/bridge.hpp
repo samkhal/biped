@@ -3,6 +3,7 @@
 
 #include <SerialStream.h>
 #include <lcm/lcm-cpp.hpp>
+#include "common/serial_channels.hpp"
 
 #ifndef MASTER_BRIDGE_HPP_
 #define MASTER_BRIDGE_HPP_
@@ -33,11 +34,11 @@ private:
 	lcm::LCM lcm;
 	LibSerial::SerialStream serial;
 
-	std::map<const std::string, uint8_t> input_channel_ids;
-	std::map<uint8_t, ChannelDef> output_channels;
+	std::map<const std::string, ChannelID> input_channel_ids;
+	std::map<ChannelID, ChannelDef> output_channels;
 
 	ReadState read_state = FIND_HEADER;
-	uint8_t last_channel_id;
+	ChannelID last_channel_id;
 	uint32_t data_len;
 	byte datalen_buf[sizeof(data_len)];
 	uint32_t data_buf_p = 0;
@@ -60,7 +61,7 @@ public:
 	 * @param channel_id the byte used as a channel identifier
 	 * @param channel_name name of lcm channel
 	 */
-	void add_subscriber(uint8_t channel_id, const std::string& channel_name);
+	void add_subscriber(ChannelID channel_id, const std::string& channel_name);
 
 	/** Add a channel that the bridge reads from serial and publishes
 	 * out across LCM
@@ -68,7 +69,7 @@ public:
 	 * @param channel_name name of lcm channel
 	 */
 	template <typename MessageType>
-	void add_publisher(uint8_t channel_id, const std::string& channel_name);
+	void add_publisher(ChannelID channel_id, const std::string& channel_name);
 
 	/** Read from serial and publish any complete LCM messages
 	 * @param max_bytes maximum number of bytes to process. -1 means "process all"

@@ -1,0 +1,7 @@
+package biped_lcm;
+
+struct log_msg {
+	const int8_t	ERROR=0, WARN=1, INFO=2;
+	int8_t		log_level;
+	string		msg;
+}
