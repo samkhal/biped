@@ -18,6 +18,7 @@ void Joint::setMaxPot(int maxPot_){maxPot = maxPot_;}
 void Joint::setMinTheta(int minTheta_){minTheta = minTheta_;} // in rads values
 void Joint::setMaxTheta(int maxTheta_){maxTheta = maxTheta_;} // in rads values
 void Joint::setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
+void Joint::setSetPoint(int setPoint_){setPoint = setPoint_;}
 void Joint::setLocalJointNum(){localJointNum = ((jointNumber-1)%numOfJoints);}//get number from 0 to 2 instead of 1-12
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 

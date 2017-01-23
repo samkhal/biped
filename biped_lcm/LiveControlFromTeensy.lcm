@@ -1,0 +1,8 @@
+package biped_lcm;
+
+struct LiveControlFromTeensy
+{
+	int32_t joint;
+	int32_t current;
+	int32_t angle;
+}

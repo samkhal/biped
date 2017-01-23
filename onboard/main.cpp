@@ -3,6 +3,8 @@
 #include "slave_bridge.hpp" //LCM slave file
 #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
+#include "biped_lcm/LiveControl2Teensy.hpp" //header file for live messages
+#include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
 #include "common/serial_channels.hpp"
@@ -34,6 +36,9 @@ enum STATES{
 int state = STATES::WAIT;
 int currJoint = 0;
 volatile unsigned long int timer = 0;
+volatile boolean PIDflag = true; //flag based on timer for PID control
+unsigned long int watchdog_timer; //for live control
+unsigned int WDT_allowTime = 5; //in ms
 
 //Stops motors, used also as emergency stop
 void stopMotors(){
@@ -43,9 +48,23 @@ void stopMotors(){
   }
 }
 
+//checks communication
+void checkWDT(){
+  if ((state == RUN_TRAJECTORY) && (timer - watchdog_timer > WDT_allowTime)){
+    stopMotors();
+    logerror << "WATCHDOG TIMER ERROR" << std::flush;
+    state = WAIT;
+  }
+}
+
+void updateWDT(){
+  watchdog_timer = timer;
+}
+
 //Timer interrupt callback does nothing for now
 void timerCallback() {
   timer++;
+  PIDflag = true;
 }
 
 //=============================State Assignment functions=================================
@@ -81,7 +100,10 @@ void Static_Control_State(){
     state = STATES::WAIT;
   }
   else{
-    joints[currJoint].PIDcontrol();
+    if (PIDflag){
+      joints[currJoint].PIDcontrol();
+      PIDflag = false;
+    }
   }
 }
 
@@ -93,8 +115,26 @@ void Static_Control_All_State(){
     state = STATES::WAIT;
   }
   else{
-    for (int i=0; i<numOfJoints; i++){
-      joints[i].PIDcontrol();
+    if (PIDflag){
+      for (int i=0; i<numOfJoints; i++){
+        joints[i].PIDcontrol();
+      }
+      PIDflag = false;
+    }
+  }
+}
+
+void Run_Trajectory_State(){
+  bool OutOfRange = joints[currJoint].checkOOR();
+  if (OutOfRange) {
+    stopMotors();
+    logerror << "OUT OF RANGE" << std::flush;
+    state = STATES::WAIT;
+  }
+  else{
+    if (PIDflag){
+      joints[currJoint].PIDcontrol();
+      PIDflag = false;
     }
   }
 }
@@ -165,6 +205,12 @@ void stateAssignment(int command){
       break;
 
     case commData2Teensy::RUN_TRAJECTORY:
+      if (checkIfWaitState()){
+        joints[currJoint].setSetPointFromPot(); //just in the beginning
+        joints[currJoint].setEnable(HIGH);
+        state = commData2Teensy::RUN_TRAJECTORY;
+        updateWDT();
+      }
       break;
 
     case commData2Teensy::RUN_ALL_TRAJECTORIES:
@@ -185,6 +231,13 @@ void callback(ChannelID id, commData2Teensy* msg_IN){
   stateAssignment(command);
 }
 
+void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
+  //send position and current, then PID control
+  watchdog_timer = timer;
+  int torque = msg_IN->torque;
+  int angle = msg_IN->angle;
+  joints[msg_IN->joint].setSetPoint(angle); //get 0, 1 or 2 for joint from msgIN
+}
 
 //============================ MAIN LOOP ================================
 
@@ -210,11 +263,14 @@ void setup() {
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
   lcm.subscribe(ChannelID::CMD_IN, &callback);
+  lcm.subscribe(ChannelID::LIVE_IN, &LiveCallback); // 3 is incoming for live, 4 is out
 }
 
 // Main loop
 void loop() {
   lcm.handle();
+  checkWDT();
+  //==========================STATE_MACHINE=======================================
   switch (state) {
 
     case STATES::CALIBRATION:
@@ -230,7 +286,8 @@ void loop() {
       break;
 
     case STATES::RUN_TRAJECTORY :
-    break;
+      Run_Trajectory_State();
+      break;
 
     case STATES::RUN_ALL_TRAJECTORIES :
     break;
