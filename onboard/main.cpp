@@ -3,6 +3,8 @@
 #include "slave_bridge.hpp" //LCM slave file
 #include "biped_lcm/commData2Teensy.hpp" // header file for data from dispatcher to teensy
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
+#include "biped_lcm/LiveControl2Teensy.hpp" //header file for live messages
+#include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
 #include "common/serial_channels.hpp"
@@ -32,8 +34,11 @@ enum STATES{
   WAIT
 };
 int state = STATES::WAIT;
-int currLocalJoint = 0;
+int currJoint = 0;
 volatile unsigned long int timer = 0;
+volatile boolean PIDflag = true; //flag based on timer for PID control
+unsigned long int watchdog_timer; //for live control
+unsigned int WDT_allowTime = 5; //in ms
 
 //Stops motors, used also as emergency stop
 void stopMotors(){
@@ -43,14 +48,23 @@ void stopMotors(){
   }
 }
 
-//Convert from Joint number 1-12 to 0-2 for local uses
-int convertToLocalJointNumber(int num){
-  return ((num-1)%numOfJoints);
+//checks communication
+void checkWDT(){
+  if ((state == RUN_TRAJECTORY) && (timer - watchdog_timer > WDT_allowTime)){
+    stopMotors();
+    logerror << "WATCHDOG TIMER ERROR" << std::flush;
+    state = WAIT;
+  }
+}
+
+void updateWDT(){
+  watchdog_timer = timer;
 }
 
 //Timer interrupt callback does nothing for now
 void timerCallback() {
   timer++;
+  PIDflag = true;
 }
 
 //=============================State Assignment functions=================================
@@ -59,26 +73,37 @@ void ID_Request(){
   for (int i = 0; i<numOfJoints; i++){
     msgOut.joints[i] = (uint8_t) joints[i].getJointNumber();
   }
-  lcm.publish(ChannelID::STATE, &msgOut);
+  lcm.publish(ChannelID::CMD_RESPONSE, &msgOut);
+}
+
+boolean checkIfWaitState(){
+  if (state != STATES::WAIT){
+    logerror << "inappropriate command" << std::flush;
+    return false;
+  }
+  return true;
 }
 
 // //==============================State Machine functions===================================
 void Calibration_State(){
-  if (joints[currLocalJoint].CalibrationCheck() == false) {
+  if (joints[currJoint].CalibrationCheck() == false) {
     logerror << "potentiometer hardware out of range" << std::flush;
     state = STATES::WAIT;
   }
 }
 
 void Static_Control_State(){
-  bool OutOfRange = joints[currLocalJoint].checkOOR();
+  bool OutOfRange = joints[currJoint].checkOOR();
   if (OutOfRange) {
     stopMotors();
     logerror << "out of range" << std::flush;
     state = STATES::WAIT;
   }
   else{
-    joints[currLocalJoint].PIDcontrol();
+    if (PIDflag){
+      joints[currJoint].PIDcontrol();
+      PIDflag = false;
+    }
   }
 }
 
@@ -90,8 +115,26 @@ void Static_Control_All_State(){
     state = STATES::WAIT;
   }
   else{
-    for (int i=0; i<numOfJoints; i++){
-      joints[i].PIDcontrol();
+    if (PIDflag){
+      for (int i=0; i<numOfJoints; i++){
+        joints[i].PIDcontrol();
+      }
+      PIDflag = false;
+    }
+  }
+}
+
+void Run_Trajectory_State(){
+  bool OutOfRange = joints[currJoint].checkOOR();
+  if (OutOfRange) {
+    stopMotors();
+    logerror << "OUT OF RANGE" << std::flush;
+    state = STATES::WAIT;
+  }
+  else{
+    if (PIDflag){
+      joints[currJoint].PIDcontrol();
+      PIDflag = false;
     }
   }
 }
@@ -102,34 +145,28 @@ void stateAssignment(int command){
   switch (command) {
 
     case commData2Teensy::ID_REQUEST:
-      if (state == STATES::WAIT){
+      if (checkIfWaitState()){
         ID_Request();
-      }
-      else{
-        logerror << "inappropriate command" << std::flush;
       }
       break;
 
     case commData2Teensy::START_CALIBRATION:
-      if (state == STATES::WAIT){
-        uint16_t val = (uint16_t)joints[currLocalJoint].readPotentiometer();
-        joints[currLocalJoint].setMinPot(val);
-        joints[currLocalJoint].setMaxPot(val);
-        joints[currLocalJoint].setZeroPot(val);
+      if (checkIfWaitState()){
+        uint16_t val = (uint16_t)joints[currJoint].readPotentiometer();
+        joints[currJoint].setMinPot(val);
+        joints[currJoint].setMaxPot(val);
+        joints[currJoint].setZeroPot(val);
         state = STATES::CALIBRATION;
-      }
-      else{
-        logerror << "inappropriate command" << std::flush;
       }
       break;
 
     case commData2Teensy::STOP_CALIBRATION:
       if (state == STATES::CALIBRATION){
         commDataFromTeensy msg_Out;
-        msg_Out.minPot = joints[currLocalJoint].getMinPot();
-        msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
-        joints[currLocalJoint].writeROM_potRange();
-        lcm.publish(ChannelID::STATE, &msg_Out);
+        msg_Out.minPot = joints[currJoint].getMinPot();
+        msg_Out.maxPot = joints[currJoint].getMaxPot();
+        joints[currJoint].writeROM_potRange();
+        lcm.publish(ChannelID::CMD_RESPONSE, &msg_Out);
         state = STATES::WAIT;
       }
       else{
@@ -138,14 +175,11 @@ void stateAssignment(int command){
       break;
 
     case commData2Teensy::GET_CALIBRATION:
-      if (state == STATES::WAIT){
+      if (checkIfWaitState()){
         commDataFromTeensy msg_Out;
-        msg_Out.minPot = joints[currLocalJoint].getMinPot();
-        msg_Out.maxPot = joints[currLocalJoint].getMaxPot();
-        lcm.publish(ChannelID::STATE, &msg_Out);
-      }
-      else{
-        logerror << "inappropriate command" << std::flush;
+        msg_Out.minPot = joints[currJoint].getMinPot();
+        msg_Out.maxPot = joints[currJoint].getMaxPot();
+        lcm.publish(ChannelID::CMD_RESPONSE, &msg_Out);
       }
       break;
 
@@ -153,30 +187,30 @@ void stateAssignment(int command){
       break;
 
     case commData2Teensy::RUN_STATIC_CONTROL:
-      if (state == STATES::WAIT){
-        joints[currLocalJoint].setSetPointFromPot();
-        joints[currLocalJoint].setEnable(HIGH);
+      if (checkIfWaitState()){
+        joints[currJoint].setSetPointFromPot();
+        joints[currJoint].setEnable(HIGH);
         state = commData2Teensy::RUN_STATIC_CONTROL;
-      }
-      else{
-        logerror << "inappropriate command" << std::flush;
       }
       break;
 
     case commData2Teensy::RUN_STATIC_ALL:
-      if (state == STATES::WAIT){
+      if (checkIfWaitState()){
         for (int i=0; i<3; i++){
           joints[i].setSetPointFromPot();
           joints[i].setEnable(HIGH);
         }
         state = commData2Teensy::RUN_STATIC_ALL;
       }
-      else{
-        logerror << "inappropriate command" << std::flush;
-      }
       break;
 
     case commData2Teensy::RUN_TRAJECTORY:
+      if (checkIfWaitState()){
+        joints[currJoint].setSetPointFromPot(); //just in the beginning
+        joints[currJoint].setEnable(HIGH);
+        state = commData2Teensy::RUN_TRAJECTORY;
+        updateWDT();
+      }
       break;
 
     case commData2Teensy::RUN_ALL_TRAJECTORIES:
@@ -193,11 +227,17 @@ void stateAssignment(int command){
 //============================CALLBACK====================================
 void callback(ChannelID id, commData2Teensy* msg_IN){
   int command = msg_IN->command;
-  int currJoint = msg_IN->joint;
-  currLocalJoint = convertToLocalJointNumber(currJoint);
+  currJoint = msg_IN->joint;
   stateAssignment(command);
 }
 
+void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
+  //send position and current, then PID control
+  watchdog_timer = timer;
+  int torque = msg_IN->torque;
+  int angle = msg_IN->angle;
+  joints[msg_IN->joint].setSetPoint(angle); //get 0, 1 or 2 for joint from msgIN
+}
 
 //============================ MAIN LOOP ================================
 
@@ -207,10 +247,10 @@ void setup() {
   ROM_allocate(numOfJoints, jointMem);
   for (int i=0; i<numOfJoints; i++){
     // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
-    uint8_t index;
-    EEPROM.get(jointMem[i].jointAddr,index);
-    joints.push_back(JointTable[index-1]);
-    joints[i].setSetPointFromPot();
+    uint8_t index; // this index number is from 1 to 12, representing the total joints
+    EEPROM.get(jointMem[i].jointAddr,index); // get the joint number from 1 to 12 based on the jointMem vector (0-2)
+    joints.push_back(JointTable[index-1]); // take the proper joint from jointTable array (0-11)
+    joints[i].setSetPointFromPot(); // local joint number is from 0 to 2.
     joints[i].setMemoryAddr(jointMem[i]);
     pinMode(joints[i].getMotorPin(), OUTPUT);
     pinMode(joints[i].getEnablePin(), OUTPUT);
@@ -222,12 +262,15 @@ void setup() {
   }
   Timer3.initialize(1000); //1 ms
   Timer3.attachInterrupt(timerCallback);
-  lcm.subscribe(ChannelID::CMD_MODE, &callback);
+  lcm.subscribe(ChannelID::CMD_IN, &callback);
+  lcm.subscribe(ChannelID::LIVE_IN, &LiveCallback); // 3 is incoming for live, 4 is out
 }
 
 // Main loop
 void loop() {
   lcm.handle();
+  checkWDT();
+  //==========================STATE_MACHINE=======================================
   switch (state) {
 
     case STATES::CALIBRATION:
@@ -243,7 +286,8 @@ void loop() {
       break;
 
     case STATES::RUN_TRAJECTORY :
-    break;
+      Run_Trajectory_State();
+      break;
 
     case STATES::RUN_ALL_TRAJECTORIES :
     break;

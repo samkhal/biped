@@ -24,6 +24,7 @@ class Joint {
     void setMinTheta(int minTheta_); // in rads values
     void setMaxTheta(int maxTheta_); // in rads values
     void setZeroPot(int zeroPot_);
+    void setSetPoint(int setPoint_);
     void setLocalJointNum();//get number from 0 to 2 instead of 1-12
     void setMemoryAddr(JointROM memoryAddr_);
 
