@@ -13,16 +13,16 @@ typedef ChannelID CID;
 
 int main(){
 	std::string port = "/dev/ttyACM0";
-	std::string prefix = "UL_";
+	std::string prefix = "";
 	LCMSerialBridge bridge(port);
 	std::cout << "Opened port " << port << std::endl;
 
-	bridge.add_subscriber(CID::CMD_IN, prefix+"");
-	bridge.add_subscriber(CID::LIVE_IN, prefix+"");
+	bridge.add_subscriber(CID::CMD_IN, prefix+"cmd_in");
+	bridge.add_subscriber(CID::LIVE_IN, prefix+"live_in");
 
 	bridge.add_publisher<biped_lcm::log_msg>(CID::LOG_MSG, prefix+"log_msg");
-	bridge.add_publisher<biped_lcm::commDataFromTeensy>(CID::CMD_RESPONSE, prefix+"");
-	bridge.add_publisher<biped_lcm::LiveControlFromTeensy>(CID::LIVE_OUT, prefix+"");
+	bridge.add_publisher<biped_lcm::commDataFromTeensy>(CID::CMD_RESPONSE, prefix+"cmd_response");
+	bridge.add_publisher<biped_lcm::LiveControlFromTeensy>(CID::LIVE_OUT, prefix+"live_out");
 
 	while(1){
 		bridge.handle(1);
