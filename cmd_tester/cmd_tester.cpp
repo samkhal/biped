@@ -6,9 +6,13 @@
 #include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
 #include "common/serial_channels.hpp"
 #include "biped_lcm/log_msg.hpp"
+#include "biped_lcm/heartBeat.hpp"
+#include "biped_lcm/heartBeatResponse.hpp"
 #include <iostream>
 
 using namespace biped_lcm;
+
+bool heartBeatFlag = false;
 
 void logMsgListener(const lcm::ReceiveBuffer* rbuf,
 					const std::string& channel,
@@ -28,6 +32,14 @@ void cmdResponseListener(const lcm::ReceiveBuffer* rbuf,
 	std::cout << "Received command: " << msg->maxPot << std::endl;
 }
 
+void heartBeatListener(const lcm::ReceiveBuffer* rbuf,
+					const std::string& channel,
+					const heartBeat* msg,
+					void* context){
+	heartBeatFlag = true;
+	std::cout << "Received beat" << std::endl;
+}
+
 int main(){
 	lcm::LCM lcm;
 	if(!lcm.good())
@@ -35,12 +47,20 @@ int main(){
 
 	lcm.subscribeFunction("cmd_response", &cmdResponseListener, (void*)nullptr);
 	lcm.subscribeFunction("log_msg", &logMsgListener, (void*)nullptr);
+	lcm.subscribeFunction("heartbeat", &heartBeatListener, (void*)nullptr);
 
 	while(lcm.good()){
 		commData2Teensy msg;
 		std::cin >> msg.command;
 		std::cout << "Publishing command " << msg.command << std::endl;
 		lcm.publish("cmd_in", &msg);
+		lcm.handle();
+		if (heartBeatFlag){
+			heartBeatResponse msgOut;
+		  msgOut.beat = true;
+			lcm.publish("heartbeatresponse", &msgOut);
+			heartBeatFlag = false;
+		}
 	}
 	return 0;
 }
