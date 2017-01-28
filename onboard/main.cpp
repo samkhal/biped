@@ -41,10 +41,9 @@ volatile unsigned long int timer = 0;
 volatile boolean PIDflag = true; //flag based on timer for PID control
 volatile boolean heartBeatReadyFlag = true;
 volatile unsigned int timerCounter = 0;
-unsigned long int watchdog_timer; //for live control
 boolean commandsInitialized = false;
 boolean HEARTBEATNOTRECEIVED = false;
-unsigned int WDT_allowTime = 100; //in ms
+unsigned int WDT_allowTime = 50; //in ms, min is 4
 
 
 //Stops motors, used also as emergency stop
@@ -77,7 +76,6 @@ void heartBeatHandling(){
     msgOut.beat = true;
     lcm.publish(ChannelID::HEARTBEAT, &msgOut);
     heartBeatReadyFlag = false;
-    loginfo << "WATCHDOG TIMER INFO" << std::flush;
     HEARTBEATNOTRECEIVED = true;
   }
 }
@@ -227,6 +225,7 @@ void stateAssignment(int command){
       if (checkIfWaitState()){
         joints[currJoint].setSetPointFromPot(); //just in the beginning
         joints[currJoint].setEnable(HIGH);
+        loginfo << "run trajectory" << std::flush;
         state = commData2Teensy::RUN_TRAJECTORY;
       }
       break;
@@ -252,10 +251,14 @@ void callback(ChannelID id, commData2Teensy* msg_IN){
 
 void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
   //send position and current, then PID control
-  watchdog_timer = timer;
   int torque = msg_IN->torque;
   int angle = msg_IN->angle;
   joints[msg_IN->joint].setSetPoint(angle); //get 0, 1 or 2 for joint from msgIN
+  LiveControlFromTeensy msgOut;
+  msgOut.joint = msg_IN->joint;
+  msgOut.current = timer; // just to check the timer values at every callback
+  msgOut.angle = angle;
+  lcm.publish(ChannelID::LIVE_OUT, &msgOut);
 }
 
 void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){

@@ -13,6 +13,7 @@
 using namespace biped_lcm;
 
 bool heartBeatFlag = false;
+unsigned int counter;
 
 void logMsgListener(const lcm::ReceiveBuffer* rbuf,
 					const std::string& channel,
@@ -32,6 +33,16 @@ void cmdResponseListener(const lcm::ReceiveBuffer* rbuf,
 	std::cout << "Received command: " << msg->maxPot << std::endl;
 }
 
+void liveControlListener(const lcm::ReceiveBuffer* rbuf,
+					const std::string& channel,
+					const LiveControlFromTeensy* msg,
+					void* context){
+	// std::cout << "Joint: " << msg->joint << std::endl;
+	std::cout << "Current: " << msg->current << std::endl; //Just printing timer for test
+	// std::cout << "Angle: " << msg->angle << std::endl;
+}
+
+
 void heartBeatListener(const lcm::ReceiveBuffer* rbuf,
 					const std::string& channel,
 					const heartBeat* msg,
@@ -48,12 +59,13 @@ int main(){
 	lcm.subscribeFunction("cmd_response", &cmdResponseListener, (void*)nullptr);
 	lcm.subscribeFunction("log_msg", &logMsgListener, (void*)nullptr);
 	lcm.subscribeFunction("heartbeat", &heartBeatListener, (void*)nullptr);
+	lcm.subscribeFunction("live_out", &liveControlListener, (void*)nullptr);
 
+	commData2Teensy msg;
+	std::cin >> msg.command;
+	std::cout << "Publishing command " << msg.command << std::endl;
+	lcm.publish("cmd_in", &msg);
 	while(lcm.good()){
-		commData2Teensy msg;
-		std::cin >> msg.command;
-		std::cout << "Publishing command " << msg.command << std::endl;
-		lcm.publish("cmd_in", &msg);
 		lcm.handle();
 		if (heartBeatFlag){
 			heartBeatResponse msgOut;
@@ -61,6 +73,11 @@ int main(){
 			lcm.publish("heartbeatresponse", &msgOut);
 			heartBeatFlag = false;
 		}
+		LiveControl2Teensy msgOut;
+	  msgOut.joint = 0;
+		msgOut.torque = 30; //random values
+		msgOut.angle = 50;
+		lcm.publish("live_in", &msgOut);
 	}
 	return 0;
 }
