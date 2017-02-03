@@ -62,7 +62,7 @@ class Joint {
     bool CalibrationCheck();
 
     //safety-critical code
-    Safety safety;
+    Safety* safety;
 
   private:
     const int jointNumber;

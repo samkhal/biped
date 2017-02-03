@@ -57,7 +57,7 @@ void Joint::writeROM_orientation(){
 
 //Other methods
 int Joint::readPotentiometer(){return analogRead(potPin);}
-void Joint::motorPWM(int drive){analogWrite(motorPin, safety.check(drive));}
+void Joint::motorPWM(int drive){analogWrite(motorPin, safety->check(drive));}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
 

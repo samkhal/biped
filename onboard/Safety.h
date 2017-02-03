@@ -5,7 +5,7 @@
 
 extern const int zeroTorque;
 extern Logger logwarn;
-extern class Joint;
+class Joint;
 
 class Safety{
   public:
@@ -13,7 +13,7 @@ class Safety{
     int check(int drive);
 
   private:
-    Joint joint;
+    Joint* joint;
     int maxPot;
     int minPot;
 };
