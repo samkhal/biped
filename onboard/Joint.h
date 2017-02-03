@@ -60,6 +60,9 @@ class Joint {
     //Writes the the maximum and minimum pot values, checks for physical OutOfRange
     bool CalibrationCheck();
 
+    //safety-critical code
+    Safety safety;
+
   private:
     const int jointNumber;
     const int potPin;

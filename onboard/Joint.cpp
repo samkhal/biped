@@ -10,7 +10,8 @@ Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float
   kP(kP_),
   kI(kI_),
   kD(kD_),
-  direction(direction_) {}
+  direction(direction_),
+  safety(this) {}
 
 //Setters
 void Joint::setMinPot(int minPot_){minPot = minPot_;}
@@ -56,7 +57,7 @@ void Joint::writeROM_orientation(){
 
 //Other methods
 int Joint::readPotentiometer(){return analogRead(potPin);}
-void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
+void Joint::motorPWM(int drive){analogWrite(motorPin, safety.check(drive));}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
 
