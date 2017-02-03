@@ -1,10 +1,9 @@
 #ifndef SAFETY_H_
 #define SAFETY_H_
-#include "log_util.hpp"
 #include "Joint.h"
 
 extern const int zeroTorque;
-extern Logger logwarn;
+//extern Logger logwarn;
 
 class Safety{
   public:

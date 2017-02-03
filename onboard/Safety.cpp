@@ -14,7 +14,7 @@ int Safety::check(int drive){
     return drive;
   }
   else{
-    logwarn << "Joint " << joint->getJointNumber() << " reached limit.\n";
+    //logwarn << "Joint " << joint->getJointNumber() << " reached limit.\n";
     return zeroTorque;
   }
 }
