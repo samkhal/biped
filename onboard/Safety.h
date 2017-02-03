@@ -4,7 +4,7 @@
 #include "biped_lcm/log_msg.hpp"
 #include "log_util.hpp"
 
-extern int zeroTorque;
+extern const int zeroTorque;
 extern Logger logwarn;
 
 class Safety{

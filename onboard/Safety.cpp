@@ -7,7 +7,7 @@ Safety::Safety(Joint joint_) : joint(joint_) {
   //compare to hard coded table?
 }
 
-Safety::check(int drive){
+int Safety::check(int drive){
   int current = joint.readPotentiometer();
   if(current < maxPot && current > minPot){
     return drive;
