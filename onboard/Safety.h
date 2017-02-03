@@ -1,11 +1,10 @@
 #ifndef SAFETY_H_
 #define SAFETY_H_
-#include "biped_lcm/log_msg.hpp"
 #include "log_util.hpp"
+#include "Joint.h"
 
 extern const int zeroTorque;
 extern Logger logwarn;
-class Joint;
 
 class Safety{
   public:

@@ -2,8 +2,8 @@
 #define JOINT_H_
 #include <EEPROM.h> //ROM memory library
 #include "ROM_DATA.h" // array to data addresses and enum
-#include "Safety.h"
 
+class Safety;
 const int zeroTorque = 127; //PWM value for zero torque
 const int torqueOffset = 102; //max offset from zero torque
 const int minPWM = zeroTorque-torqueOffset; //27
@@ -88,5 +88,5 @@ class Joint {
     JointROM memoryAddr;
 };
 
-
+#include "Safety.h"
 #endif
