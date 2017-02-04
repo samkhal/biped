@@ -3,6 +3,6 @@
 #define SERIAL_CHANNELS_HPP_
 
 // IDs for serial channels
-enum class ChannelID : uint8_t {CMD_IN, CMD_RESPONSE, LOG_MSG, LIVE_IN, LIVE_OUT};
+enum class ChannelID : uint8_t {CMD_IN, CMD_RESPONSE, LOG_MSG, LIVE_IN, LIVE_OUT, HEARTBEAT, HEARTBEATRESPONSE};
 
 #endif

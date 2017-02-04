@@ -7,7 +7,7 @@ checkDependency('gurobi');
 checkDependency('lcmgl');
 
 % Fmincon throws various errors, use snopt if possible
-checkDependency('snopt');
+%checkDependency('snopt');
 
 if nargin < 2; walking_options = struct(); end;
 

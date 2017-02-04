@@ -10,7 +10,8 @@ Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float
   kP(kP_),
   kI(kI_),
   kD(kD_),
-  direction(direction_) {}
+  direction(direction_),
+  safety(this) {}
 
 //Setters
 void Joint::setMinPot(int minPot_){minPot = minPot_;}
@@ -18,6 +19,7 @@ void Joint::setMaxPot(int maxPot_){maxPot = maxPot_;}
 void Joint::setMinTheta(int minTheta_){minTheta = minTheta_;} // in rads values
 void Joint::setMaxTheta(int maxTheta_){maxTheta = maxTheta_;} // in rads values
 void Joint::setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
+void Joint::setSetPoint(int setPoint_){setPoint = setPoint_;}
 void Joint::setLocalJointNum(){localJointNum = ((jointNumber-1)%numOfJoints);}//get number from 0 to 2 instead of 1-12
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 
@@ -55,7 +57,7 @@ void Joint::writeROM_orientation(){
 
 //Other methods
 int Joint::readPotentiometer(){return analogRead(potPin);}
-void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
+void Joint::motorPWM(int drive){analogWrite(motorPin, safety.check(drive));}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
 

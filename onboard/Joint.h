@@ -2,6 +2,7 @@
 #define JOINT_H_
 #include <EEPROM.h> //ROM memory library
 #include "ROM_DATA.h" // array to data addresses and enum
+#include "Safety.h"
 
 const int zeroTorque = 127; //PWM value for zero torque
 const int torqueOffset = 102; //max offset from zero torque
@@ -24,6 +25,7 @@ class Joint {
     void setMinTheta(int minTheta_); // in rads values
     void setMaxTheta(int maxTheta_); // in rads values
     void setZeroPot(int zeroPot_);
+    void setSetPoint(int setPoint_);
     void setLocalJointNum();//get number from 0 to 2 instead of 1-12
     void setMemoryAddr(JointROM memoryAddr_);
 
@@ -58,6 +60,9 @@ class Joint {
     bool checkOOR();
     //Writes the the maximum and minimum pot values, checks for physical OutOfRange
     bool CalibrationCheck();
+
+    //safety-critical code
+    Safety safety;
 
   private:
     const int jointNumber;
