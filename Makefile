@@ -1,5 +1,6 @@
 # List all independent nodes, separated with escaped newlines
 NODES = \
+safety_check \
 serial_bridge \
 cmd_tester \
 log_listener
@@ -58,7 +59,7 @@ default: all
 $(LCM_B_DIR)/$(LCM_PACKAGE_NAME)/%.hpp: $(LCM_TYPES_DIR)/%.lcm
 	lcm-gen --cpp --cpp-std=c++11 --cpp-hpath=$(LCM_B_DIR) $^
 
-# Build LCM Java: 
+# Build LCM Java:
 # Build .java and .class files
 $(LCM_JAVA_DIR)/%.class: $(LCM_TYPES_DIR)/%.lcm
 	lcm-gen -j --jpath $(LCM_B_DIR) $<
@@ -69,7 +70,7 @@ $(LCM_B_DIR)/$(LCM_TARGET_JAR): $(addprefix $(LCM_B_DIR)/,$(LCM_JAR_DEPS))
 	cd $(LCM_B_DIR) && jar cf $(LCM_TARGET_JAR) $(LCM_JAR_DEPS)
 
 #Build onboard
-onboard: $(LCM_HEADERS) 
+onboard: $(LCM_HEADERS)
 	@echo "$(CCGREEN)Building $@ $(CCRESET)"
 	# set makelevel to not suppress config output
 	export MAKELEVEL=0;\
@@ -100,5 +101,3 @@ upload: lcm-cpp lcm-java upload_original nodes
 
 clean:
 	rm -rf $(BUILD_DIR)
-
-

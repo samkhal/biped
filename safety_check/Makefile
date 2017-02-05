@@ -1,9 +1,9 @@
 # NEEDED VARS: BDIR_ABS, LCM_BDIR_ABS, TARGET
 
-LIBS= -lserial
+LIBS= -lserial 
 
 #optional vars for include, src:
-#IDIR=
+#IDIR=  
 #SDIR=
 
 include ../Common.mk
