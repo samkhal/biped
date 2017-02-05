@@ -43,12 +43,6 @@ int main(){
 	if(!lcm.good())
 		return 1;
 
-	while(lcm.good()){
-		commData2Teensy msg;
-		std::cin >> msg.command;
-		std::cout << "Publishing command " << msg.command << std::endl;
-		lcm.publish("UL_cmd_mode", &msg);
-
 	lcm.subscribeFunction("cmd_response", &cmdResponseListener, (void*)nullptr);
 	lcm.subscribeFunction("log_msg", &logMsgListener, (void*)nullptr);
 	lcm.subscribeFunction("live_out", &liveControlListener, (void*)nullptr);

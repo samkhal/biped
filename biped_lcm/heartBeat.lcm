@@ -1,0 +1,6 @@
+package biped_lcm;
+
+struct heartBeat
+{
+	boolean beat;
+}
