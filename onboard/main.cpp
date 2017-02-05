@@ -5,6 +5,8 @@
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
 #include "biped_lcm/LiveControl2Teensy.hpp" //header file for live messages
 #include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
+#include "biped_lcm/heartBeat.hpp"
+#include "biped_lcm/heartBeatResponse.hpp"
 #include "Joint.h" // struct that stores joint data
 #include "JointTable.h"
 #include "common/serial_channels.hpp"
@@ -37,7 +39,12 @@ int state = STATES::WAIT;
 int currJoint = 0;
 volatile unsigned long int timer = 0;
 volatile boolean PIDflag = true; //flag based on timer for PID control
+volatile boolean heartBeatReadyFlag = true;
 volatile unsigned int timerCounter = 0;
+boolean commandsInitialized = false;
+boolean HEARTBEATNOTRECEIVED = false;
+unsigned int WDT_allowTime = 50; //in ms, min is 4
+
 
 //Stops motors, used also as emergency stop
 void stopMotors(){
@@ -50,7 +57,27 @@ void stopMotors(){
 //Timer interrupt callback does nothing for now
 void timerCallback() {
   timer++;
+  timerCounter++;
   PIDflag = true;
+  if (timerCounter>=WDT_allowTime){
+    heartBeatReadyFlag = true;
+    timerCounter=0;
+  }
+}
+
+void heartBeatHandling(){
+  if (HEARTBEATNOTRECEIVED){
+    stopMotors();
+    logerror << "WATCHDOG TIMER ERROR" << std::flush;
+    state = WAIT;
+  }
+  else{
+    heartBeat msgOut;
+    msgOut.beat = true;
+    lcm.publish(ChannelID::HEARTBEAT, &msgOut);
+    heartBeatReadyFlag = false;
+    HEARTBEATNOTRECEIVED = true;
+  }
 }
 
 //=============================State Assignment functions=================================
@@ -219,6 +246,7 @@ void callback(ChannelID id, commData2Teensy* msg_IN){
   int command = msg_IN->command;
   currJoint = msg_IN->joint;
   stateAssignment(command);
+  commandsInitialized = true;
 }
 
 void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
@@ -231,6 +259,10 @@ void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
   msgOut.current = timer; // just to check the timer values at every callback
   msgOut.angle = angle;
   lcm.publish(ChannelID::LIVE_OUT, &msgOut);
+}
+
+void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){
+  HEARTBEATNOTRECEIVED = false;
 }
 
 //============================ MAIN LOOP ================================
@@ -258,11 +290,16 @@ void setup() {
   Timer3.attachInterrupt(timerCallback);
   lcm.subscribe(ChannelID::CMD_IN, &callback);
   lcm.subscribe(ChannelID::LIVE_IN, &LiveCallback); // 3 is incoming for live, 4 is out
+  lcm.subscribe(ChannelID::HEARTBEATRESPONSE, &HeartbeatCallback);
 }
 
 // Main loop
 void loop() {
   lcm.handle();
+  if (commandsInitialized && heartBeatReadyFlag){
+    heartBeatHandling();
+  } //Check if we got any commands in order to start heartbeat check
+  //==========================STATE_MACHINE=======================================
   switch (state) {
 
     case STATES::CALIBRATION:
@@ -281,9 +318,8 @@ void loop() {
       Run_Trajectory_State();
       break;
 
-
     case STATES::RUN_ALL_TRAJECTORIES :
-    break;
+      break;
 
     case STATES::WAIT :
       break;
