@@ -6,14 +6,10 @@
 #include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
 #include "common/serial_channels.hpp"
 #include "biped_lcm/log_msg.hpp"
-#include "biped_lcm/heartBeat.hpp"
-#include "biped_lcm/heartBeatResponse.hpp"
 #include <iostream>
 
 using namespace biped_lcm;
 
-bool heartBeatFlag = false;
-unsigned int counter;
 
 void logMsgListener(const lcm::ReceiveBuffer* rbuf,
 					const std::string& channel,
@@ -42,23 +38,14 @@ void liveControlListener(const lcm::ReceiveBuffer* rbuf,
 	// std::cout << "Angle: " << msg->angle << std::endl;
 }
 
-
-void heartBeatListener(const lcm::ReceiveBuffer* rbuf,
-					const std::string& channel,
-					const heartBeat* msg,
-					void* context){
-	heartBeatFlag = true;
-	std::cout << "Received beat" << std::endl;
-}
-
 int main(){
+
 	lcm::LCM lcm;
 	if(!lcm.good())
 		return 1;
 
 	lcm.subscribeFunction("cmd_response", &cmdResponseListener, (void*)nullptr);
 	lcm.subscribeFunction("log_msg", &logMsgListener, (void*)nullptr);
-	lcm.subscribeFunction("heartbeat", &heartBeatListener, (void*)nullptr);
 	lcm.subscribeFunction("live_out", &liveControlListener, (void*)nullptr);
 
 	commData2Teensy msg;
@@ -67,17 +54,10 @@ int main(){
 	lcm.publish("cmd_in", &msg);
 	while(lcm.good()){
 		lcm.handle();
-		if (heartBeatFlag){
-			heartBeatResponse msgOut;
-		  msgOut.beat = true;
-			lcm.publish("heartbeatresponse", &msgOut);
-			heartBeatFlag = false;
-		}
-		LiveControl2Teensy msgOut;
-	  msgOut.joint = 0;
-		msgOut.torque = 30; //random values
-		msgOut.angle = 50;
-		lcm.publish("live_in", &msgOut);
+		commData2Teensy msg;
+		std::cin >> msg.command;
+		std::cout << "Publishing command " << msg.command << std::endl;
+		lcm.publish("cmd_in", &msg);
 	}
 	return 0;
 }
