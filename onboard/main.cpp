@@ -40,9 +40,9 @@ int currJoint = 0;
 volatile unsigned long int timer = 0;
 volatile boolean PIDflag = true; //flag based on timer for PID control
 volatile boolean heartBeatReadyFlag = true;
-volatile unsigned int timerCounter = 0;
+volatile unsigned int timerHeartBeatCounter = 0;
 boolean commandsInitialized = false;
-boolean HEARTBEATNOTRECEIVED = false;
+boolean heartBeatNotReceived = false;
 unsigned int WDT_allowTime = 50; //in ms, min is 4
 
 
@@ -57,16 +57,16 @@ void stopMotors(){
 //Timer interrupt callback does nothing for now
 void timerCallback() {
   timer++;
-  timerCounter++;
+  timerHeartBeatCounter++;
   PIDflag = true;
-  if (timerCounter>=WDT_allowTime){
+  if (timerHeartBeatCounter>=WDT_allowTime){
     heartBeatReadyFlag = true;
-    timerCounter=0;
+    timerHeartBeatCounter=0;
   }
 }
 
 void heartBeatHandling(){
-  if (HEARTBEATNOTRECEIVED){
+  if (heartBeatNotReceived){
     stopMotors();
     logerror << "WATCHDOG TIMER ERROR" << std::flush;
     state = WAIT;
@@ -76,7 +76,7 @@ void heartBeatHandling(){
     msgOut.beat = true;
     lcm.publish(ChannelID::HEARTBEAT, &msgOut);
     heartBeatReadyFlag = false;
-    HEARTBEATNOTRECEIVED = true;
+    heartBeatNotReceived = true;
   }
 }
 
@@ -262,7 +262,7 @@ void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
 }
 
 void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){
-  HEARTBEATNOTRECEIVED = false;
+  heartBeatNotReceived = false;
 }
 
 //============================ MAIN LOOP ================================
@@ -282,7 +282,6 @@ void setup() {
     pinMode(joints[i].getEnablePin(), OUTPUT);
     joints[i].motorPWM(zeroTorque);
     joints[i].setEnable(LOW);
-    joints[i].setLocalJointNum();
     joints[i].writeROM_orientation();
     joints[i].writeROM_zeroTheta();
   }

@@ -16,7 +16,7 @@ class Joint {
   public:
     //Constructors
     Joint();
-    Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int direction_);
+    Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_);
 
     //Setters
     void setMinPot(int minPot_);
@@ -25,8 +25,8 @@ class Joint {
     void setMaxTheta(int maxTheta_); // in rads values
     void setZeroPot(int zeroPot_);
     void setSetPoint(int setPoint_);
-    void setLocalJointNum();//get number from 0 to 2 instead of 1-12
     void setMemoryAddr(JointROM memoryAddr_);
+    void setDirection();
 
     //Getters
     int getJointNumber();
@@ -37,7 +37,6 @@ class Joint {
     int getMinTheta();
     int getMaxTheta();
     int getZeroPot();
-    int getLocalJointNum();
     JointROM getMemoryAddr();
 
     //Method to read data from ROM
@@ -68,11 +67,10 @@ class Joint {
     const float kP;
     const float kI;
     const float kD;
-    const int direction;
-    int localJointNum;
     const int motorOrientation;
     const int potOrientation;
     const int potCabling;
+    int direction;
     int minPot;
     int maxPot;
     int minTheta; // in rads values
