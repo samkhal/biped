@@ -84,5 +84,4 @@ class Joint {
     JointROM memoryAddr;
 };
 
-
 #endif

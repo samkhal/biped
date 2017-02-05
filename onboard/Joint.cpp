@@ -10,7 +10,7 @@ Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float
   kP(kP_),
   kI(kI_),
   kD(kD_),
-  direction(direction_) {}
+  direction(direction_){}
 
 //Setters
 void Joint::setMinPot(int minPot_){minPot = minPot_;}
