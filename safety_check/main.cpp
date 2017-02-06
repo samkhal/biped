@@ -12,7 +12,7 @@ using namespace biped_lcm;
 bool heartBeatFlag = false;
 bool communicationInitialized = false;
 unsigned int counter = 0;
-const unsigned int maxCount = 60;
+const unsigned int maxCount = 70;
 
 //=========================CALLBACKS=================================
 void heartBeatListener(const lcm::ReceiveBuffer* rbuf,
@@ -20,7 +20,7 @@ void heartBeatListener(const lcm::ReceiveBuffer* rbuf,
 					const heartBeat* msg,
 					void* context){
 	heartBeatFlag = true;
-  std::cout << counter<< std::endl;
+  // std::cout << counter<< std::endl;
 }
 
 void cmdListener(const lcm::ReceiveBuffer* rbuf,

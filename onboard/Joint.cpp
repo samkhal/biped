@@ -61,12 +61,12 @@ void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
 
-void Joint::PIDcontrol() {
+int Joint::PIDcontrol() {
   int Actual = readPotentiometer();
   int Error = setPoint - Actual;
   float P = Error * kP; // calc proportional term
-  // float D = ((joint->lastPID - Actual) * joint->getkD()) / PIDPeriod; // derivative term
-  int Drive = P ;//+ D; // Total drive = P+I+D
+  float D = ((lastPID - Actual) * kD) / PIDPeriod; // derivative term
+  int Drive = P + D; // Total drive = P+I+D
   Drive = (direction * Drive * ScaleFactor + (minPWM + maxPWM) / 2); // scale Drive to have 0 at 127
   if (Drive < minPWM) {
     Drive = minPWM;
@@ -76,6 +76,7 @@ void Joint::PIDcontrol() {
   }
   motorPWM(Drive); // send PWM command to motor board
   lastPID = Actual;
+  return Drive;
 }
 
 bool Joint::checkOOR() {

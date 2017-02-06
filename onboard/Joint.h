@@ -11,6 +11,7 @@ const int ScaleFactor = 1; // in case we need it
 const int OutOfRangeThreshold = 4;
 const int minPotNaturalRange = 10;
 const int maxPotNaturalRange = 1014;
+const int PIDPeriod = 1;//ms
 
 class Joint {
   public:
@@ -53,7 +54,7 @@ class Joint {
     void setEnable(bool state);
     void setSetPointFromPot();
     //PID control, takes a setpoint in pot values, a joint struct pointer and a constjoint struct (of the same joint)
-    void PIDcontrol();
+    int PIDcontrol();
     //Checks if a joint goes very close to the min/max values and it stops it
     bool checkOOR();
     //Writes the the maximum and minimum pot values, checks for physical OutOfRange
