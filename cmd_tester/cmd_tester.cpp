@@ -33,7 +33,7 @@ void liveControlListener(const lcm::ReceiveBuffer* rbuf,
 					const LiveControlFromTeensy* msg,
 					void* context){
 	// std::cout << "Joint: " << msg->joint << std::endl;
-	std::cout << "Current: " << msg->current << std::endl; //Just printing timer for test
+	// std::cout << "Current: " << msg->current << std::endl; //Just printing timer for test
 	// std::cout << "Angle: " << msg->angle << std::endl;
 }
 
@@ -58,8 +58,8 @@ int main(){
 		lcm.handle();
 		LiveControl2Teensy msgOut;
 	  msgOut.joint = 1;
-		msgOut.torque = 30; //random values
-		msgOut.angle = 350;
+		msgOut.torque = 0.303f; //random values
+		msgOut.angle = 0.52f;
 		lcm.publish("live_in", &msgOut);
 	}
 	return 0;

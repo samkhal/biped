@@ -3,6 +3,6 @@ package biped_lcm;
 struct LiveControl2Teensy
 {
 	int32_t joint;
-	int32_t torque;
-	int32_t angle;
+	float torque;
+	float angle;
 }

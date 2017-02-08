@@ -9,15 +9,16 @@ const int minPWM = zeroTorque-torqueOffset; //27
 const int maxPWM = zeroTorque+torqueOffset; //229
 const int ScaleFactor = 1; // in case we need it
 const int OutOfRangeThreshold = 4;
-const int minPotNaturalRange = 10;
-const int maxPotNaturalRange = 1014;
+const int minPotNaturalRange = 15; //+15
+const int maxPotNaturalRange = 4081; //-15
 const int PIDPeriod = 1;//ms
+const float potTicksPerRad = 706.6; // for 12 bit resolution ADC
 
 class Joint {
   public:
     //Constructors
     Joint();
-    Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_);
+    Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_, bool outOfRangeFlag_);
 
     //Setters
     void setMinPot(int minPot_);
@@ -25,7 +26,7 @@ class Joint {
     void setMinTheta(int minTheta_); // in rads values
     void setMaxTheta(int maxTheta_); // in rads values
     void setZeroPot(int zeroPot_);
-    void setSetPoint(int setPoint_);
+    void setSetPoint(float angleSetPoint_);
     void setMemoryAddr(JointROM memoryAddr_);
     void setDirection();
 
@@ -59,6 +60,9 @@ class Joint {
     bool checkOOR();
     //Writes the the maximum and minimum pot values, checks for physical OutOfRange
     bool CalibrationCheck();
+    //Converts angle (rads) to potentiometer ticks
+    int convertRadsToTicks(float rads);
+    float convertTicksToRads(int ticks);
 
   private:
     const int jointNumber;
@@ -71,6 +75,7 @@ class Joint {
     const int motorOrientation;
     const int potOrientation;
     const int potCabling;
+    const bool outOfRangeFlag;// flag to whether we check if this joint is out of range (it can cause problem with knee)
     int direction;
     int minPot;
     int maxPot;
@@ -78,7 +83,8 @@ class Joint {
     int maxTheta; // in rads values
     int zeroPot; // in pot values
     int lastPID;
-    int setPoint;
+    float angleSetPoint;
+    int potSetPoint;
     const int numOfJoints = 3;
     JointROM memoryAddr;
 };

@@ -29,10 +29,8 @@ std::vector<Joint> joints; //vector of joints
 enum STATES{
   CALIBRATION,
   RECEIVE_TRAJECTORY,
-  RUN_STATIC_CONTROL,
-  RUN_STATIC_ALL,
-  RUN_TRAJECTORY,
-  RUN_ALL_TRAJECTORIES,
+  RUN_CONTROL,
+  RUN_CONTROL_ALL,
   WAIT
 };
 int state = STATES::WAIT;
@@ -105,7 +103,7 @@ void Calibration_State(){
   }
 }
 
-void Static_Control_State(){
+void Control_State(){
   bool OutOfRange = joints[currJoint].checkOOR();
   if (OutOfRange) {
     stopMotors();
@@ -120,7 +118,7 @@ void Static_Control_State(){
   }
 }
 
-void Static_Control_All_State(){
+void Control_All_State(){
   bool OutOfRange = joints[0].checkOOR()||joints[1].checkOOR()||joints[2].checkOOR();
   if (OutOfRange) {
     stopMotors();
@@ -132,21 +130,6 @@ void Static_Control_All_State(){
       for (int i=0; i<numOfJoints; i++){
         joints[i].PIDcontrol();
       }
-      PIDflag = false;
-    }
-  }
-}
-
-void Run_Trajectory_State(){
-  bool OutOfRange = joints[currJoint].checkOOR();
-  if (OutOfRange) {
-    stopMotors();
-    logerror << "OUT OF RANGE" << std::flush;
-    state = STATES::WAIT;
-  }
-  else{
-    if (PIDflag){
-      loginfo << joints[currJoint].PIDcontrol() << std::flush;
       PIDflag = false;
     }
   }
@@ -208,7 +191,7 @@ void stateAssignment(int command){
       if (checkIfWaitState()){
         joints[currJoint].setSetPointFromPot();
         joints[currJoint].setEnable(HIGH);
-        state = STATES::RUN_STATIC_CONTROL;
+        state = STATES::RUN_CONTROL;
         loginfo << "Static Control Started" << std::flush;
       }
       break;
@@ -219,7 +202,7 @@ void stateAssignment(int command){
           joints[i].setSetPointFromPot();
           joints[i].setEnable(HIGH);
         }
-        state = STATES::RUN_STATIC_ALL;
+        state = STATES::RUN_CONTROL_ALL;
         loginfo << "Static Control All Started" << std::flush;
       }
       break;
@@ -229,14 +212,15 @@ void stateAssignment(int command){
         // joints[currJoint].setSetPointFromPot(); //just in the beginning
         joints[currJoint].setEnable(HIGH);
         loginfo << "run trajectory" << std::flush;
-        state = STATES::RUN_TRAJECTORY;
+        state = STATES::RUN_CONTROL;
       }
       break;
 
     case commData2Teensy::RUN_ALL_TRAJECTORIES:
       if (checkIfWaitState()){
-        logwarn << "run all trajectories not implemented yet" << std::flush;
-        state = STATES::WAIT;
+        joints[currJoint].setEnable(HIGH);
+        loginfo << "run trajectory" << std::flush;
+        state = STATES::RUN_CONTROL_ALL;
       }
       break;
 
@@ -258,13 +242,13 @@ void callback(ChannelID id, commData2Teensy* msg_IN){
 
 void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
   //send position and current, then PID control
-  int torque = msg_IN->torque;
-  int angle = msg_IN->angle;
+  float torque = msg_IN->torque;
+  float angle = msg_IN->angle;
   joints[msg_IN->joint].setSetPoint(angle); //get 0, 1 or 2 for joint from msgIN
   LiveControlFromTeensy msgOut;
   msgOut.joint = msg_IN->joint;
-  msgOut.current = timer; // just to check the timer values at every callback
-  msgOut.angle = angle;
+  msgOut.current = torque; //this should return data from the joint
+  msgOut.angle = angle; //this should return data from the joint
   lcm.publish(ChannelID::LIVE_OUT, &msgOut);
 }
 
@@ -278,6 +262,7 @@ void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){
 void setup() {
   Serial.begin(115200);
   ROM_allocate(numOfJoints, jointMem);
+  analogReadResolution(12);
   for (int i=0; i<numOfJoints; i++){
     // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
     uint8_t index; // this index number is from 1 to 12, representing the total joints
@@ -313,19 +298,12 @@ void loop() {
       Calibration_State();
       break;
 
-    case STATES::RUN_STATIC_CONTROL :
-      Static_Control_State();
+    case STATES::RUN_CONTROL :
+      Control_State();
       break;
 
-    case STATES::RUN_STATIC_ALL :
-      Static_Control_All_State();
-      break;
-
-    case STATES::RUN_TRAJECTORY :
-      Run_Trajectory_State();
-      break;
-
-    case STATES::RUN_ALL_TRAJECTORIES :
+    case STATES::RUN_CONTROL_ALL :
+      Control_All_State();
       break;
 
     case STATES::WAIT :
