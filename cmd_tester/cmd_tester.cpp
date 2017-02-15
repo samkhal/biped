@@ -4,9 +4,12 @@
 #include "biped_lcm/commDataFromTeensy.hpp" // header file for data from teensy to dispatcher
 #include "biped_lcm/LiveControl2Teensy.hpp" //header file for live messages
 #include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
+#include "biped_lcm/LiveControlAll.hpp" 
 #include "common/serial_channels.hpp"
 #include "biped_lcm/log_msg.hpp"
 #include <iostream>
+#include <unistd.h>
+
 
 using namespace biped_lcm;
 
@@ -43,9 +46,9 @@ int main(){
 	if(!lcm.good())
 		return 1;
 
-	lcm.subscribeFunction("cmd_response", &cmdResponseListener, (void*)nullptr);
-	lcm.subscribeFunction("log_msg", &logMsgListener, (void*)nullptr);
-	lcm.subscribeFunction("live_out", &liveControlListener, (void*)nullptr);
+	lcm.subscribeFunction("UR_cmd_response", &cmdResponseListener, (void*)nullptr);
+	lcm.subscribeFunction("UR_log_msg", &logMsgListener, (void*)nullptr);
+	lcm.subscribeFunction("UR_live_out", &liveControlListener, (void*)nullptr);
 
 	commData2Teensy msg;
 	std::cin >> msg.command;
@@ -53,14 +56,23 @@ int main(){
 		msg.joint = 1;
 	}
 	std::cout << "Publishing command " << msg.command << std::endl;
-	lcm.publish("cmd_in", &msg);
+	lcm.publish("UR_cmd_in", &msg);
 	while(lcm.good()){
-		lcm.handle();
-		LiveControl2Teensy msgOut;
-	  msgOut.joint = 1;
-		msgOut.torque = 0.303f; //random values
-		msgOut.angle = 0.52f;
-		lcm.publish("live_in", &msgOut);
+		lcm.handleTimeout(0);
+		LiveControlAll msgOut;
+		msgOut.num_joints = 2;
+		msgOut.joint_ids = {1,2};
+		msgOut.torque = {0.303f,0.403f};
+		msgOut.angle = {0.52f, 0.54f};
+		lcm.publish("live_in",&msgOut);
+
+		// lcm.publish("live_in", &msgOut);
+		// LiveControl2Teensy msgOut;
+	 //  	msgOut.joint = 1;
+		// msgOut.torque = 0.303f; //random values
+		// msgOut.angle = 0.52f;
+		// lcm.publish("UR_live_in",&msgOut);
+		usleep(10000);
 	}
 	return 0;
 }

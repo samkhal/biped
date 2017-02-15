@@ -1,0 +1,9 @@
+package biped_lcm;
+
+struct LiveControlAll
+{
+	int8_t num_joints;
+	int8_t joint_ids[num_joints];
+	float torque[num_joints];
+	float angle[num_joints];
+}
