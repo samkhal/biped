@@ -2,7 +2,7 @@
 
 //Constructors
 Joint::Joint() {};
-Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_) :
+Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_, bool outOfRangeFlag_) :
   jointNumber(jointNumber_),
   potPin(potPin_),
   motorPin(motorPin_),
@@ -12,7 +12,8 @@ Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float
   kD(kD_),
   motorOrientation(motorOrientation_),
   potOrientation(potOrientation_),
-  potCabling(potCabling_){}
+  potCabling(potCabling_),
+  outOfRangeFlag(outOfRangeFlag_){}
 
 //Setters
 void Joint::setMinPot(int minPot_){minPot = minPot_;}
@@ -20,7 +21,7 @@ void Joint::setMaxPot(int maxPot_){maxPot = maxPot_;}
 void Joint::setMinTheta(int minTheta_){minTheta = minTheta_;} // in rads values
 void Joint::setMaxTheta(int maxTheta_){maxTheta = maxTheta_;} // in rads values
 void Joint::setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
-void Joint::setSetPoint(int setPoint_){setPoint = setPoint_;}
+void Joint::setSetPoint(float angleSetPoint_){potSetPoint = int(potTicksPerRad*angleSetPoint_) + zeroPot; angleSetPoint = angleSetPoint_;}
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 void Joint::setDirection(){direction = motorOrientation*potOrientation*potCabling;}
 
@@ -59,11 +60,11 @@ void Joint::writeROM_orientation(){
 int Joint::readPotentiometer(){return analogRead(potPin);}
 void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
-void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
+void Joint::setSetPointFromPot(){potSetPoint = readPotentiometer();}
 
 int Joint::PIDcontrol() {
   int Actual = readPotentiometer();
-  int Error = setPoint - Actual;
+  int Error = potSetPoint - Actual;
   float P = Error * kP; // calc proportional term
   float D = ((lastPID - Actual) * kD) / PIDPeriod; // derivative term
   int Drive = P + D; // Total drive = P+I+D
@@ -80,10 +81,13 @@ int Joint::PIDcontrol() {
 }
 
 bool Joint::checkOOR() {
-  int pose = readPotentiometer();
-  if (pose < ((int)readROM(memoryAddr.minPotAddr) + OutOfRangeThreshold) ||
-   pose > ((int)readROM(memoryAddr.maxPotAddr) - OutOfRangeThreshold)) {
-    return true;
+  if (outOfRangeFlag){
+    int pose = readPotentiometer();
+    if (pose < ((int)readROM(memoryAddr.minPotAddr) + OutOfRangeThreshold) ||
+     pose > ((int)readROM(memoryAddr.maxPotAddr) - OutOfRangeThreshold)) {
+      return true;
+    }
+    return false;
   }
   return false;
 }
