@@ -40,9 +40,9 @@ int currJoint = 0;
 volatile unsigned long int timer = 0;
 volatile boolean PIDflag = true; //flag based on timer for PID control
 volatile boolean heartBeatReadyFlag = true;
-volatile unsigned int timerCounter = 0;
+volatile unsigned int timerHeartBeatCounter = 0;
 boolean commandsInitialized = false;
-boolean HEARTBEATNOTRECEIVED = false;
+boolean heartBeatNotReceived = false;
 unsigned int WDT_allowTime = 50; //in ms, min is 4
 
 
@@ -57,18 +57,18 @@ void stopMotors(){
 //Timer interrupt callback does nothing for now
 void timerCallback() {
   timer++;
-  timerCounter++;
+  timerHeartBeatCounter++;
   PIDflag = true;
-  if (timerCounter>=WDT_allowTime){
+  if (timerHeartBeatCounter>=WDT_allowTime){
     heartBeatReadyFlag = true;
-    timerCounter=0;
+    timerHeartBeatCounter=0;
   }
 }
 
 void heartBeatHandling(){
-  if (HEARTBEATNOTRECEIVED){
+  if (heartBeatNotReceived){
     stopMotors();
-    logerror << "WATCHDOG TIMER ERROR" << std::flush;
+    // logerror << "WATCHDOG TIMER ERROR" << std::flush;
     state = WAIT;
   }
   else{
@@ -76,7 +76,7 @@ void heartBeatHandling(){
     msgOut.beat = true;
     lcm.publish(ChannelID::HEARTBEAT, &msgOut);
     heartBeatReadyFlag = false;
-    HEARTBEATNOTRECEIVED = true;
+    heartBeatNotReceived = true;
   }
 }
 
@@ -114,7 +114,7 @@ void Static_Control_State(){
   }
   else{
     if (PIDflag){
-      joints[currJoint].PIDcontrol();
+      loginfo << joints[currJoint].PIDcontrol() << std::flush;
       PIDflag = false;
     }
   }
@@ -146,7 +146,7 @@ void Run_Trajectory_State(){
   }
   else{
     if (PIDflag){
-      joints[currJoint].PIDcontrol();
+      loginfo << joints[currJoint].PIDcontrol() << std::flush;
       PIDflag = false;
     }
   }
@@ -170,6 +170,7 @@ void stateAssignment(int command){
         joints[currJoint].setMaxPot(val);
         joints[currJoint].setZeroPot(val);
         state = STATES::CALIBRATION;
+        loginfo << "Calibration Started" << std::flush;
       }
       break;
 
@@ -190,8 +191,8 @@ void stateAssignment(int command){
     case commData2Teensy::GET_CALIBRATION:
       if (checkIfWaitState()){
         commDataFromTeensy msg_Out;
-        msg_Out.minPot = joints[currJoint].getMinPot();
-        msg_Out.maxPot = joints[currJoint].getMaxPot();
+        msg_Out.minPot = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr);
+        msg_Out.maxPot = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr);
         lcm.publish(ChannelID::CMD_RESPONSE, &msg_Out);
       }
       break;
@@ -207,7 +208,8 @@ void stateAssignment(int command){
       if (checkIfWaitState()){
         joints[currJoint].setSetPointFromPot();
         joints[currJoint].setEnable(HIGH);
-        state = commData2Teensy::RUN_STATIC_CONTROL;
+        state = STATES::RUN_STATIC_CONTROL;
+        loginfo << "Static Control Started" << std::flush;
       }
       break;
 
@@ -217,20 +219,25 @@ void stateAssignment(int command){
           joints[i].setSetPointFromPot();
           joints[i].setEnable(HIGH);
         }
-        state = commData2Teensy::RUN_STATIC_ALL;
+        state = STATES::RUN_STATIC_ALL;
+        loginfo << "Static Control All Started" << std::flush;
       }
       break;
 
     case commData2Teensy::RUN_TRAJECTORY:
       if (checkIfWaitState()){
-        joints[currJoint].setSetPointFromPot(); //just in the beginning
+        // joints[currJoint].setSetPointFromPot(); //just in the beginning
         joints[currJoint].setEnable(HIGH);
         loginfo << "run trajectory" << std::flush;
-        state = commData2Teensy::RUN_TRAJECTORY;
+        state = STATES::RUN_TRAJECTORY;
       }
       break;
 
     case commData2Teensy::RUN_ALL_TRAJECTORIES:
+      if (checkIfWaitState()){
+        logwarn << "run all trajectories not implemented yet" << std::flush;
+        state = STATES::WAIT;
+      }
       break;
 
     case commData2Teensy::STOP:
@@ -262,7 +269,7 @@ void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
 }
 
 void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){
-  HEARTBEATNOTRECEIVED = false;
+  heartBeatNotReceived = false;
 }
 
 //============================ MAIN LOOP ================================
@@ -275,14 +282,14 @@ void setup() {
     // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
     uint8_t index; // this index number is from 1 to 12, representing the total joints
     EEPROM.get(jointMem[i].jointAddr,index); // get the joint number from 1 to 12 based on the jointMem vector (0-2)
-    joints.push_back(JointTable[index-1]); // take the proper joint from jointTable array (0-11)
+    joints.push_back(JointTable[index]); // take the proper joint from jointTable array (0-11)
     joints[i].setSetPointFromPot(); // local joint number is from 0 to 2.
     joints[i].setMemoryAddr(jointMem[i]);
     pinMode(joints[i].getMotorPin(), OUTPUT);
     pinMode(joints[i].getEnablePin(), OUTPUT);
     joints[i].motorPWM(zeroTorque);
+    joints[i].setDirection();
     joints[i].setEnable(LOW);
-    joints[i].setLocalJointNum();
     joints[i].writeROM_orientation();
     joints[i].writeROM_zeroTheta();
   }

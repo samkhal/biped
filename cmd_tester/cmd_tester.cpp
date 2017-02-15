@@ -49,14 +49,18 @@ int main(){
 
 	commData2Teensy msg;
 	std::cin >> msg.command;
+	if (msg.command != 0){
+		msg.joint = 1;
+	}
 	std::cout << "Publishing command " << msg.command << std::endl;
 	lcm.publish("cmd_in", &msg);
 	while(lcm.good()){
 		lcm.handle();
-		commData2Teensy msg;
-		std::cin >> msg.command;
-		std::cout << "Publishing command " << msg.command << std::endl;
-		lcm.publish("cmd_in", &msg);
+		LiveControl2Teensy msgOut;
+	  msgOut.joint = 1;
+		msgOut.torque = 30; //random values
+		msgOut.angle = 350;
+		lcm.publish("live_in", &msgOut);
 	}
 	return 0;
 }

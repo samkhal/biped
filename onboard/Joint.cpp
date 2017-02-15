@@ -2,7 +2,7 @@
 
 //Constructors
 Joint::Joint() {};
-Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int direction_) :
+Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float kP_, float kI_, float kD_, int motorOrientation_, int potOrientation_, int potCabling_) :
   jointNumber(jointNumber_),
   potPin(potPin_),
   motorPin(motorPin_),
@@ -10,7 +10,9 @@ Joint::Joint(int jointNumber_, int potPin_, int motorPin_, int enablePin_, float
   kP(kP_),
   kI(kI_),
   kD(kD_),
-  direction(direction_){}
+  motorOrientation(motorOrientation_),
+  potOrientation(potOrientation_),
+  potCabling(potCabling_){}
 
 //Setters
 void Joint::setMinPot(int minPot_){minPot = minPot_;}
@@ -19,8 +21,8 @@ void Joint::setMinTheta(int minTheta_){minTheta = minTheta_;} // in rads values
 void Joint::setMaxTheta(int maxTheta_){maxTheta = maxTheta_;} // in rads values
 void Joint::setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
 void Joint::setSetPoint(int setPoint_){setPoint = setPoint_;}
-void Joint::setLocalJointNum(){localJointNum = ((jointNumber-1)%numOfJoints);}//get number from 0 to 2 instead of 1-12
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
+void Joint::setDirection(){direction = motorOrientation*potOrientation*potCabling;}
 
 //Getters
 int Joint::getJointNumber() {return jointNumber;}
@@ -31,7 +33,6 @@ int Joint::getMaxPot() {return maxPot;}
 int Joint::getMinTheta() {return minTheta;}
 int Joint::getMaxTheta() {return maxTheta;}
 int Joint::getZeroPot() {return zeroPot;}
-int Joint::getLocalJointNum() {return localJointNum;}
 JointROM Joint::getMemoryAddr(){return memoryAddr;}
 
 int Joint::readROM(int address){
@@ -60,17 +61,13 @@ void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){setPoint = readPotentiometer();}
 
-void Joint::PIDcontrol() {
+int Joint::PIDcontrol() {
   int Actual = readPotentiometer();
   int Error = setPoint - Actual;
   float P = Error * kP; // calc proportional term
-  // float D = ((joint->lastPID - Actual) * joint->getkD()) / PIDPeriod; // derivative term
-  int Drive = P ;//+ D; // Total drive = P+I+D
-  int sign = 1;
-  if(direction == 0){// Check which direction to go.
-    sign = -1;
-  }
-  Drive = (sign * Drive * ScaleFactor + (minPWM + maxPWM) / 2); // scale Drive to have 0 at 127
+  float D = ((lastPID - Actual) * kD) / PIDPeriod; // derivative term
+  int Drive = P + D; // Total drive = P+I+D
+  Drive = (direction * Drive * ScaleFactor + (minPWM + maxPWM) / 2); // scale Drive to have 0 at 127
   if (Drive < minPWM) {
     Drive = minPWM;
   }
@@ -79,6 +76,7 @@ void Joint::PIDcontrol() {
   }
   motorPWM(Drive); // send PWM command to motor board
   lastPID = Actual;
+  return Drive;
 }
 
 bool Joint::checkOOR() {
