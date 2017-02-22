@@ -38,8 +38,8 @@ int main(){
 	if(!lcm.good())
 		return 1;
 
-  lcm.subscribeFunction("cmd_in", &cmdListener, (void*)nullptr);
-	lcm.subscribeFunction("heartbeat", &heartBeatListener, (void*)nullptr);
+  lcm.subscribeFunction("UR_cmd_in", &cmdListener, (void*)nullptr);
+	lcm.subscribeFunction("UR_heartbeat", &heartBeatListener, (void*)nullptr);
 
 	while(lcm.good()){
 		lcm.handleTimeout(0);
@@ -48,7 +48,7 @@ int main(){
       if (heartBeatFlag){
         heartBeatResponse msgOut;
         msgOut.beat = true;
-        lcm.publish("heartbeatresponse", &msgOut);
+        lcm.publish("UR_heartbeatresponse", &msgOut);
         heartBeatFlag = false;
         counter = 0;
       }
