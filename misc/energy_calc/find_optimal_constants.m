@@ -45,7 +45,7 @@ function cost = cost_function(x)
         cost = cost+ abs(1000*((min(min(additional_torque(:,:))))-.01));
     end
 end
-
-x = fmincon(@cost_function, zeros(1,size(constant_range,2)),[],[],[],[],constant_range(1,:), constant_range(2,:));
+options = optimset('Display', 'off') ;
+x = fmincon(@cost_function, zeros(1,size(constant_range,2)),[],[],[],[],constant_range(1,:), constant_range(2,:), [], options);
 output_constants = x(1:size(constant_range,2));
 end

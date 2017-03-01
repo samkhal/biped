@@ -1,46 +1,28 @@
-% consts = {};
-% %for i = 2:35
-%     joints = {'l_leg_kny'};
-%     constant_range = [-min([traj.pos.(joints{1})]) -6000;pi/2-max([traj.pos.(joints{1})]) 6000]
-%     foo = @(angle,constants)((angle+constants(1))).*constants(2);%(polyval(constants(2:end),angle+constants(1)));
-%     [const, savings] = find_optimal_energy_system(traj, foo, constant_range, joints);
-%     consts{end+1} = const;
-%     %min(min(foo(states([14,9],:),const)))
-%     %hold on;
-%     %plot(i,savings(1),'*');
-% %end
+%Ari Goodman
+% 3/1/2017
+%finds best spring after you load traj and csv as a table!
 
-% TODO TODO TODO
-% joint = 'r_leg_kny'
-% sortedStates = sortrows([[traj.pos.(joint)]', [traj.vel.(joint)]', [traj.torque.(joint)]']);
-% edges = min([traj.pos.(joint)]):1/100*(max([traj.pos.(joint)])-min([traj.pos.(joint)])):max([traj.pos.(joint)]);
-% bins = discretize(sortedStates(:,1),edges);
-% keys = 1:100;
-% values = cell(1,100);
-% i=0;
-% j=1;
-% while i < size(bins,1)
-% i = i+1;
-% while(i < size(bins,1) && bins(i) == j)
-%     values{j} = [values{j} sortedStates(i,:)'];
-%     i = i +1;
-% end
-% j=j+1;
-% end
-% mapObj = containers.Map(keys,values);
-
-% data = zeros(size(mapObj,1),1);
-% for i = 1:size(mapObj,1)
-%     tempBin = mapObj(i);
-%     data(i) = mean(tempBin(3,:));
-% end
-% 
-% plot(1:100,data,'*')
-% xlabel('bin number');
-% ylabel('torque Nm');
-
-
-constant_range = [0 3.08 ; 0 3.08];
+best_savings = 0;
+best_i = 0;
+%remove unimportant springs
+springsCopy=springs;
+toDelete = springs.SuggMaxDeflin>1.75;
+springsCopy(toDelete,:) = [];
+toDelete = springsCopy.ODin>1;
+springsCopy(toDelete,:) = [];
+toDelete = springsCopy.SuggMaxLoadlbs< springsCopy.InitialTensionlbs*1.1+springsCopy.Ratelbsin*pi/2*1.1^2; %worst case
+springsCopy(toDelete,:) = [];
+size(springsCopy)
+%for all springs, calculate energy savings
+for i=1:height(springsCopy)
+constant_range = [.5; 1.1 ];
 joints = {'r_leg_kny'};
-foo = @(angle,constants)((angle+constants(1))*constants(2));
-[const savings] = find_optimal_energy_system(traj, foo, constant_range, joints)
+foo = @(angle, constants)((springsCopy.InitialTensionlbs(i)*constants(1)+constants(1).^2*springsCopy.Ratelbsin(i)*angle)*.1129848);
+
+[const savings] = find_optimal_energy_system(traj, foo, constant_range, joints);
+if best_savings(1)<savings(1)
+    best_savings=savings;
+    best_i=i;
+end
+end
+%146.2145 savings, 34% ...80533

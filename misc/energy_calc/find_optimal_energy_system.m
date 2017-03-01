@@ -29,7 +29,7 @@ function [all_constants all_savings] = find_optimal_energy_system(trajectory, fo
     end
     %find the savings for the constants and equation
     for motor = 1:length(joints)
-        [amount(motor) perc(motor) max_pow(motor) mean_pow(motor)] = energy_savings_function(trajectory, foo, all_constants(motor,:), joints{motor})
+        [amount(motor) perc(motor) max_pow(motor) mean_pow(motor)] = energy_savings_function(trajectory, foo, all_constants(motor,:), joints{motor});
     end
     all_savings = [amount(:) perc(:) max_pow(:) mean_pow(:)];
 end
