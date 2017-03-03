@@ -110,19 +110,18 @@ void Calibration_State(){
 }
 
 void Control_State(){
-  // bool OutOfRange = 0;//joints[currJoint].checkOOR();
-  // if (OutOfRange) {
-  //   stopMotors();
-  //   logerror << "out of range" << std::flush;
-  //   state = STATES::WAIT;
-  // }
-  // else{
-  //   if (PIDflag){
-  //     loginfo << joints[currJoint].PIDcontrol() << std::flush;
-  //     PIDflag = false;
-  //   }
-  // }
-  joints[currJoint].motorPWM2();
+  bool OutOfRange = joints[currJoint].checkOOR();
+  if (OutOfRange) {
+    stopMotors();
+    logerror << "out of range" << std::flush;
+    state = STATES::WAIT;
+  }
+  else{
+    if (PIDflag){
+      loginfo << joints[currJoint].PIDcontrol() << std::flush;
+      PIDflag = false;
+    }
+  }
 }
 
 void Control_All_State(){

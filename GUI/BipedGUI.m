@@ -78,7 +78,7 @@ logAggr = lcm.lcm.MessageAggregator();
 
 for i = 0:3
     value = values(teensies,{i});
-    lc.subscribe(strcat(value,'cmd_response'), aggregator);
+    lc.subscribe(strcat(value,'cmd_response'), aggregator);     
     lc.subscribe(strcat(value,'log_msg'), logAggr);
 end     
 
@@ -220,10 +220,12 @@ global msg lc
 set(handles.State,'string','State: Run Static All');
 joint_num = get(handles.joint_number,'string');
 joint_num = int8(str2num(joint_num));
-msg.command = biped_lcm.commData2Teensy.STATIC_CONTROL_ALL;
-msg.joint = mod(joint_num-1,3);
-teensy = specifyTeensy(joint_num);
-lc.publish(strcat(teensy,'cmd_in'), msg);  
+for i = 1:4
+    msg.command = biped_lcm.commData2Teensy.STATIC_CONTROL_ALL;
+    msg.joint = mod(joint_num-1,3);
+    teensy = specifyTeensy(i*3);
+    lc.publish(strcat(teensy,'cmd_in'), msg);
+end
 while true
   drawnow()
   stop_state = get(handles.stop, 'Value');
@@ -245,13 +247,14 @@ joint_num = get(handles.joint_number,'string');
 joint_num = int8(str2num(joint_num));
 msg.command = biped_lcm.commData2Teensy.RUN_TRAJECTORY;
 msg.joint = joint_num;
+teensy = specifyTeensy(joint_num);
+lc.publish(strcat(teensy,'cmd_in'), msg); 
 %Need to send live messages
 livemsg = biped_lcm.LiveControlAll;
-lc.publish('cmd_in', msg);
-livemsg.num_joints = 3;
-livemsg.joint_ids = {0,1,2};
-livemsg.angle = {0.1, 0.1, 0.1};
-lc.publish('live_in',livemsg);
+livemsg.num_joints = 1;
+livemsg.joint_ids = 0;
+livemsg.angle = 0.1;
+lc.publish('live_in',livemsg); 
 set(handles.State,'string','State: Ready to Proceed');
 
 % --- Executes on button press in runAll.
@@ -277,8 +280,8 @@ function stop_Callback(hObject, eventdata, handles)
 global msg lc aggregator
 set(handles.State,'string','State: STOP');
 msg.command = biped_lcm.commData2Teensy.STOP;
-for i = 0:2
-    teensy = specifyTeensy(i*3+1);
+for i = 1:4
+    teensy = specifyTeensy(i*3);
     lc.publish(strcat(teensy,'cmd_in'), msg);  
     msgIN = aggregator.getNextMessage(10); %Wait milliseconds
     checkLogMsgLoop(handles);
