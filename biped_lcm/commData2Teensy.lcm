@@ -2,7 +2,7 @@ package biped_lcm;
 
 struct commData2Teensy
 {
-	const int32_t
+	const int8_t
 		ID_REQUEST = 0,
 		START_CALIBRATION = 1,
 		STOP_CALIBRATION = 2,
@@ -13,7 +13,7 @@ struct commData2Teensy
 		RUN_TRAJECTORY = 7,
 		RUN_ALL_TRAJECTORIES = 8,
 		STOP = 9;
-	int32_t command;
-	int32_t joint;
-	int32_t dataLength;
+	int8_t command;
+	int16_t drive;
+	int8_t joint;
 }

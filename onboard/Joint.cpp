@@ -24,6 +24,7 @@ void Joint::setZeroPot(int zeroPot_){zeroPot = zeroPot_;}
 void Joint::setSetPoint(float angleSetPoint_){potSetPoint = int(potTicksPerRad*angleSetPoint_) + zeroPot; angleSetPoint = angleSetPoint_;}
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 void Joint::setDirection(){direction = motorOrientation*potOrientation*potCabling;}
+void Joint::setMotorDrive(int motorDrive_ ){motorDrive = motorDrive_;}
 
 //Getters
 int Joint::getJointNumber() {return jointNumber;}
@@ -34,6 +35,7 @@ int Joint::getMaxPot() {return maxPot;}
 int Joint::getMinTheta() {return minTheta;}
 int Joint::getMaxTheta() {return maxTheta;}
 int Joint::getZeroPot() {return zeroPot;}
+int Joint::getPotSetPoint(){return potSetPoint;}
 JointROM Joint::getMemoryAddr(){return memoryAddr;}
 
 int Joint::readROM(int address){
@@ -59,6 +61,7 @@ void Joint::writeROM_orientation(){
 //Other methods
 int Joint::readPotentiometer(){return analogRead(potPin);}
 void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
+void Joint::motorPWM2(){analogWrite(motorPin,motorDrive);}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){potSetPoint = readPotentiometer();}
 
@@ -83,8 +86,8 @@ int Joint::PIDcontrol() {
 bool Joint::checkOOR() {
   if (outOfRangeFlag){
     int pose = readPotentiometer();
-    if (pose < ((int)readROM(memoryAddr.minPotAddr) + OutOfRangeThreshold) ||
-     pose > ((int)readROM(memoryAddr.maxPotAddr) - OutOfRangeThreshold)) {
+    if (pose < ((int)minPot + OutOfRangeThreshold) ||
+     pose > ((int)maxPot - OutOfRangeThreshold)) {
       return true;
     }
     return false;

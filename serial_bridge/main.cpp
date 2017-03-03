@@ -6,7 +6,7 @@
 #include "biped_lcm/commDataFromTeensy.hpp"
 #include "biped_lcm/log_msg.hpp"
 #include "biped_lcm/LiveControl2Teensy.hpp" //header file for live messages
-#include "biped_lcm/LiveControlAll.hpp" 
+#include "biped_lcm/LiveControlAll.hpp"
 #include "biped_lcm/LiveControlFromTeensy.hpp" //header file for live messages
 #include "biped_lcm/heartBeat.hpp"
 #include "biped_lcm/heartBeatResponse.hpp"

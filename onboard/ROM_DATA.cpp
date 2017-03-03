@@ -20,11 +20,11 @@ void ROM_allocate(int numOfJoints,std::vector<JointROM>& jointMem){
   calculateOffsets(numOfJoints);
   for (int i = 0; i<numOfJoints; i++){
     JointROM jROM;
-    jROM.jointAddr = i + jointAddrOffset;
-    jROM.minPotAddr = i + minPotAddrOffset;
-    jROM.maxPotAddr = i + maxPotAddrOffset;
-    jROM.zeroPotAddr = i + zeroPotAddrOffset;
-    jROM.orientationAddr = i + orientationAddrOffset;
+    jROM.jointAddr = i*MEM_BYTES + jointAddrOffset;
+    jROM.minPotAddr = i*MEM_BYTES + minPotAddrOffset;
+    jROM.maxPotAddr = i*MEM_BYTES + maxPotAddrOffset;
+    jROM.zeroPotAddr = i*MEM_BYTES + zeroPotAddrOffset;
+    jROM.orientationAddr = i*MEM_BYTES + orientationAddrOffset;
     jointMem.push_back(jROM);
   }
 }

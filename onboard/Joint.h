@@ -2,17 +2,21 @@
 #define JOINT_H_
 #include <EEPROM.h> //ROM memory library
 #include "ROM_DATA.h" // array to data addresses and enum
+#include <math.h>
 
-const int zeroTorque = 127; //PWM value for zero torque
-const int torqueOffset = 102; //max offset from zero torque
+const int writeResolution = 12;
+const int readResolution = 12;
+const float potTicksPerRad = 706.6; // for 12 bit resolution ADC
+//================Should not change anything after this========================
+const int zeroTorque = pow(2,(writeResolution-1)); //PWM value for zero torque
+const int torqueOffset = (int)(zeroTorque*0.86f); //max offset from zero torque
 const int minPWM = zeroTorque-torqueOffset; //27
 const int maxPWM = zeroTorque+torqueOffset; //229
 const int ScaleFactor = 1; // in case we need it
-const int OutOfRangeThreshold = 4;
-const int minPotNaturalRange = 15; //+15
-const int maxPotNaturalRange = 4081; //-15
+const int OutOfRangeThreshold = (int)(0.01f*pow(2,readResolution));
+const int minPotNaturalRange = (int)(0.005f*pow(2,readResolution));
+const int maxPotNaturalRange = pow(2,readResolution)-minPotNaturalRange;
 const int PIDPeriod = 1;//ms
-const float potTicksPerRad = 706.6; // for 12 bit resolution ADC
 
 class Joint {
   public:
@@ -29,6 +33,7 @@ class Joint {
     void setSetPoint(float angleSetPoint_);
     void setMemoryAddr(JointROM memoryAddr_);
     void setDirection();
+    void setMotorDrive(int motorDrive_);
 
     //Getters
     int getJointNumber();
@@ -39,6 +44,7 @@ class Joint {
     int getMinTheta();
     int getMaxTheta();
     int getZeroPot();
+    int getPotSetPoint();
     JointROM getMemoryAddr();
 
     //Method to read data from ROM
@@ -52,6 +58,7 @@ class Joint {
     //Other methods
     int readPotentiometer();
     void motorPWM(int drive);
+    void motorPWM2();
     void setEnable(bool state);
     void setSetPointFromPot();
     //PID control, takes a setpoint in pot values, a joint struct pointer and a constjoint struct (of the same joint)
@@ -85,6 +92,7 @@ class Joint {
     int lastPID;
     float angleSetPoint;
     int potSetPoint;
+    int motorDrive;
     const int numOfJoints = 3;
     JointROM memoryAddr;
 };

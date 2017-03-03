@@ -2,7 +2,7 @@ package biped_lcm;
 
 struct LiveControlFromTeensy
 {
-	int32_t joint;
+	int8_t joint;
 	float current;
 	float angle;
 }

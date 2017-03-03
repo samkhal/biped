@@ -34,6 +34,7 @@ enum STATES{
   WAIT
 };
 int state = STATES::WAIT;
+// ======================= things that might change ==========================
 int currJoint = 0;
 volatile unsigned long int timer = 0;
 volatile boolean PIDflag = true; //flag based on timer for PID control
@@ -42,6 +43,7 @@ volatile unsigned int timerHeartBeatCounter = 0;
 boolean commandsInitialized = false;
 boolean heartBeatNotReceived = false;
 unsigned int WDT_allowTime = 50; //in ms, min is 4
+const int timerPeriodMicrosecs = 1000;
 
 
 //Stops motors, used also as emergency stop
@@ -71,7 +73,7 @@ void heartBeatHandling(){
   }
   else{
     heartBeat msgOut;
-    msgOut.beat = true;
+    msgOut.teensy = (int)((float)joints[0].getJointNumber()/3);
     lcm.publish(ChannelID::HEARTBEAT, &msgOut);
     heartBeatReadyFlag = false;
     heartBeatNotReceived = true;
@@ -83,7 +85,11 @@ void ID_Request(){
   commDataFromTeensy msgOut;
   for (int i = 0; i<numOfJoints; i++){
     msgOut.joints[i] = (uint8_t) joints[i].getJointNumber();
+    msgOut.minPot[i] = (int16_t)joints[i].readROM(joints[i].getMemoryAddr().minPotAddr);
+    msgOut.maxPot[i] = (int16_t)joints[i].readROM(joints[i].getMemoryAddr().maxPotAddr);
+    msgOut.angle[i] = joints[i].readPotentiometer();
   }
+  loginfo << "ID REQUEST" << std::flush;
   lcm.publish(ChannelID::CMD_RESPONSE, &msgOut);
 }
 
@@ -104,18 +110,19 @@ void Calibration_State(){
 }
 
 void Control_State(){
-  bool OutOfRange = joints[currJoint].checkOOR();
-  if (OutOfRange) {
-    stopMotors();
-    logerror << "out of range" << std::flush;
-    state = STATES::WAIT;
-  }
-  else{
-    if (PIDflag){
-      loginfo << joints[currJoint].PIDcontrol() << std::flush;
-      PIDflag = false;
-    }
-  }
+  // bool OutOfRange = 0;//joints[currJoint].checkOOR();
+  // if (OutOfRange) {
+  //   stopMotors();
+  //   logerror << "out of range" << std::flush;
+  //   state = STATES::WAIT;
+  // }
+  // else{
+  //   if (PIDflag){
+  //     loginfo << joints[currJoint].PIDcontrol() << std::flush;
+  //     PIDflag = false;
+  //   }
+  // }
+  joints[currJoint].motorPWM2();
 }
 
 void Control_All_State(){
@@ -160,22 +167,24 @@ void stateAssignment(int command){
     case commData2Teensy::STOP_CALIBRATION:
       if (state == STATES::CALIBRATION){
         commDataFromTeensy msg_Out;
-        msg_Out.minPot = joints[currJoint].getMinPot();
-        msg_Out.maxPot = joints[currJoint].getMaxPot();
         joints[currJoint].writeROM_potRange();
+        msg_Out.minPot[currJoint] = (int16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr);
+        msg_Out.maxPot[currJoint] = (int16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr);
+        joints[currJoint].writeROM_zeroTheta();
         lcm.publish(ChannelID::CMD_RESPONSE, &msg_Out);
         state = STATES::WAIT;
+        loginfo << "Calibration stopped" << std::flush;
       }
       else{
-        logerror << "inappropriate command" << std::flush;
+        logerror << "inappropriate command, not calibrating" << std::flush;
       }
       break;
 
     case commData2Teensy::GET_CALIBRATION:
       if (checkIfWaitState()){
         commDataFromTeensy msg_Out;
-        msg_Out.minPot = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr);
-        msg_Out.maxPot = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr);
+        msg_Out.minPot[currJoint] = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr);
+        msg_Out.maxPot[currJoint] = joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr);
         lcm.publish(ChannelID::CMD_RESPONSE, &msg_Out);
       }
       break;
@@ -236,6 +245,7 @@ void stateAssignment(int command){
 void callback(ChannelID id, commData2Teensy* msg_IN){
   int command = msg_IN->command;
   currJoint = msg_IN->joint;
+  joints[currJoint].setMotorDrive(msg_IN->drive);
   stateAssignment(command);
   commandsInitialized = true;
 }
@@ -248,7 +258,7 @@ void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
   LiveControlFromTeensy msgOut;
   msgOut.joint = msg_IN->joint;
   msgOut.current = torque; //this should return data from the joint
-  msgOut.angle = angle; //this should return data from the joint
+  msgOut.angle = joints[msg_IN->joint].getPotSetPoint();//readPotentiometer(); //this should return data from the joint
   lcm.publish(ChannelID::LIVE_OUT, &msgOut);
 }
 
@@ -262,12 +272,15 @@ void HeartbeatCallback(ChannelID id, heartBeatResponse* msg_IN){
 void setup() {
   Serial.begin(115200);
   ROM_allocate(numOfJoints, jointMem);
-  analogReadResolution(12);
+  analogReadResolution(readResolution);//12
+  analogWriteResolution(writeResolution);//12
+  // EEPROM.put(jointMem[0].jointAddr, (uint8_t)(1)); // In case we want to reassign ROM joint number
+  // EEPROM.put(jointMem[1].jointAddr, (uint8_t)(2)); // In case we want to reassign ROM joint number
+  // EEPROM.put(jointMem[2].jointAddr, (uint8_t)(3)); // In case we want to reassign ROM joint number
   for (int i=0; i<numOfJoints; i++){
-    // EEPROM.put(jointMem[i].jointAddr, (uint8_t)(i)); // In case we want to reassign ROM joint number
     uint8_t index; // this index number is from 1 to 12, representing the total joints
     EEPROM.get(jointMem[i].jointAddr,index); // get the joint number from 1 to 12 based on the jointMem vector (0-2)
-    joints.push_back(JointTable[index]); // take the proper joint from jointTable array (0-11)
+    joints.push_back(JointTable[index-1]); // take the proper joint from jointTable array (0-11)
     joints[i].setSetPointFromPot(); // local joint number is from 0 to 2.
     joints[i].setMemoryAddr(jointMem[i]);
     pinMode(joints[i].getMotorPin(), OUTPUT);
@@ -275,10 +288,11 @@ void setup() {
     joints[i].motorPWM(zeroTorque);
     joints[i].setDirection();
     joints[i].setEnable(LOW);
-    joints[i].writeROM_orientation();
-    joints[i].writeROM_zeroTheta();
+    joints[i].setMinPot((uint16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr));
+    joints[i].setMaxPot((uint16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr));
+    // joints[i].writeROM_orientation();
   }
-  Timer3.initialize(1000); //1 ms
+  Timer3.initialize(timerPeriodMicrosecs); //1 ms
   Timer3.attachInterrupt(timerCallback);
   lcm.subscribe(ChannelID::CMD_IN, &callback);
   lcm.subscribe(ChannelID::LIVE_IN, &LiveCallback); // 3 is incoming for live, 4 is out
