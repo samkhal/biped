@@ -43,11 +43,11 @@ void dispatchControl(const lcm::ReceiveBuffer* rbuf,
 	std::cout<< "p";
 	for(int i=0; i<msg->num_joints; i++){
 		LiveControl2Teensy new_msg;
-		new_msg.joint = msg->joint_ids[i];
+		new_msg.joint = (((msg->joint_ids[i])-1)%3);
 		new_msg.torque = msg->torque[i];
 		new_msg.angle = msg->angle[i];
 
-		std::string dest = prefixes[joint_map[new_msg.joint]]+"_"+live_in_channel;
+		std::string dest = prefixes[joint_map[msg->joint_ids[i]]]+"_"+live_in_channel;
 		dispatcher.publish(dest, &new_msg);
 	}
 }

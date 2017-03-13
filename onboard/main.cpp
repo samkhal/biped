@@ -122,6 +122,7 @@ void Control_State(){
       PIDflag = false;
     }
   }
+  // joints[currJoint].motorPWM2();
 }
 
 void Control_All_State(){
@@ -139,6 +140,9 @@ void Control_All_State(){
       PIDflag = false;
     }
   }
+  // for (int i=0; i<numOfJoints; i++){
+  //   joints[currJoint].motorPWM2();
+  // }
 }
 
 //================================STATE_ASSIGNMENT=======================================
@@ -217,7 +221,7 @@ void stateAssignment(int command){
 
     case commData2Teensy::RUN_TRAJECTORY:
       if (checkIfWaitState()){
-        // joints[currJoint].setSetPointFromPot(); //just in the beginning
+        joints[currJoint].setSetPointFromPot(); //just in the beginning
         joints[currJoint].setEnable(HIGH);
         loginfo << "run trajectory" << std::flush;
         state = STATES::RUN_CONTROL;
@@ -226,9 +230,12 @@ void stateAssignment(int command){
 
     case commData2Teensy::RUN_ALL_TRAJECTORIES:
       if (checkIfWaitState()){
-        joints[currJoint].setEnable(HIGH);
-        loginfo << "run trajectory" << std::flush;
+        for (int i=0; i<3; i++){
+          joints[i].setSetPointFromPot();
+          joints[i].setEnable(HIGH);
+        }
         state = STATES::RUN_CONTROL_ALL;
+        loginfo << "Static Control All Started" << std::flush;
       }
       break;
 
@@ -273,9 +280,9 @@ void setup() {
   ROM_allocate(numOfJoints, jointMem);
   analogReadResolution(readResolution);//12
   analogWriteResolution(writeResolution);//12
-  // EEPROM.put(jointMem[0].jointAddr, (uint8_t)(1)); // In case we want to reassign ROM joint number
-  // EEPROM.put(jointMem[1].jointAddr, (uint8_t)(2)); // In case we want to reassign ROM joint number
-  // EEPROM.put(jointMem[2].jointAddr, (uint8_t)(3)); // In case we want to reassign ROM joint number
+  // EEPROM.put(jointMem[0].jointAddr, (uint8_t)(10)); // In case we want to reassign ROM joint number
+  // EEPROM.put(jointMem[1].jointAddr, (uint8_t)(11)); // In case we want to reassign ROM joint number
+  // EEPROM.put(jointMem[2].jointAddr, (uint8_t)(12)); // In case we want to reassign ROM joint number
   for (int i=0; i<numOfJoints; i++){
     uint8_t index; // this index number is from 1 to 12, representing the total joints
     EEPROM.get(jointMem[i].jointAddr,index); // get the joint number from 1 to 12 based on the jointMem vector (0-2)
@@ -287,8 +294,9 @@ void setup() {
     joints[i].motorPWM(zeroTorque);
     joints[i].setDirection();
     joints[i].setEnable(LOW);
-    joints[i].setMinPot((uint16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().minPotAddr));
-    joints[i].setMaxPot((uint16_t)joints[currJoint].readROM(joints[currJoint].getMemoryAddr().maxPotAddr));
+    joints[i].setMinPot((uint16_t)joints[i].readROM(joints[i].getMemoryAddr().minPotAddr));
+    joints[i].setMaxPot((uint16_t)joints[i].readROM(joints[i].getMemoryAddr().maxPotAddr));
+    joints[i].setZeroPot((uint16_t)joints[i].readROM(joints[i].getMemoryAddr().zeroPotAddr));
     // joints[i].writeROM_orientation();
   }
   Timer3.initialize(timerPeriodMicrosecs); //1 ms
