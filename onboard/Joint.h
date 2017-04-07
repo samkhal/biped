@@ -3,10 +3,12 @@
 #include <EEPROM.h> //ROM memory library
 #include "ROM_DATA.h" // array to data addresses and enum
 #include <math.h>
+#include <stdlib.h>
 
 const int writeResolution = 12;
 const int readResolution = 12;
 const float potTicksPerRad = 706.6; // for 12 bit resolution ADC
+const float torqueToDrive = 0.0214; // for 12 bit
 //================Should not change anything after this========================
 const int zeroTorque = pow(2,(writeResolution-1)); //PWM value for zero torque
 const int torqueOffset = (int)(zeroTorque*0.86f); //max offset from zero torque
@@ -34,6 +36,7 @@ class Joint {
     void setMemoryAddr(JointROM memoryAddr_);
     void setDirection();
     void setMotorDrive(int motorDrive_);
+    void setTorque(float torque_);
 
     //Getters
     int getJointNumber();
@@ -45,6 +48,9 @@ class Joint {
     int getMaxTheta();
     int getZeroPot();
     int getPotSetPoint();
+    float getAngleSetPoint();
+    int getMotorDrive();
+    float getTorque();
     JointROM getMemoryAddr();
 
     //Method to read data from ROM
@@ -93,6 +99,7 @@ class Joint {
     float angleSetPoint;
     int potSetPoint;
     int motorDrive;
+    float torque;
     const int numOfJoints = 3;
     JointROM memoryAddr;
 };

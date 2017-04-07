@@ -50,21 +50,23 @@ int main(){
 	lcm.subscribeFunction("UR_log_msg", &logMsgListener, (void*)nullptr);
 	lcm.subscribeFunction("UR_live_out", &liveControlListener, (void*)nullptr);
 
-	// commData2Teensy msg;
+	commData2Teensy msg;
 	// std::cin >> msg.command;
-	// if (msg.command != 0){
-	// 	msg.joint = 0;
-	// }
-	// std::cout << "Publishing command " << msg.command << std::endl;
-	// lcm.publish("UR_cmd_in", &msg);
+	if (msg.command != 0){
+		msg.joint = 0;
+	}
+	msg.command = 7;
+	msg.joint = 0;
+	std::cout << "Publishing command " << msg.command << std::endl;
+	lcm.publish("UR_cmd_in", &msg);
 	LiveControlAll msgOut;
 	int x = 0;
-	std::cin >> x;
+	// std::cin >> x;
 	msgOut.num_joints = 1;
 	msgOut.joint_ids = {1};
 	msgOut.torque = {0};
-	msgOut.angle = {float(float(x)/10)};
-	lcm.publish("live_in",&msgOut);
+	msgOut.angle = {1.5};
+	lcm.publish("UR_live_in",&msgOut);
 	while(lcm.good()){
 		lcm.handleTimeout(0);
 

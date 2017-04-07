@@ -110,39 +110,39 @@ void Calibration_State(){
 }
 
 void Control_State(){
-  bool OutOfRange = joints[currJoint].checkOOR();
-  if (OutOfRange) {
-    stopMotors();
-    logerror << "out of range" << std::flush;
-    state = STATES::WAIT;
-  }
-  else{
-    if (PIDflag){
-      loginfo << joints[currJoint].PIDcontrol() << std::flush;
-      PIDflag = false;
-    }
-  }
-  // joints[currJoint].motorPWM2();
+  // bool OutOfRange = joints[currJoint].checkOOR();
+  // if (OutOfRange) {
+  //   stopMotors();
+  //   logerror << "out of range" << std::flush;
+  //   state = STATES::WAIT;
+  // }
+  // else{
+  //   if (PIDflag){
+  //     loginfo << joints[currJoint].PIDcontrol()<< std::flush;
+  //     PIDflag = false;
+  //   }
+  // }
+  joints[currJoint].motorPWM2();
 }
 
 void Control_All_State(){
-  bool OutOfRange = joints[0].checkOOR()||joints[1].checkOOR()||joints[2].checkOOR();
-  if (OutOfRange) {
-    stopMotors();
-    logerror << "out of range" << std::flush;
-    state = STATES::WAIT;
-  }
-  else{
-    if (PIDflag){
-      for (int i=0; i<numOfJoints; i++){
-        joints[i].PIDcontrol();
-      }
-      PIDflag = false;
-    }
-  }
-  // for (int i=0; i<numOfJoints; i++){
-  //   joints[currJoint].motorPWM2();
+  // bool OutOfRange = joints[0].checkOOR()||joints[1].checkOOR()||joints[2].checkOOR();
+  // if (OutOfRange) {
+  //   stopMotors();
+  //   logerror << "out of range" << std::flush;
+  //   state = STATES::WAIT;
   // }
+  // else{
+  //   if (PIDflag){
+  //     for (int i=0; i<numOfJoints; i++){
+  //       joints[i].PIDcontrol();
+  //     }
+  //     PIDflag = false;
+  //   }
+  // }
+  for (int i=0; i<numOfJoints; i++){
+    joints[i].motorPWM2();
+  }
 }
 
 //================================STATE_ASSIGNMENT=======================================
@@ -223,7 +223,7 @@ void stateAssignment(int command){
       if (checkIfWaitState()){
         joints[currJoint].setSetPointFromPot(); //just in the beginning
         joints[currJoint].setEnable(HIGH);
-        loginfo << "run trajectory" << std::flush;
+        // loginfo << "run trajectory" << std::flush;
         state = STATES::RUN_CONTROL;
       }
       break;
@@ -261,10 +261,11 @@ void LiveCallback(ChannelID id, LiveControl2Teensy* msg_IN){
   float torque = msg_IN->torque;
   float angle = msg_IN->angle;
   joints[msg_IN->joint].setSetPoint(angle); //get 0, 1 or 2 for joint from msgIN
+  joints[msg_IN->joint].setTorque(torque);
   LiveControlFromTeensy msgOut;
   msgOut.joint = msg_IN->joint;
-  msgOut.current = torque; //this should return data from the joint
-  msgOut.angle = joints[msg_IN->joint].getPotSetPoint();//readPotentiometer(); //this should return data from the joint
+  msgOut.current = joints[msg_IN->joint].getTorque(); //this should return data from the joint
+  msgOut.angle = (float)(((float)joints[msg_IN->joint].readPotentiometer()-(float)joints[msg_IN->joint].getZeroPot())/potTicksPerRad); //this should return data from the joint
   lcm.publish(ChannelID::LIVE_OUT, &msgOut);
 }
 

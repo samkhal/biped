@@ -13,8 +13,8 @@ warning('off','Drake:RigidBodyManipulator:UnsupportedVelocityLimits')
 
 options.floating = true;
 options.dt = 0.002;
-r = Caminante('urdf/Legs.urdf',options);
-r = r.removeCollisionGroupsExcept({'heel','toe'});
+r = Caminante('urdf/caminante_minimal.urdf',options);
+%r = r.removeCollisionGroupsExcept({'heel','toe'});
 r = compile(r);
 
 r.runBalancingDemo(sim_options);

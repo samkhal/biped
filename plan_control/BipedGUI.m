@@ -66,24 +66,43 @@ axis image
 javaaddpath('/home/gardamerinos/drake-distro/build/install/share/java/lcm.jar')
 javaaddpath('/home/gardamerinos/drake-distro/biped/build/biped_lcm/biped_lcm.jar')
 
-global lc msg aggregator logAggr tableData1 tableData2 teensies indexMap
+global r states_temp torques_temp requested lc msg aggregator logAggr liveResponse_LR liveResponse_LL liveResponse_UR liveResponse_UL tableData1 tableData2 teensies indexMap response infoTable
 
-teensies = containers.Map({0, 1, 2, 3},{'UR_', 'UL_', 'LR_', 'LL_'});
-indexMap = containers.Map({1,2,3,4,5,6,7,8,9,10,11,12},{1,7,2,8,3,9,10,11,12,4,5,6});
+teensies = containers.Map({0, 1, 2, 3},{'UL_', 'UR_', 'LL_', 'LR_'});
+indexMap = containers.Map({1,2,3,4,5,6,7,8,9,10,11,12},{1,2,3,7,8,9,4,5,6,10,11,12});
 lc = lcm.lcm.LCM.getSingleton();
 msg = biped_lcm.commData2Teensy;
 
 aggregator = lcm.lcm.MessageAggregator();
 logAggr = lcm.lcm.MessageAggregator();
+liveResponse_UR = lcm.lcm.MessageAggregator();
+liveResponse_UL = lcm.lcm.MessageAggregator();
+liveResponse_LR = lcm.lcm.MessageAggregator();
+liveResponse_LL = lcm.lcm.MessageAggregator();
 
-for i = 0:1
+for i = 0:3
     value = values(teensies,{i});
     lc.subscribe(strcat(value,'cmd_response'), aggregator);     
     lc.subscribe(strcat(value,'log_msg'), logAggr);
 end     
+lc.subscribe('UR_live_out', liveResponse_UR);
+lc.subscribe('UL_live_out', liveResponse_UL);
+lc.subscribe('LR_live_out', liveResponse_LR);
+lc.subscribe('LL_live_out', liveResponse_LL);
 
 tableData1 = zeros(4,6);
 tableData2 = zeros(4,6);
+response = zeros(3000,12);
+requested = zeros(3000,12);
+torques_temp = zeros(1,10);
+states_temp = zeros(1,10);
+infoTable = cell(1,1);
+
+options.floating = true;
+options.dt = 0.001;
+options.terrain = RigidBodyFlatTerrain;
+r = Caminante('urdf/caminante_minimal_gen.urdf',options);
+r = compile(r);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = BipedGUI_OutputFcn(hObject, eventdata, handles)
@@ -97,11 +116,52 @@ varargout{1} = handles.output;
 
 %=========================FUNCTIONS=======================================
 function checkLogMsgLoop(handles)
-    global logAggr
+    global logAggr infoTable
     msgIN = logAggr.getNextMessage(1); %Wait milliseconds
     if length(msgIN) > 0
         decoded = biped_lcm.log_msg(msgIN.data);
         set(handles.State,'string',strcat('State:  ',char(decoded.msg)));
+        infoTable{end+1} = decoded.msg;
+    end
+    
+% function checkLogMsg2Loop(handles)
+%     global logAggr infoTable
+%     msgIN = logAggr.getNextMessage(5); %Wait milliseconds
+%     if length(msgIN) >= 3
+%         decoded = biped_lcm.log_msg(msgIN.data);
+%         for i = 1:3
+%             infoTable(1,i) = str2num(decoded.msg);
+%         end
+%         set(handles.State,'string',strcat('State:  ',char(mat2string(infoTable))));
+%     end
+    
+function checkLiveResponse(index)
+    global liveResponse_UR liveResponse_UL liveResponse_LR liveResponse_LL response requested
+    for i = 1:3
+        msgIN = liveResponse_UL.getNextMessage(1); %Wait milliseconds
+        if length(msgIN) > 0
+            decoded = biped_lcm.LiveControlFromTeensy(msgIN.data);
+            response(index,decoded.joint+1) = decoded.angle;
+            requested(index,decoded.joint+1) = decoded.current;
+        end
+        msgIN = liveResponse_UR.getNextMessage(1); %Wait milliseconds
+        if length(msgIN) > 0
+            decoded = biped_lcm.LiveControlFromTeensy(msgIN.data);
+            response(index,decoded.joint+4) = decoded.angle;
+            requested(index,decoded.joint+4) = decoded.current;
+        end
+        msgIN = liveResponse_LL.getNextMessage(1); %Wait milliseconds
+        if length(msgIN) > 0
+            decoded = biped_lcm.LiveControlFromTeensy(msgIN.data);
+            response(index,decoded.joint+7) = decoded.angle;
+            requested(index,decoded.joint+7) = decoded.current;
+        end
+        msgIN = liveResponse_LR.getNextMessage(1); %Wait milliseconds
+        if length(msgIN) > 0
+            decoded = biped_lcm.LiveControlFromTeensy(msgIN.data);
+            response(index,decoded.joint+10) = decoded.angle;
+            requested(index,decoded.joint+10) = decoded.current;
+        end
     end
     
 function output = specifyTeensy(joint_num)
@@ -116,7 +176,7 @@ function initialize_Callback(hObject, eventdata, handles)
     joint_num = get(handles.joint_number,'string');
     joint_num = int8(str2num(joint_num));
     msg.command = biped_lcm.commData2Teensy.ID_REQUEST;
-    for i = 0:1
+    for i = 0:3
         teensy = specifyTeensy(i*3+1);
         lc.publish(strcat(teensy,'cmd_in'), msg);  
         msgIN = aggregator.getNextMessage(25); %Wait milliseconds
@@ -220,7 +280,31 @@ global msg lc
 set(handles.State,'string','State: Run Static All');
 joint_num = get(handles.joint_number,'string');
 joint_num = int8(str2num(joint_num));
-for i = 1:2
+livemsg = biped_lcm.LiveControlAll;
+livemsg.num_joints = int8(3);
+livemsg.joint_ids = [1 2 3];
+livemsg.torque = [0 0 0];
+livemsg.angle = [0 0 0];
+lc.publish('live_in',livemsg);
+livemsg = biped_lcm.LiveControlAll;
+livemsg.num_joints = int8(3);
+livemsg.joint_ids = [4 5 6];
+livemsg.torque = [0 0 0];
+livemsg.angle = [0 0 0];
+lc.publish('live_in',livemsg);
+livemsg = biped_lcm.LiveControlAll;
+livemsg.num_joints = int8(3);
+livemsg.joint_ids = [7 8 9];
+livemsg.torque = [0 0 0];
+livemsg.angle = [0 0 0];
+lc.publish('live_in',livemsg);
+livemsg = biped_lcm.LiveControlAll;
+livemsg.num_joints = int8(3);
+livemsg.joint_ids = [10 11 12];
+livemsg.torque = [0 0 0];
+livemsg.angle = [0 0 0];
+lc.publish('live_in',livemsg);
+for i = 1:4
     msg.command = biped_lcm.commData2Teensy.RUN_STATIC_ALL;
     msg.joint = mod(joint_num-1,3);
     teensy = specifyTeensy(i*3);
@@ -259,6 +343,7 @@ livemsg.torque = 0;
 livemsg.angle = joint_angle;
 lc.publish('live_in',livemsg);
 set(handles.State,'string','State: Ready to Proceed');
+checkLogMsgLoop(handles);
 % while true
 %   drawnow()
 %   stop_state = get(handles.stop, 'Value');
@@ -269,6 +354,123 @@ set(handles.State,'string','State: Ready to Proceed');
 % end
 % checkLogMsgLoop(handles);
 
+function PD_Control(i)
+    global lc response requested states_temp torques_temp traj
+%     q_d = [0.9; traj.pos(i*10).l_leg_hpy; traj.pos(i*10).l_leg_kny; traj.pos(i*10).l_leg_aky; traj.pos(i*10).r_leg_akx; traj.pos(i*10).r_leg_hpx; traj.pos(i*10).r_leg_hpy; traj.pos(i*10).r_leg_kny; traj.pos(i*10).r_leg_aky; traj.pos(i*10).r_leg_akx];
+%     dq_d = [0; traj.vel(i*10).l_leg_hpy; traj.vel(i*10).l_leg_kny; traj.vel(i*10).l_leg_aky; traj.vel(i*10).r_leg_akx; traj.vel(i*10).r_leg_hpx; traj.vel(i*10).r_leg_hpy; traj.vel(i*10).r_leg_kny; traj.vel(i*10).r_leg_aky; traj.vel(i*10).r_leg_akx];
+    q_act = [0.9,response(i-1,2:3),response(i-1,7:8),response(i-1,4:6),response(i-1,10:11)]';
+    dq_act = q_act - [0.9,response(i-2,2:3),response(i-2,7:8),response(i-2,4:6),response(i-2,10:11)]';
+%    q_d = zeros(10,1);
+   q_d = [0.3326; -0.6637; 1.2992 ; 
+       -0.5496; -0.0368; 
+       -0.3623; -0.8477; 1.1945; 
+       -0.5977; -0.0014];
+   dq_d = zeros(10,1);
+    
+% %     torques = TorquePD(q_act,q_d,dq_act,dq_d);
+    max_angle = -pi/2.2;
+    period = 133;
+    
+    if (mod(floor(i/period),2) == 0)
+        q_d = [0,0,0,0,0,0,(max_angle*(mod(i,period)/period)),0,0,0]';
+    else
+        q_d = [0,0,0,0,0,0,(max_angle*(1-mod(i,period)/period)),0,0,0]';
+    end 
+    torques = TorquePD([0,response(i-1,2:3),response(i-1,7:8),response(i-1,4:6),response(i-1,10:11)]',q_d,dq_d,dq_d); %We should give specific angles
+    gain = 1;
+    
+%     livemsg = biped_lcm.LiveControlAll;
+%     livemsg.num_joints = int8(3);
+%     livemsg.joint_ids = [10 11 12];
+%     livemsg.torque = [gain*torques(9) torques(10) 0]; 
+%     livemsg.angle = [0 0 0];
+%     % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+%     lc.publish('live_in',livemsg);
+%     livemsg = biped_lcm.LiveControlAll;
+%     livemsg.num_joints = int8(3);
+%     livemsg.joint_ids = [7 8 9];
+%     livemsg.torque = [gain*torques(4) torques(5) 0]; 
+%     livemsg.angle = [0 0 0];
+%     % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+%     lc.publish('live_in',livemsg);
+%     livemsg = biped_lcm.LiveControlAll;
+%     livemsg.num_joints = int8(3);
+%     livemsg.joint_ids = [1 2 3];
+%     livemsg.torque = [1.8 torques(2) torques(3)]; 
+%     livemsg.angle = [0 0 0];
+%     % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+%     lc.publish('live_in',livemsg);
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [4 5 6];
+    livemsg.torque = [-2 torques(7) 0]; 
+    livemsg.angle = [0 0 0];
+    % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+    lc.publish('live_in',livemsg);
+    checkLiveResponse(i);
+    if i == 2983
+        delete(timerfindall);
+        save('response.mat','response');
+        save('requested.mat','requested');
+        save('states_temp.mat','states_temp');
+        save('torques_temp.mat','torques_temp');
+    end
+
+function gravityComp(i)
+    global lc response requested states_temp torques_temp
+    max_angle = pi/4;
+    period = 133;
+    torques = simpleGravComp([0, 0, 0.6010, 0.0001, -0.0028, 0, 0.9,response(i-1,2:3),response(i-1,7:8),response(i-1,4:6),response(i-1,10:11)]'); %We should give specific angles
+%     torques = simpleGravComp([0, 0, 0.6010, 0.0001, -0.0028, 0, 1.842, 0.4699, 0.5599,-0.462, 0.017, -0.2420, -0.3750, 0.6383, -0.4812, 0.0198]'); %We should give specific angles
+
+%     torques = [];
+%     if (mod(floor(i/period),2) == 0)
+%         torques = simpleGravComp([0, 0, 0.6010, 0.0001, -0.0028, 0,response(i-1,1:3),response(i-1,7:8),response(i-1,4),(max_angle*(mod(i,period)/period)),response(i-1,6),response(i-1,10:11)]'); %We should give specific angles
+%     else
+%         torques = simpleGravComp([0, 0, 0.6010, 0.0001, -0.0028, 0,response(i-1,1:3),response(i-1,7:8),response(i-1,4),(max_angle*(1-mod(i,period)/period)),response(i-1,6),response(i-1,10:11)]'); %We should give specific angles
+%     end 
+
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [10 11 12];
+    gain = 1.3;
+    livemsg.torque = [gain*torques(9) gain*torques(10) 0]; 
+    livemsg.angle = [0 0 0];
+    % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+    lc.publish('live_in',livemsg);
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [7 8 9];
+    gain = 1.3;
+    livemsg.torque = [gain*torques(4) gain*torques(5) 0]; 
+    livemsg.angle = [0 0 0];
+    % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+    lc.publish('live_in',livemsg);
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [1 2 3];
+    gain = 1.3;
+    livemsg.torque = [2.5 gain*torques(2) gain*torques(3)]; 
+    livemsg.angle = [0 0 0];
+    % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+    lc.publish('live_in',livemsg);
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [4 5 6];
+    gain = 1.3;
+    livemsg.torque = [gain*torques(6) gain*torques(7) gain*torques(8)]; %-gain*torques(2) -gain*torques(3)
+    livemsg.angle = [0 0 0];
+    % livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+    lc.publish('live_in',livemsg);
+    checkLiveResponse(i);
+    if i == 2983
+        delete(timerfindall);
+        save('response.mat','response');
+        save('requested.mat','requested');
+        save('states_temp.mat','states_temp');
+        save('torques_temp.mat','torques_temp');
+    end
+
 % --- Executes on button press in runAll.
 function runAll_Callback(hObject, eventdata, handles)
 % hObject    handle to runAll (see GCBO)
@@ -278,57 +480,27 @@ global lc msg
 set(handles.State,'string','State: Running Trajectory');
 joint_num = get(handles.joint_number,'string');
 joint_num = int8(str2num(joint_num));
-for i = 1:2
+for j = 1:3
+for i = 0:3
+    livemsg = biped_lcm.LiveControlAll;
+    livemsg.num_joints = int8(3);
+    livemsg.joint_ids = [i*3+1 i*3+2 i*3+3];
+    livemsg.torque = [0 0 0];
+    livemsg.angle = [0 0 0];
+    lc.publish('live_in',livemsg);
+end
+end
+
+for i = 1:4
     msg.command = biped_lcm.commData2Teensy.RUN_ALL_TRAJECTORIES;
     teensy = specifyTeensy(i*3);
     lc.publish(strcat(teensy,'cmd_in'), msg);
 end
-%Need to send live messages
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [1 2 3];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [0.5 -0.5 1.6];
-% lc.publish('live_in',livemsg);
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [4 5 6];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [-1.8 2.2 2.2];
-% lc.publish('live_in',livemsg);
-% pause(10);
-% 
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [1 2 3];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [0.5 -0.5 1.6];
-% lc.publish('live_in',livemsg);
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [4 5 6];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [2 2.2 2.2];
-% lc.publish('live_in',livemsg);
-% pause(10);
-% 
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [1 2 3];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [0.5 -0.5 1.6];
-% lc.publish('live_in',livemsg);
-% livemsg = biped_lcm.LiveControlAll;
-% livemsg.num_joints = int8(3);
-% livemsg.joint_ids = [4 5 6];
-% livemsg.torque = [0 0 0];
-% livemsg.angle = [-2 2.2 -0.8];
-% lc.publish('live_in',livemsg);
 load('/home/gardamerinos/drake-distro/biped/plan_control/traj/12_step_walk_v2.mat')
 global traj;
-trajLength = length(traj.times);
+trajLength = 2983;%length(traj.times);
 global traj_iteration;
-traj_iteration = 1;
+traj_iteration = 2;
 t = timer('TimerFcn', @(x,y) mycallback_fcn,...
     'ExecutionMode', 'fixedRate', 'Period', .015, 'TasksToExecute', trajLength);
 start(t);
@@ -336,23 +508,34 @@ start(t);
 function mycallback_fcn
 global traj_iteration;
 traj_iteration = traj_iteration+1
-sendLiveMsg(traj_iteration);
+% sendLiveMsg(traj_iteration); % use grav_comp instead
+% gravityComp(traj_iteration);
+PD_Control(traj_iteration);
+
 
 function sendLiveMsg( i )
-global traj lc
-stronger = 1.7;
+global traj lc response requested
+stronger = 1;
 livemsg = biped_lcm.LiveControlAll;
 livemsg.num_joints = int8(3);
 livemsg.joint_ids = [1 2 3];
 livemsg.torque = [0 0 0];
-livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
+livemsg.angle = [0 0 0];
+% livemsg.angle = [max(traj.pos(i*10).l_leg_hpx,0)*stronger+0.3 min(traj.pos(i*10).r_leg_hpx,0)*stronger-0.3 -traj.pos(i*10).l_leg_hpy*stronger];
 lc.publish('live_in',livemsg);
 livemsg = biped_lcm.LiveControlAll;
 livemsg.num_joints = int8(3);
 livemsg.joint_ids = [4 5 6];
-livemsg.torque = [0 0 0];
-livemsg.angle = [traj.pos(i*10).r_leg_hpy*stronger traj.pos(i*10).l_leg_kny*stronger traj.pos(i*10).r_leg_kny*stronger];
+livemsg.torque = [-6 0 0];%-i/350
+% livemsg.angle = [traj.pos(i*10).r_leg_hpy*stronger traj.pos(i*10).l_leg_kny*stronger traj.pos(i*10).r_leg_kny*stronger];
+livemsg.angle = [0 0 0];
 lc.publish('live_in',livemsg);
+checkLiveResponse(i);
+if i == 2982
+    delete(timerfindall);
+    save('response.mat','response');
+    save('requested.mat','requested');
+end
 
 
 % --- Executes on button press in stop.
@@ -363,7 +546,7 @@ function stop_Callback(hObject, eventdata, handles)
 global msg lc aggregator
 set(handles.State,'string','State: STOP');
 msg.command = biped_lcm.commData2Teensy.STOP;
-for i = 1:2
+for i = 1:4
     teensy = specifyTeensy(i*3);
     lc.publish(strcat(teensy,'cmd_in'), msg);  
     msgIN = aggregator.getNextMessage(10); %Wait milliseconds

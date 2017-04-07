@@ -25,6 +25,7 @@ void Joint::setSetPoint(float angleSetPoint_){potSetPoint = int(potTicksPerRad*a
 void Joint::setMemoryAddr(JointROM memoryAddr_){memoryAddr = memoryAddr_;}
 void Joint::setDirection(){direction = motorOrientation*potOrientation*potCabling;}
 void Joint::setMotorDrive(int motorDrive_ ){motorDrive = motorDrive_;}
+void Joint::setTorque(float torque_){torque = torque_;}
 
 //Getters
 int Joint::getJointNumber() {return jointNumber;}
@@ -36,6 +37,9 @@ int Joint::getMinTheta() {return minTheta;}
 int Joint::getMaxTheta() {return maxTheta;}
 int Joint::getZeroPot() {return zeroPot;}
 int Joint::getPotSetPoint(){return potSetPoint;}
+float Joint::getAngleSetPoint(){return angleSetPoint;}
+int Joint::getMotorDrive(){return motorDrive;}
+float Joint::getTorque(){return torque;}
 JointROM Joint::getMemoryAddr(){return memoryAddr;}
 
 int Joint::readROM(int address){
@@ -59,11 +63,19 @@ void Joint::writeROM_orientation(){
 }
 
 //Other methods
-int Joint::readPotentiometer(){return analogRead(potPin);}
 void Joint::motorPWM(int drive){analogWrite(motorPin,drive);}
-void Joint::motorPWM2(){analogWrite(motorPin,motorDrive);}
+void Joint::motorPWM2(){analogWrite(motorPin,(int)(motorOrientation*(torque/torqueToDrive)+zeroTorque));}
 void Joint::setEnable(bool state){digitalWrite(enablePin, state);}
 void Joint::setSetPointFromPot(){potSetPoint = readPotentiometer();}
+
+int Joint::readPotentiometer(){
+  if (potOrientation == 1){
+    return analogRead(potPin);
+  }
+  else {
+    return (pow(2,(readResolution))-analogRead(potPin));
+  }
+}
 
 int Joint::PIDcontrol() {
   int Actual = readPotentiometer();
@@ -80,6 +92,7 @@ int Joint::PIDcontrol() {
   }
   motorPWM(Drive); // send PWM command to motor board
   lastPID = Actual;
+  motorDrive = Error;
   return Drive;
 }
 

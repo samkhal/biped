@@ -17,7 +17,7 @@
 using namespace biped_lcm;
 
 typedef ChannelID CID;
-std::vector<std::string> prefixes = {"UR","UL","LR","LL"};
+std::vector<std::string> prefixes = {"UL","UR","LL","LR"};
 std::map<int8_t,int8_t> joint_map = {{1,0}, //Maps joint ids to teensies (index into prefix array)
 									 {2,0},
 									 {3,0},
