@@ -43,4 +43,4 @@ traj.footstep_plan = evalin('base','footstep_plan');
 traj.walking_plan_data = evalin('base','walking_plan_data');
 traj.ytraj = ytraj;
 
-save(['~/biped/traj/' filename], 'traj');
+save(['~/biped/plan_control/traj/' filename], 'traj');

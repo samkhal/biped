@@ -40,7 +40,7 @@
 % ylabel('torque Nm');
 
 
-constant_range = [0 3.08 ; 0 3.08];
+constant_range = [0 0 ; 10 10];
 joints = {'r_leg_kny'};
 foo = @(angle,constants)((angle+constants(1))*constants(2));
 [const savings] = find_optimal_energy_system(traj, foo, constant_range, joints)
