@@ -41,10 +41,11 @@ function best_torques = bestTorquevAngle(joint, traj)
     end
     figure;
     hold on;
-    plot(edges(1:(end-1)),best_torques(:,1),'r')
-    plot(edges(1:(end-1)),best_torques(:,2),'b')
+    plot(edges(1:(end-1)),best_torques(:,1),'r', 'linewidth', 8)
+    plot(edges(1:(end-1)),best_torques(:,2),'b', 'linewidth', 8)
     xlabel('angle rad');
     ylabel('torque Nm');
     title(strcat(joint, 's best input torque v angle'),'Interpreter','none');
     legend( 'negative','positive');
+    set(gca,'fontsize',22);
 end

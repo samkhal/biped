@@ -10,8 +10,8 @@ robot_options = struct( 'use_bullet', true,...
 
 
 % Calculate navgoal for a turning or straight path
-turning_radius = 5;                    
-dist = 1;       
+turning_radius = 0;                    
+dist = 3;       
 goal_yaw = dist/turning_radius;
 goal_y = -turning_radius + turning_radius*cos(goal_yaw);
 goal_x = turning_radius*sin(goal_yaw);
@@ -19,7 +19,7 @@ navgoal_arc = [goal_x;goal_y;0;0;0;-goal_yaw];
 
 navgoal_basic = [dist;0;0;0;0;0];
 walking_options = struct('navgoal', navgoal_basic,...
-                          'max_num_steps', 10);                
+                          'max_num_steps', 50);                
                           
 % silence some warnings
 warning('off','Drake:RigidBodyManipulator:UnsupportedContactPoints')

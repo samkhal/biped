@@ -33,4 +33,15 @@ for i = 1:size(keys,1)
     max_power(i) = max(power(i, :));
     average_power(i) = mean(power(i, :));
 end
+energy_so_far(1) = 0
+for i = 2:size(keys,1)
+    energy_so_far(i) = sum(power(i,:));
+end
+
+plot(energy_so_far)
+
+%for b = 1:size(keys,1)
+%A(b) = mean(power(b, 10500:10952));
+%end
+%sum(A(:))
 end

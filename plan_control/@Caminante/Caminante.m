@@ -335,8 +335,8 @@ classdef Caminante < TimeSteppingRigidBodyManipulator & Biped
                                       'nom_step_width', 0.10,...% m
                                       'max_outward_angle', pi/8,... % rad
                                       'max_inward_angle', 0.01,... % rad
-                                      'nom_upward_step', 0.25,... % m
-                                      'nom_downward_step', 0.25,...% m
+                                      'nom_upward_step', 0.24,... % m
+                                      'nom_downward_step', 0.24,...% m
                                       'max_num_steps', 10,...
                                       'min_num_steps', 1,...
                                       'leading_foot', 1); % 0: left, 1: right
